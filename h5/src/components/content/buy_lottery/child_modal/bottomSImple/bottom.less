@@ -1,0 +1,420 @@
+@rem: 34rem;
+@rem2: 60rem;
+@bg: #f11717;
+.simple-contanier{
+    .chaseNumber{
+        position: fixed;
+        bottom:190px;
+        right: 10px;
+        color: @bg;
+        width: 100/@rem;
+        z-index: 100;
+        width: 90/@rem;
+        height: 120/@rem;
+        padding-top: 100/@rem;
+        background: url(../../../../../resource/images/chaseNumber.png) no-repeat;
+        background-size:80/@rem 94/@rem;
+        font-size: .6rem;
+        z-index: 1000;
+    }
+    .betting-list{
+        padding: 0 20/@rem;
+        &>li{
+            border-bottom: 1px dashed #c3c3c3;
+            line-height: 1.4rem;
+            padding: 10/@rem 12/@rem;
+            min-height: inherit;
+            position: relative;
+            &:last-child{
+             // border-bottom: 0;
+            }
+            .num{
+                color: #ed2c43;
+                font-size: .8rem;
+                word-wrap: break-word;
+            }
+            .info{
+                color: #989899;
+                font-size: .8rem;
+              
+            }
+        }
+        .icon-delete{
+            position: absolute;
+            right: 10/@rem;
+            top: 50%;
+            margin-top: -20/@rem;
+            color: #ec0022;
+            font-size: 40/@rem;
+        }
+  
+    }
+    .bet-info{
+      padding: 16/@rem 32/@rem;
+      color: #999;
+      font-size: .8rem;
+    }
+    .clearCode{
+        text-align: center;
+        color: #989899;
+        height: 90/@rem;
+        line-height: 90/@rem;
+        .iconfont{
+            font-size: 1rem;
+            vertical-align: middle;
+        }
+    }
+    .btn-group{
+      display: flex;
+      .btn{
+        flex: 1;
+       
+      }
+      .tz{
+          background-color: #ec0022;
+          color: #fff;
+      }
+  
+  
+  }
+  
+    .inputCount{
+        display: flex;
+        align-items: center;
+        height: 48/@rem;
+        line-height: 48/@rem;
+        border:1px solid #c3c3c3;
+        color: #989899;
+        border-radius: 5px;
+        background-color: #fff;
+        font-size: 40/@rem;
+        width: 170/@rem;
+        overflow: hidden;
+        text-align: center;
+       .remove{
+           border-right: 1px solid #989899;
+           flex: 1;
+           display: block;
+           color: #989899;
+       } 
+       .in{
+           text-align: center;
+           width: 72/@rem;
+           border:0;
+           color: #989899;
+       }
+       .add{
+           border-left: 1px solid #989899;
+           flex: 1;
+           color: #989899;
+       }
+    }
+    
+    
+    @media screen and (max-width: 320px){
+      .lottery-bottom .eachMoney {
+          font-size: .6rem;
+      }
+  }
+
+
+    .listDlg .icon-close{
+        position: absolute;
+        right: 10px;
+        top: 0;
+        color: #ec0022;
+        font-size: 1.4rem;
+    }
+    .listDlg .d-body{
+        padding: 0 0 1rem 0;
+    }
+    .singleOdds{
+        padding:10px .5rem 0 .5rem;
+        font-size: 12px;
+        word-break: break-all;
+        overflow:hidden; 
+        text-overflow:ellipsis;
+        display:-webkit-box; 
+        -webkit-box-orient:vertical;
+        -webkit-line-clamp:2; 
+        position: relative;
+        max-height:50px;
+        // .tip{
+        //     display: inline-block;
+        // }
+        .moreTip{
+            position: absolute;
+            background: #fff;
+            right: .8em;
+            bottom: .1rem;
+            padding-left: 20px;
+            color: #ec0022;
+            display: none;
+        }
+    }
+    .singleOdds .num{
+        color: #ff6600;
+    }
+    .shadom{
+        position: fixed;
+        left: 0;
+        top:0;
+        bottom:0;
+        right: 0;
+        display: none;
+        z-index: -1;
+    }
+}
+
+.lottery-bottom{
+    font-size: .7rem;
+    color: #898999;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 298;
+    .row{
+       border-top: 1px solid #c3c3c3;
+       background-color: #ffeeee;
+       display: flex;
+       align-items: center;
+       height: 2rem;
+       transition: all .2s;
+       overflow: hidden;
+    }
+    .hideRow{
+        height: 0;
+        border-top: 0;
+    }
+    .tool{
+       display: flex;
+       align-items: center;
+       background-color: #2a2d32;
+       height: 2.5rem;
+       color: #fff;
+       p{
+           color: #fff;
+       }
+       .total{
+           flex: 1;
+           text-align: center;
+           p{
+            font-size: 0.7rem;
+           }
+       }
+       .item{
+          width: 150/@rem;
+          text-align: center;
+          height: 100%;
+          line-height: 2.5rem;
+          .num{
+              position: absolute;
+              color: #fff;
+              font-size: .6rem;
+              background: @bg;
+              text-align: center;
+              border-radius: 100%;
+              width: 36/@rem;
+              height: 36/@rem;
+              line-height: 36/@rem;
+              left: .1rem;
+              top: -0.5rem;
+          }
+          .iconfont{
+              font-size: 1.3rem;
+              vertical-align: middle;
+              margin-right: .2rem;
+              position: relative;
+          }
+       }
+       .jx{
+           background-color: #404247;
+       }
+       .tz{
+           width: 138/@rem;
+           background-color: #ed2c43;
+       }
+       .disabled{
+         color: #fff;
+        background-color: #999;
+       }
+    }
+    .tool-big{
+        .item{
+            width: 170/@rem;
+        }
+    }
+    .current-code{
+       font-size: 26/@rem;
+       padding: 0 16/@rem;
+      .val{
+         flex: 1;
+         padding:0 40/@rem;
+         position: relative;
+         overflow: hidden;
+         height: 1.14rem;
+         .scroll{
+             white-space: nowrap;
+             overflow: hidden;
+             width: 100%;
+             position: relative;
+             &::before,&::after{
+                //content: '';
+                position: absolute;
+                width: 80/@rem;
+                height: 40/@rem;
+                top: 0;
+             }
+             &::before{
+                 left: 0;
+                 background: linear-gradient(left,#ffeeee, transparent);
+                 display: none;
+             }
+             &::after{
+                 right: 0;
+                 background: linear-gradient(right,#ffeeee, transparent)
+             }
+         }
+         .nums{
+            overflow-y: auto;
+             color: @bg; 
+             -webkit-overflow-scrolling: touch;
+             height: 2rem;
+         }
+         .iconfont{
+             position: absolute;
+             color:#ffbe97;
+             top: -2/@rem;
+         }
+         .icon-leftDouble{
+             left: 10/@rem;;
+         }
+         .icon-rightDouble{
+             right:10/@rem;;
+         }
+         i{
+             margin: 0 .08rem;
+             font-style: normal;
+         }
+      }
+      .chose{
+        color: @bg; 
+        .iconfont{
+           font-size: 1rem;
+           vertical-align: middle;
+           margin-right: .1rem;
+        }
+      }
+    }
+    .current-count{
+       padding: 0 14/@rem;
+       .inputCout{
+           margin-right: 20/@rem;
+       }
+       .lb{
+           flex: 1;
+           padding-left: 8/@rem;
+       }
+    }
+    .chase{
+        padding: 0 16/@rem;
+       .in{
+          height: 40/@rem;
+          width: 110/@rem;
+          margin: 0 .2rem;
+          border:1px solid #c3c3c3;
+          padding:0 .2rem;
+          color: #898999;
+          text-align: center;
+       }
+       .mint-checkbox-label{
+           color: #898999;
+           font-size: .7rem;
+           margin-left: 0;
+        
+       }
+       .mint-checklist-label{
+        padding: 0;
+       }
+       .mint-checklist-title{
+           display: none;
+       }
+       .mint-cell-wrapper{
+           padding:0;
+       }
+       .mint-cell{
+           min-height: inherit;
+       }
+       .item{
+           flex: 1.1;
+           text-align: center;
+       }
+       .autoStop{
+           flex: 1
+       }
+    }
+     .mnTypes{
+           display: flex;
+           align-items: center;
+           border: 1px  solid #c3c3c3;
+           background-color: #fff;
+           border-radius: 4px;
+           &>span{
+               flex: 1;
+               text-align: center;
+               height: 48/@rem;
+               width: 48/@rem;
+               line-height: 54/@rem;
+               border-right: 1px solid #c5e3df;
+               font-size: .6rem;
+                   &:last-child{
+                       border-right: 0;
+                   }
+                   &.selected{
+                       color: #fff;
+                       background-color: #ec0022;
+                   }
+           }
+       }
+       .eachMoney{
+          padding-left:16/@rem;
+           .in{
+                height: 40/@rem;
+                width: 110/@rem;
+                margin: 0 .2rem;
+                border:1px solid #c3c3c3;
+                padding:0 .2rem;
+                color: #898999;
+                text-align: center;
+           }
+       }
+     
+}
+
+.guide-page{
+   position: fixed;
+   left: 0;
+   top: 0;
+   bottom: 0;
+   z-index: 1000;
+   background: rgba(0,0,0,.5);
+   display: none;
+   width: 100%; 
+   .ksan-1{
+       position: fixed;
+       width: 360/@rem2;
+       height: 205/@rem2;
+       background: url(../../../../../resource/images/guide/ksan-1.png);
+       background-size: 360/@rem2 205/@rem2;
+   }
+   .ksan-2{
+        position: fixed;
+        right: 2rem;
+        bottom: 2rem;
+        width: 470/@rem2;
+        height: 260/@rem2;
+        background: url(../../../../../resource/images/guide/ksan-2.png);
+        background-size: 470/@rem2 260/@rem2;
+   }
+}

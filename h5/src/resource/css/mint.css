@@ -1,0 +1,155 @@
+#app .mint-swipe-indicator {
+	opacity: 0.5;
+}
+
+#app .mint-swipe-indicator.is-active {
+	opacity: 0.8;
+}
+
+#app .mint-radio-core {
+	width: 0.8rem;
+	height: 0.8rem;
+}
+
+#app .mint-radio-input:checked+.mint-radio-core {
+	background-color: transparent;
+	border-color: #ff7614;
+}
+
+#app .mint-radio-input:checked+.mint-radio-core::after {
+	background-color: #ff7614;
+	width: 0.4rem;
+	height: 0.4rem;
+	top: 0.15rem;
+	left: 0.15rem;
+}
+
+#app .mt-range-runway {
+	border-top-color: #e9eaec;
+	right: -16px;
+}
+
+#app .mt-range-progress {
+	background: #ff7614;
+	border-radius: 1px;
+}
+
+#app .mt-range-runway {
+	right: -15px;
+	border-radius: 1px;
+}
+
+#app .mt-range-content {
+	margin-right: 15px;
+}
+
+#app .mt-range-thumb {
+	background: #ff7614;
+	width: 15px;
+	height: 15px;
+	-webkit-box-shadow: 0 0 0 3px rgba(255, 188, 92, 0.5);
+	box-shadow: 0 0 0 3px rgba(255, 188, 92, 0.5);
+	border-color: #ff7614;
+}
+
+#app .mint-button--default {
+	background: #ec0022;
+	color: #fff;
+}
+
+#app .mint-button--default.is-disabled {
+	color: #fff;
+	background-color: #989899;
+	opacity: 1;
+}
+
+#app .mint-switch-core {
+	width: 48px;
+	height: 24px;
+}
+
+#app .mint-switch-core::before {
+	width: 45px;
+	height: 22px;
+}
+
+#app .mint-switch-core::after {
+	width: 20px;
+	height: 20px;
+}
+
+#app .mint-switch-input:checked+.mint-switch-core {
+	border-color: #ffaa4e;
+	background-color: #ffaa4e;
+}
+
+#app .mint-switch-input:checked+.mint-switch-core::after {
+	background-color: #ff7614;
+}
+
+#app .mint-switch-input:checked+.mint-switch-core::after {
+	-webkit-transform: translateX(24px);
+	transform: translateX(24px);
+}
+
+#app .mint-popup-bottom {
+	width: 100%;
+}
+
+/* #app .mint-popup{
+    width: 90%;
+    border-radius: 6px;
+    padding: 0.5rem;
+} */
+
+#app .mint-datetime {
+	width: 100%;
+	border-radius: 0;
+	padding: 0;
+}
+
+.mint-indicator .mint-indicator-wrapper {
+	z-index: 3000;
+}
+
+.mint-indicator .mint-indicator-mask {
+	z-index: 199;
+}
+
+#app .mint-cell {
+	background: transparent;
+}
+
+#app .mint-cell-wrapper {
+	background-image: none
+}
+
+#app .mint-cell:last-child {
+	background-image: none
+}
+
+.mint-toast {
+	z-index: 3000 !important;
+}
+
+#app .mint-checkbox-input:checked+.mint-checkbox-core {
+	background-color: #ec0022;
+	border-color: #ec0022;
+}
+
+#app .picker-item {
+	color: #a6a6a7;
+}
+
+#app .picker-item.picker-selected {
+	border-bottom: 1px solid #c3c3c3;
+	border-top: 1px solid #c3c3c3;
+	color: #ff7614;
+}
+
+#app .mint-popup-top {
+	width: 100%;
+	text-align: center;
+	background: rgba(0, 0, 0, .4);
+	color: #fff;
+}

@@ -1,0 +1,150 @@
+/* common Lee*/
+
+.dsn {
+    display: none !important;
+}
+
+.dsb {
+    display: block;
+}
+
+.ivu-message {
+    font-size: 14px;
+}
+
+.ivu-message-notice-content {
+    min-width: 240px;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.pointer-not {
+    cursor: not-allowed;
+}
+
+.lee-red {
+    color: #be1204;
+}
+
+.lee-orange {
+    color: #ff7614;
+}
+
+.lee-transition {
+    /* transition:  .3s; */
+}
+
+.fl {
+    float: left;
+}
+
+/* 面包屑 */
+
+.lee-breadcrumb {
+    background-color: #f7f7f7;
+    display: flex;
+    border: 1px solid #e2e2e2;
+    line-height: 29px;
+    margin-top: 9px;
+    flex-wrap: wrap;
+}
+
+.lee-breadcrumb div {
+    background-color: #f7f7f7;
+    padding: 0 8px;
+    position: relative;
+    padding-left: 20px;
+    min-width: 10.9%;
+    border-bottom: 1px solid #e2e2e2;
+    font-size: 12px;
+}
+
+.lee-breadcrumb div::after {
+    position: absolute;
+    content: '';
+    height: 30px;
+    width: 15px;
+    background: url('/configstatic/pc/images/icon.png') -37px -612px no-repeat;
+    top: 0px;
+    right: -14px;
+    z-index: 2;
+}
+
+.lee-breadcrumb div:last-child {
+    background-color: white;
+}
+
+.lee-breadcrumb-last-child-after {
+    position: absolute;
+    z-index: 3;
+    top: 0;
+    right: -14px;
+    height: 100%;
+    background: url('/configstatic/pc/images/icon.png') 0px -612px no-repeat;
+    width: 21px;
+}
+
+.lee-breadcrumb div:first-child {
+    background-color: #be1204;
+    color: white;
+    border-bottom-color: #be1204;
+}
+
+.lee-breadcrumb div:last-child::after {
+    background: url('/configstatic/pc/images/icon.png') 0px -612px no-repeat;
+    width: 15px;
+    right: -8px;
+    top: 0;
+}
+
+.lee-breadcrumb div:first-child::after {
+    background: url('/configstatic/pc/images/icon.png') -72px -612px no-repeat;
+    width: 15px;
+    right: -15px;
+}
+
+.lee-breadcrumb div:first-child::before {
+    position: absolute;
+    content: '';
+    width: 15px;
+    height: 15px;
+    background: url('/configstatic/pc/images/icon.png') -110px -619px no-repeat;
+    left: 3px;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+}
+
+/* 面包屑 */
+
+/* loading */
+
+.demo-spin-icon-load {
+    animation: ani-demo-spin 1s linear infinite;
+}
+
+@keyframes ani-demo-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(180deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.demo-spin-col {
+    height: 100px;
+    position: relative;
+    border: 1px solid #eee;
+}
+
+.ivu-spin-fix {
+    background-color: rgba(255, 255, 255, 0.8)
+}
+
+/* loading */

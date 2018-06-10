@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="x-ua-compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <meta charset="UTF-8">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="stylesheet" href="./down/css/index.css">
+    <script src="./down/js/flexible.js"></script> 
+    <!-- <script src="../js/jquery-1.9.1.min.js"></script> -->
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="../js/swiper.min.js"></script>
+    <title>下载安装</title>
+</head>
+
+<body>
+    <div class="body">
+        <a href="#" class="logo">
+            <img src="/configstatic/h5/images/mb-logo.png" alt="">
+        </a>
+        <img src="./down/images/mobile.png" class="mobile">
+
+        <div class="pc-txt">
+            请用手机访问
+        </div>
+        <div class="btn-wrap btn-wrap-android">
+            <a href="#" class="btn btn-android" id="androidDown">
+                <i></i>下载安装
+            </a>
+
+        </div>
+        <div class="btn-wrap btn-wrap-ios">
+            <a href="" class="btn btn-ios" id="iosDown">
+                <i></i>下载安装
+            </a>
+
+            <a href="#" class="btn btn-az" id="openDlg">
+                <i></i>安装步骤
+            </a>
+        </div>
+    </div>
+    </div>
+    <div class="down-tip" id="iosDownTip">
+        <div class="guild"></div>
+        <p class="tip">请复制该地址，回到桌面</br> 在自带浏览器Safari中，粘贴打开</p>
+    </div>
+
+    <div class="down-tip" id="androidDownTip">
+        <div class="guild"></div>
+        <p class="tip">请复制该地址，回到桌面</br> 在自带浏览器中，粘贴打开</p>
+    </div>
+
+
+    <div class="down-step-dialog">
+        <div class="inner">
+            <i class="close" id="dialogClose"></i>
+            <div class="swiper-container">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <img src="./down/images/step1.jpg" alt="">
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="./down/images/step2.jpg" alt="">
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="./down/images/step3.jpg" alt="">
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="./down/images/step4.jpg" alt="">
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="./down/images/step5.jpg" alt="">
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="./down/images/step6.jpg" alt="">
+                    </div>
+                </div>
+                <!-- 如果需要分页器 -->
+                <div class="swiper-pagination"></div>
+
+            </div>
+        </div>
+
+    </div>
+</body>
+
+<script>
+    $(function () {
+
+        var slideInit = false,
+            ua = window.navigator.userAgent.toLowerCase();
+            isIos = /(iphone|ipad|ipod|ios)/i.test(ua),
+            isAndroid = /(android)/i.test(ua),
+            isWx = /(micromessenger)/i.test(ua),
+            isDown = false,
+            iosUrl = 'itms-services://?action=download-manifest&url=https://www.xw-cp.com/app/tg.plist', //苹果下载地址
+            androidUrl = 'https://cdn.admintao.com/lottery.apk'; //安卓下载地
+
+        if (isPC()) { // pc端 
+            $('.pc-txt').show();
+        }
+        getDownUrl();
+
+        function getDownUrl(){
+            $.ajax({
+                url: '/nPpoNA/75999J_MuiLiftPannel1/lb-zebra-148799-667863.OTHER_14561689118972_708026/B.category2016012.1.66144265nPpoNA',
+                type: 'get',
+                dataType: 'json',
+                data: {}
+            }).done(function (res) {
+                if (res.code != 0) return;
+                iosUrl = res.data.ios;
+                androidUrl = res.data.android;
+            }).fail(function () {
+                alert('服务器超时，请重试！');
+            });
+        }
+         
+        $('#iosDown').click(function () {
+            if (isWx) {
+                $('#iosDownTip').show()
+                return false;
+            } else if (/uc/i.test(navigator.userAgent.toLowerCase())) { // uc浏览器
+                $('#iosDownTip').show()
+                return false;
+            } else {
+                $('#iosDown').attr('href',iosUrl + '?' + Math.random()); //加随机数 防止缓存问题
+            }
+           
+        })
+
+        $('#androidDown').click(function () {
+            if (isWx) {
+                $('#androidDownTip').show(); //android提示
+            } else {
+                window.location.href = androidUrl + '?' + Math.random(); //加随机数 防止缓存问题
+            }
+            return false
+          
+        })
+
+        if (isIos) {
+            $('.btn-wrap-ios').show();
+        } else if (isAndroid) {
+            $('.btn-wrap-android').show();
+        }
+
+        function downApp() { //下载app
+            if (isIos) {
+                window.location.href = iosUrl + '?' + Math.random(); //加随机数 防止缓存问题
+            } else if (isAndroid) {
+                window.location.href = androidUrl + '?' + Math.random(); //加随机数 防止缓存问题
+            }
+        }
+
+
+        $('.down-tip').click(function () {
+            $('.down-tip').hide();
+        })
+
+        $('#openDlg').click(function () {
+            $('.down-step-dialog').show();
+            setTimeout(function () {
+                if (!slideInit) {
+                    var mySwiper = new Swiper('.swiper-container', {
+                        loop: true,
+                        // 如果需要分页器
+                        pagination: {
+                            el: '.swiper-pagination',
+                        },
+                    })
+                    slideInit = true;
+                }
+            });
+        })
+        $('#dialogClose').click(function () {
+            $('.down-step-dialog').hide();
+        })
+
+
+        function isPC() {
+            var userAgentInfo = navigator.userAgent;
+            var Agents = ["Android", "iPhone",
+                "SymbianOS", "Windows Phone",
+                "iPad", "iPod"
+            ];
+            var flag = true;
+            for (var v = 0; v < Agents.length; v++) {
+                if (userAgentInfo.indexOf(Agents[v]) > 0) {
+                    flag = false;
+                    break;
+                }
+            }
+            return flag;
+        }
+
+    })
+</script>
+
+</html>

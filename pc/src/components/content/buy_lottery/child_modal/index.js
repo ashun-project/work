@@ -1,0 +1,46 @@
+import liuhe from './liuhe/liuhe.vue'
+import shared from './shared/shared.vue'
+import pcEgg from './pc_egg/pc_egg.vue'
+
+export default Object.assign({}, {
+    'pk10': shared,
+    'ssc': shared,
+    'ksan': shared,
+    '11x5': shared,
+    'qtcp': shared,
+    'fc3d': shared,
+    'pcdd': pcEgg,
+    '6hc': liuhe
+    // '17': liuhe,
+    // '20': liuhe,
+    // '2': pcEgg,
+    // '19': pcEgg,
+    // '1': shared,
+    // '7': shared,
+    // '8': shared,
+    // '3': shared,
+    // '12': shared,    
+    // '4': shared,
+    // '11': shared,
+    // '16': shared,
+    // '18': shared,
+    // '6': shared,       
+    // '9': shared,
+    // '13': shared,
+    // '14': shared,
+    // '15': shared,
+    // '5': shared,
+    // '10': shared,
+    // '21': shared,
+    // '22': shared,
+    // '23': shared,
+    // '24': shared,
+    // '25': shared,
+    // '26': shared,
+    // '27': shared,
+    // '28': shared,
+    // '29': shared,
+    // '30': shared,
+    // '31': shared,
+    // '32': shared
+})

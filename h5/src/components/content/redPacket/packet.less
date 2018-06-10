@@ -1,0 +1,77 @@
+.packet{
+    .dialog{
+        z-index: 201;
+        position:fixed;
+        left: 50%;
+        margin-left: -340/@rem;
+        top: 50%;
+        margin-top: -300/@rem;
+        width: 680/@rem;
+        height: 600/@rem;
+        background-size: 680/@rem 600/@rem;
+        .close{
+            position: absolute;
+            right: 80/@rem;
+            top: 30/@rem;
+            width: 50/@rem;
+            height: 50/@rem;
+            background: url(../../../resource/images/redPacket/order.png) no-repeat;
+            background-size: 200/@rem 200/@rem;
+            background-position: 0 -62/@rem;
+        }
+        .dlg-body{
+            text-align: center;
+          
+       }
+    }
+    .packet-dlg2{
+        background-image: url(../../../resource/images/redPacket/dlg-bg2.png);
+        .dlg-name{
+            margin-top: 80/@rem;
+            text-align: center;
+            color: #795548;
+            font-size: 28/@rem;
+         }
+        .dlg-body{
+            width: 300/@rem;
+            margin: 50/@rem auto;
+            .tip{
+              color:#795548;
+              font-size: 18/@rem;
+            }
+            .rule-btn{
+               position: absolute;
+               bottom: 90/@rem;
+               left: 0;
+               width: 100%;
+               text-align: center;
+               color: #fff;
+               font-size: 28/@rem;
+               width: 200/@rem;
+               left: 50%;
+               margin-left: -100/@rem;
+            }
+       }
+     
+    }
+}
+.packet-shadow{
+    position:absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,.5);
+    z-index: 200;
+ }
+
+ .packet-dlg-tx{
+    background-image: url(../../../resource/images/redPacket/tx-success.png);
+    background-size: 600/@rem 503/@rem;
+ }
+
+@media screen and (max-width: 320px) {
+    .packet .cont{
+        margin-top: -25rem;
+    }
+}
