@@ -1,0 +1,35 @@
+2018/06/02 15:46:01 [warn] 54432#56384: server name "http://192.168.3.169" has suspicious symbols in D:\work\nginx-1.13.6/conf/nginx.conf:75
+2018/06/02 15:46:01 [notice] 54432#56384: signal process started
+2018/06/02 15:46:01 [warn] 57128#57308: server name "http://192.168.3.169" has suspicious symbols in D:\work\nginx-1.13.6/conf/nginx.conf:75
+2018/06/02 15:46:30 [notice] 52696#59256: signal process started
+2018/06/02 15:47:39 [error] 59352#59904: *15 upstream timed out (10060: A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond) while connecting to upstream, client: 192.168.3.169, server: localhost, request: "GET / HTTP/1.1", upstream: "http://192.168.1.169:8383/", host: "192.168.3.169:8686"
+2018/06/02 15:48:40 [error] 59352#59904: *15 upstream timed out (10060: A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond) while connecting to upstream, client: 192.168.3.169, server: localhost, request: "GET /favicon.ico HTTP/1.1", upstream: "http://192.168.1.169:8383/favicon.ico", host: "192.168.3.169:8686", referrer: "http://192.168.3.169:8686/"
+2018/06/03 10:56:02 [notice] 199316#199320: signal process started
+2018/06/03 10:59:56 [notice] 199240#199232: signal process started
+2018/06/03 11:03:55 [emerg] 200492#200496: "proxy_pass" cannot have URI part in location given by regular expression, or inside named location, or inside "if" statement, or inside "limit_except" block in D:\work\nginx-1.13.6/conf/nginx.conf:85
+2018/06/03 11:04:23 [notice] 199532#198688: signal process started
+2018/06/03 11:11:06 [emerg] 201464#201468: "proxy_pass" cannot have URI part in location given by regular expression, or inside named location, or inside "if" statement, or inside "limit_except" block in D:\work\nginx-1.13.6/conf/nginx.conf:92
+2018/06/03 11:12:35 [emerg] 198304#196028: "proxy_pass" cannot have URI part in location given by regular expression, or inside named location, or inside "if" statement, or inside "limit_except" block in D:\work\nginx-1.13.6/conf/nginx.conf:92
+2018/06/03 11:12:58 [emerg] 201208#201188: "proxy_pass" cannot have URI part in location given by regular expression, or inside named location, or inside "if" statement, or inside "limit_except" block in D:\work\nginx-1.13.6/conf/nginx.conf:92
+2018/06/03 11:14:42 [notice] 201316#199348: signal process started
+2018/06/03 11:16:04 [emerg] 201384#199316: "proxy_pass" cannot have URI part in location given by regular expression, or inside named location, or inside "if" statement, or inside "limit_except" block in D:\work\nginx-1.13.6/conf/nginx.conf:92
+2018/06/03 11:16:16 [notice] 200616#201636: signal process started
+2018/06/03 11:16:16 [error] 200616#201636: CreateFile() "D:\work\nginx-1.13.6/logs/nginx.pid" failed (2: The system cannot find the file specified)
+2018/06/03 11:17:44 [notice] 202216#202220: signal process started
+2018/06/03 11:18:27 [notice] 202720#202724: signal process started
+2018/06/03 11:19:04 [emerg] 201620#201124: "proxy_pass" cannot have URI part in location given by regular expression, or inside named location, or inside "if" statement, or inside "limit_except" block in D:\work\nginx-1.13.6/conf/nginx.conf:92
+2018/06/03 11:20:20 [emerg] 200896#202300: "proxy_pass" cannot have URI part in location given by regular expression, or inside named location, or inside "if" statement, or inside "limit_except" block in D:\work\nginx-1.13.6/conf/nginx.conf:92
+2018/06/03 11:20:20 [alert] 202432#202436: worker process 200896 exited with code 1
+2018/06/03 11:20:20 [alert] 202432#202436: could not respawn worker
+2018/06/03 11:20:29 [emerg] 201108#201484: "proxy_pass" cannot have URI part in location given by regular expression, or inside named location, or inside "if" statement, or inside "limit_except" block in D:\work\nginx-1.13.6/conf/nginx.conf:92
+2018/06/03 11:20:43 [emerg] 202488#202500: "proxy_pass" cannot have URI part in location given by regular expression, or inside named location, or inside "if" statement, or inside "limit_except" block in D:\work\nginx-1.13.6/conf/nginx.conf:92
+2018/06/06 16:00:50 [notice] 237820#237824: signal process started
+2018/06/06 16:00:50 [emerg] 237100#232368: bind() to 0.0.0.0:8822 failed (10013: An attempt was made to access a socket in a way forbidden by its access permissions)
+2018/06/06 16:25:35 [error] 232848#232188: *170 upstream timed out (10060: A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond) while connecting to upstream, client: 192.168.251.158, server: localhost, request: "GET / HTTP/1.1", upstream: "http://192.168.1.169:8899/", host: "192.168.3.169:8822"
+2018/06/06 16:26:05 [notice] 241652#241220: signal process started
+2018/06/28 16:01:56 [notice] 51524#51272: signal process started
+2018/07/06 11:53:46 [notice] 15276#24644: signal process started
+2018/07/14 19:39:24 [notice] 83276#83280: signal process started
+2018/07/14 19:39:41 [error] 83300#83328: *9 upstream prematurely closed connection while reading response header from upstream, client: 192.168.3.169, server: localhost, request: "GET /api/36.63.115.127 HTTP/1.1", upstream: "http://117.25.139.23:80/36.63.115.127", host: "192.168.3.169:8822", referrer: "http://192.168.3.169:8822/index2.html"
+2018/07/14 19:40:24 [notice] 82120#19668: signal process started
+2018/07/14 19:41:59 [notice] 83388#20908: signal process started
