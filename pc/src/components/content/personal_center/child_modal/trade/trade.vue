@@ -1,13 +1,13 @@
 <template>
     <div class="my-account">
-        <div class="tab">
+        <!-- <div class="tab">
             <ul>
                 <li v-for="item in tabList" :key="item.label" @click="label = item.label" :class="{active: label === item.label}">
                     <span>{{item.name}}</span>
                     <i v-if="item.interval"></i>
                 </li>
             </ul>
-        </div>
+        </div> -->
         <div class="account-content">
             <recharge v-if="label === 'trade_recharge'"></recharge>
             <withdraw v-if="label === 'trade_withdraw'"></withdraw>
@@ -28,7 +28,7 @@ export default {
             label: this.$route.params.label || 'trade_recharge',
             tabList: [
                 { name: '充值记录', label: 'trade_recharge', interval: true },
-                { name: '提现记录', label: 'trade_withdraw' }
+                // { name: '提现记录', label: 'trade_withdraw' }
             ]
         }
     },
@@ -68,6 +68,6 @@ export default {
     background: #c0c0c0;
 }
 .account-content {
-    padding-top: 15px;
+    padding-top: 12px;
 }
 </style>

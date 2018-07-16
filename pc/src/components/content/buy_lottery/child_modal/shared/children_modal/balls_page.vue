@@ -178,6 +178,7 @@ export default {
             if (result.len || result.len === 0) len = result.len;
             // if (layout.playType === '2') odds = result;             // 处理多赔率 5.5
             if (layout.rates.length > 1) odds = result; //处理多赔率 5.5
+            // console.log({ len: len, balls: balls, odds: odds });
             this.$emit('get-balls', { len: len, balls: balls, odds: odds });
         },
         // 手动输入选号
@@ -259,6 +260,7 @@ export default {
             // console.log(this.currentLottery.layout);
             this.data = JSON.parse(JSON.stringify(this.currentLottery));
             this.data.layout = JSON.parse(this.data.layout);
+            // console.log(this.data.layout);
             this.type = this.data.layout.format;
             this.selectedBalls = [];
             this.ballList = [];
@@ -318,7 +320,7 @@ export default {
 .num-list li label {
     width: 105px;
     height: 27px;
-    line-height: 27px;
+    line-height: 23px;
     border: 1px solid @balls-page-labe-border;
     font-size: 14px;
     float: left;
@@ -331,6 +333,7 @@ export default {
     float: left;
     margin-top: 11px;
     text-align: center;
+    margin-bottom: 5px;
 }
 .num-list li .all-balls {
     float: left;

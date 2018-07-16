@@ -3,7 +3,7 @@
         <div class='sub-nav'>
             <router-link to='/home'>首页</router-link>
             <span>></span>
-            <router-link :to='news.id'>资讯列表</router-link>
+            <router-link :to='newsListPath'>咨询列表</router-link>
             <span>></span>
             <span>资讯详情</span>
         </div>
@@ -49,14 +49,15 @@ export default {
             prefixTitle: '',
             suffixTitle: '',
             newsData: [],
-            nodeDemo: null
+            nodeDemo: null,
+            newsListPath: (sessionStorage.getItem('newsView') || '/newsList/announce')
         }
     },
     watch: {
         '$route' () {
             let vm = this;
             let { essayId, type, itemIndex, url } = this.getInitParams();
-            this.$http.post(url, { id: essayId }).then(response => {
+            this.$http.post(url, { id: essayId }, { unenc: true }).then(response => {
                 if (response.data.code !== 0) return;
                 let data = response.data.data;
                 vm.setData(data.title, data.content, data.createDate, data.type, type);
@@ -84,14 +85,14 @@ export default {
         getNewsDetail () {
             let vm = this;
             let { essayId, type, itemIndex, url } = this.getInitParams();//id,news,undefined,url 
-            this.$http.post(url, { id: essayId }).then(response => {
+            this.$http.post(url, { id: essayId }, { unenc: true }).then(response => {
                 if (response.data.code !== 0) return;
                 let data = response.data.data;
                 vm.setData(data.title, data.content, data.createDate, data.type, type);
                 if (vm.newsData.length === 0) {
                     let jumpUrl = type === 'announce' ? '/api/v2/cms/queryAnnounceEssayList' : '/api/v2/cms/queryAdvisoryEssayList';
                     let newType = type === 'skills' ? '03' : '01';
-                    vm.$http.post(jumpUrl, { "type": newType, "current": 1, "size": 10 }).then(newresponse => {
+                    vm.$http.post(jumpUrl, { "type": newType, "current": 1, "size": 10 }, { unenc: true }).then(newresponse => {
                         vm.newsData = newresponse.data.data.list;
                         vm.setPrefixAndSuffiTitleInfo(vm.newsData, itemIndex, type, essayId);
                     })

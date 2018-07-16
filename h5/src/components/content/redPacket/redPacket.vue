@@ -8,7 +8,7 @@
             </my-header>
             <div class="body scroll-wrap" ref="packet">
                 <div class="banner">
-                    <img src="/configstatic/h5/images/banner-bg.jpg" alt="">
+                    <img src="@/resource/images/redPacket/banner-bg.jpg" alt="">
                 </div>
                 <div class="cont">
                     <div class="times-wrap">
@@ -242,7 +242,7 @@ export default {
 
         window.localStorage.setItem('loginClientType', this.clientType);
 
-        this.$http.post('/api/v2/user/redpacketSetting/info', [], { loading: 2 }).then(response => { // 查询活动信息
+        this.$http.post('/api/v2/user/redpacketSetting/info', [], { loading: 2, noEncrypt: true }).then(response => { // 查询活动信息
             if (response.data.code !== 0) return;
             let data = response.data.data, vm = this, clock;
             this.activityRuleDetail = data.activityRuleDetail;
@@ -383,9 +383,9 @@ export default {
     background-color: #fff;
 }
 .packet-dlg {
-    background-image: url(/configstatic/h5/images/dlg-bg1.png);
+    background-image: url(../../../resource/images/redPacket/dlg-bg1.png);
     .dlg-body {
-        padding-top: 210 / @rem;
+        padding-top: 240 / @rem;
         .money {
             font-size: 40 / @rem;
             color: #d31212;

@@ -34,12 +34,13 @@ export default {
     },
     methods: {
         escapeHtml (str) {
+            if (!str) return '';
             var arrEntities = { 'lt': '<', 'gt': '>', 'nbsp': ' ', 'amp': '&', 'quot': '"' };
             return str.replace(/&(lt|gt|nbsp|amp|quot);/ig, function (all, t) { return arrEntities[t]; });
         },
         getDetail (receive) {
             let vm = this;
-            this.$http.post('/api/v2/cms/queryDiscountActivityById', { resourceId: this.$route.params.id }, { loading: true }).then(response => {
+            this.$http.post('/api/v2/cms/queryDiscountActivityById', { resourceId: this.$route.params.id }, { loading: true, noEncrypt: true }).then(response => {
                 if (response.data.code !== 0) return;
                 vm.txt = vm.escapeHtml(response.data.data.content);
                 vm.data = response.data.data;

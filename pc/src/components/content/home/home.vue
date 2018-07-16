@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import banner from './banner'
+import banner from './BannerLee'
 import list from './ListLee'
 import fastBetting from './fast_betting'
 import qrNotice from './qr_notice'

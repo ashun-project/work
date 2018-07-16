@@ -102,6 +102,13 @@
                         提现记录
                     </span>
                 </li>
+
+                <li class="mycenter-list-li" @click="gopage('/userReport',true)">
+                    <i class="my-icondl"></i>
+                    <span class="t-grey-666">
+                        个人报表
+                    </span>
+                </li>
                 <li class="mycenter-lee-li6 mycenter-list-li" v-if="user.userCode && user.userType =='10'" @click="gopage('/agencyCenter',true, true)">
                     <i class="my-icon-dl"></i>
                     <span class="t-grey-666">
@@ -194,11 +201,6 @@ export default {
             return this.$store.state.onLineServicer;
         }
     },
-    filters: {
-        keepDecimalOf2 (val) {
-            return val ? val.toFixed(2) : "0.00";
-        }
-    },
     methods: {
         gopage (url, flag, agent) {
             if (flag) {
@@ -232,7 +234,7 @@ export default {
                 return false
             }
 
-            this.$http.post('/api/v2/user/getUserPayPwd', '', { userId: true }).then(response => {
+            this.$http.post('/api/v2/user/getUserPayPwd', '', { userId: true, noEncrypt: true }).then(response => {
                 if (response.data.code !== 0) return;
                 if (response.data.data.payPwdFlag != "1") {
                     this.popupVisible = true;
@@ -265,7 +267,7 @@ export default {
         },
         queryBalanceAdnSign () {
             if (!this.user.userCode) return;
-            this.$http.post('/api/v2/user/balanceAdnSign', '', { userId: true }).then(response => {
+            this.$http.post('/api/v2/user/balanceAdnSign', '', { userId: true, noEncrypt: true }).then(response => {
                 if (response.data.code !== 0) return;
 
                 let data = response.data.data;
@@ -510,6 +512,10 @@ export default {
     background-image: url(../../../resource/images/my-icon-dl.png);
     /* background-position: 3px center; */
 }
+.mycenter .mycenter-list ul li .my-icondl {
+    background-image: url(../../../resource/images/my-dl.jpg);
+    background-size: 22px;
+}
 .mycenter .mycenter-list ul li .my-icon12 {
     background-image: url(../../../resource/images/my-icon12.png);
     /* background-size: 16px; */
@@ -647,13 +653,11 @@ export default {
     padding-bottom: 10px;
     width: 33%;
     text-align: center;
-}
-.mycenter .mycenter-list ul li:nth-child(3n-1) {
-    border-left: 1px solid #efeff5;
     border-right: 1px solid #efeff5;
-}
-.mycenter .mycenter-list ul li:nth-child(n) {
     border-bottom: 1px solid #efeff5;
+}
+.mycenter .mycenter-list ul li:nth-child(3n) {
+    border-right: 0;
 }
 
 .mycenter .mycenter-list ul li i {

@@ -44,6 +44,11 @@
                         <Icon type="android-phone-portrait" slot="prepend"></Icon>
                         </Input>
                     </FormItem>
+                    <FormItem prop="wechat" v-if="otherData.wechat.show">
+                        <Input type="text" :value="formCustom.wechat" @input="formCustom.wechat=arguments[0].replace(/\s+/g,'')" :placeholder="otherData.wechat.need? '请输入微信号（必填）' : '请输入微信号（选填）'">
+                        <Icon type="chatbubbles" slot="prepend"></Icon>
+                        </Input>
+                    </FormItem>
                     <FormItem prop="email" v-if="otherData.email.show">
                         <Input type="text" v-model="formCustom.email" :placeholder="otherData.email.need? '请输入邮箱（必填）' : '请输入邮箱（选填）'">
                         <Icon type="ios-email" slot="prepend"></Icon>
@@ -62,7 +67,7 @@
                         </Input>
                     </FormItem>
                     <FormItem prop="checkCode" class="valida">
-                        <Input type="text" v-model="formCustom.checkCode" placeholder="验证码" @on-enter="handleSubmit('formCustom')">
+                        <Input type="text" v-model="formCustom.checkCode" placeholder="验证码" @on-enter="handleSubmit('formCustom')" @on-focus='refreshCheckCode()'>
                         <Icon type="social-snapchat" slot="prepend"></Icon>
                         </Input>
                         <img class="valida-code" :src='imageCode' @click='getImageCode'>
@@ -87,64 +92,117 @@
 import encryption from '@/components/common/module_js/md5';
 import { ruleFn } from '@/components/common/module_js/rule.js';
 import agree from '@/components/common/module_vue/agree.vue';
+import { getConfigList } from '@/components/common/module_js/getConfig.js';
 export default {
     components: { agree },
     data () {
         const validaName = (rule, value, callback) => { //用户名
-            let result = ruleFn.isUserName(value, callback);
-            this.showUserCodeTip = result;
+            // let result = ruleFn.isUserName(value, callback);
+            // this.showUserCodeTip = result;
+            let flag = false;
+            if (!value) {
+                callback(new Error('请输入用户名'));
+            } else if (/[^A-Za-z0-9]/g.test(value)) {
+                callback(new Error('请输入数字和字母'));
+            } else if (value.length < 6 || value.length > 12) {
+                callback(new Error('用户名在六至十二位之间'));
+            } else {
+                callback();
+                flag = true;
+            }
+            this.showUserCodeTip = flag;
         }
         const validatePass = (rule, value, callback) => { //密码
-            let result = ruleFn.isPassWord(value, this.formCustom.passwdCheck, this.$refs.formCustom.validateField, 'passwdCheck', callback);
-            this.showPasswordTip = result;
+            // let result = ruleFn.isPassWord(value, this.formCustom.passwdCheck, this.$refs.formCustom.validateField, 'passwdCheck', callback);
+            // this.showPasswordTip = result;
+            let flag = false;
+            if (!value) {
+                callback(new Error('请输入密码'));
+            } else if (/[^A-Za-z0-9]/g.test(value)) {
+                callback(new Error('请输入数字和字母'));
+            } else if (value.length < 6 || value.length > 14) {
+                callback(new Error('密码在六至十四位之间'));
+            } else {
+                if (this.formCustom.passwdCheck) {
+                    this.$refs.formCustom.validateField('passwdCheck');
+                }
+                callback();
+                flag = true;
+            }
+            this.showPasswordTip = flag;
         };
         const validatePassCheck = (rule, value, callback) => { //确认密码
-            let result = ruleFn.checkPassWord(value, this.formCustom.password, callback);
+            // let result = ruleFn.checkPassWord(value, this.formCustom.password, callback);
+            if (!value) {
+                callback(new Error('请输入密码'));
+            } else if (value !== this.formCustom.password) {
+                callback(new Error('两次输入的密码不一致'));
+            } else {
+                callback();
+            }
         };
         const validateAgree = (rule, value, callback) => { //同意协议
-            ruleFn.isAgree(value, callback);
+            if (!value) {
+                callback(new Error('请勾选我同意'));
+            } else {
+                callback();
+            }
         }
         const fundNumber = (rule, value, callback) => {  // 只能输入数字
             if (this.otherData.phone.need && !value) {
-                callback(new Error('请填写您的手机号码'));
-                return;
+                callback(new Error('请输入您的手机号码'));
+            } else if (value && !/^1(\d){10}$/.test(value)) {
+                callback(new Error('手机号码输入有误'));
+            } else {
+                callback();
             }
-            ruleFn.isPhoneNumber(value, callback);
         }
         const validRealName = (rule, value, callback) => {
-            if (!this.otherData.realName.need && !value) {
-                callback()
+            if (this.otherData.realName.need && !value) {
+                callback('请输入您的姓名')
+            } else if (value && !/^[\u4e00-\u9fa5]+((·|•)?[\u4e00-\u9fa5]+)$/.test(value)) {
+                callback('姓名输入有误');
+            } else if (value && (value.length < 2 || value.length > 12)) {
+                callback('姓名输入有误');
             } else {
-                ruleFn.isRealName(value, callback)
+                callback();
             }
         }
         const validIdcard = (rule, value, callback) => {
-            if (!this.otherData.idCard.need && !value) {
-                callback()
+            if (this.otherData.idCard.need && !value) {
+                callback(new Errrow('请输入您的身份证号码'))
+            } else if (value && !/^((\d){14}|(\d){17})(\d|x|X)$/.test(value)) {
+                callback(new Error('身份证号码输入有误'))
             } else {
-                ruleFn.isFundIdcard(value, callback)
+                callback();
             }
         }
         const validEmail = (rule, value, callback) => {
             if (this.otherData.email.need && !value) {
-                callback(new Error('请填写您的邮箱'))
-            } else if (value) {
-                let emailRule = /^[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?$/;
-                if (!emailRule.test(value)) {
-                    callback(new Error('邮箱号码填写有误'))
-                } else {
-                    callback()
-                }
+                callback(new Error('请输入您的邮箱'))
+            } else if (value && !/^[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?$/.test(value)) {
+                callback(new Error('邮箱号码输入有误'))
             } else {
-                callback()
+                callback();
             }
         }
         const validQQ = (rule, value, callback) => {
             if (this.otherData.qq.need && !value) {
-                callback(new Error('请填写您的QQ号码'));
-                return;
+                callback(new Error('请输入您的QQ号码'));
+            } else if (value && !/^\d{5,16}$/.test(value)) {
+                callback(new Error('QQ号码输入有误'))
+            } else {
+                callback();
             }
-            ruleFn.isFundQQ(value, callback);
+        }
+        const validWechat = (rule, value, callback) => {
+            if (this.otherData.wechat.need && !value) {
+                callback(new Error('请输入您的微信号'));
+            } else if (value && !/^[-_a-zA-Z0-9]{5,20}$/.test(value)) {
+                callback(new Error('5-20个字符,字母、数字、下划线和-'));
+            } else {
+                callback();
+            }
         }
         return {
             showUserCodeTip: true,
@@ -155,7 +213,8 @@ export default {
                 idCard: '',
                 phone: '',
                 email: '',
-                qq: ''
+                qq: '',
+                wechat: ''
             },
             imageCode: '/api/v2/user/captcha.jpg',  //图形验证码
             urlExp: false,
@@ -172,7 +231,8 @@ export default {
                 phone: '',
                 idCard: '',
                 email: '',
-                qq: ''
+                qq: '',
+                wechat: ''
             },
             modal1: false,
             expandCodeMust: false,
@@ -186,9 +246,6 @@ export default {
                 passwdCheck: [
                     { validator: validatePassCheck, trigger: 'blur' }
                 ],
-                /* expandCode: [
-                     { required: this.expandCodeMust, message: '请输入邀请码', trigger: 'blur' }
-                ], */
                 checkCode: [
                     { required: true, message: '请输入验证码', trigger: 'blur' }
                 ],
@@ -211,16 +268,28 @@ export default {
                 ],
                 qq: [
                     { validator: validQQ, trigger: 'blur' }
+                ],
+                wechat: [
+                    { validator: validWechat, trigger: 'blur' }
                 ]
             }
         }
     },
-    computed: {
-        configList () {
-            return this.$store.state.configList;
-        },
-    },
+    // computed: {
+    //     configList () {
+    //         return this.$store.state.configList;
+    //     },
+    // },
     methods: {
+        refreshCheckCode () {
+            //获取焦点刷新验证码
+            // this.isActive = 3
+            if (this.hasRefreshChode) {
+                return
+            }
+            this.getImageCode()
+            this.hasRefreshChode = true
+        },
         getImageCode () {
             this.imageCode = `/api/v2/user/captcha.jpg?d=${new Date().getTime()}`;
         },
@@ -274,16 +343,18 @@ export default {
     created () {
         this.getSpreadCode();
         let vm = this;
-        for (let content of this.configList) {
-            if (content.key === 'REGISTER_NEED_EXPEND_CODE') { //非资讯包
-                vm.expandCodeMust = content.value; // "1"--必填 或 "0"--非必填
-            } else if (content.key === 'REGISTER_COLUMN') {
-                let obj = JSON.parse(content.value);
-                for (var k in obj) {
-                    vm.$set(vm.otherData, k, obj[k])
+        getConfigList().then(res => { //获取配置
+            for (let content of res) {
+                if (content.key === 'REGISTER_NEED_EXPEND_CODE') { //非资讯包
+                    vm.expandCodeMust = content.value; // "1"--必填 或 "0"--非必填
+                } else if (content.key === 'REGISTER_COLUMN') {
+                    let obj = JSON.parse(content.value);
+                    for (var k in obj) {
+                        vm.$set(vm.otherData, k, obj[k])
+                    }
                 }
             }
-        }
+        })
         // this.$http.post('/api/v2/sysDict/querySystemConfig').then(response => { //邀请码是否必填
         //     if (response.data.code !== 0) return;
         //     let data = response.data.data;
@@ -359,14 +430,11 @@ export default {
     height: 34px;
     width: auto;
     cursor: pointer;
-    z-index: 1000;
+    z-index: 2;
 }
 .register-page .cont .commit-register {
     height: 44px;
-    /* line-height: 33px; */
     font-size: 18px;
-    /* background: #be1204;
-        border-color: #be1204; */
 }
 .register-page .cont .commit-register:hover {
     background-color: @commit-register-hover-color;
@@ -375,9 +443,6 @@ export default {
 .register-page .cont .agree .ivu-form-item-error-tip {
     padding-top: 0;
 }
-/* .register-page .cont .agree .ivu-modal{
-        width:520px;
-    } */
 .register-page .agree .ivu-modal p {
     width: 100%;
 }

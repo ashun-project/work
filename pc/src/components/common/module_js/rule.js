@@ -15,7 +15,7 @@ const str = /^[\u4e00-\u9fa5]+((·|•)?[\u4e00-\u9fa5]+)$/;
 
 
 export const ruleFn = {
-	isUserName(value, callback) { //用户名
+	isUserName (value, callback) { //用户名      //注册页
 		if (!value) {
 			callback(new Error("请输入用户名"));
 			return false
@@ -30,7 +30,7 @@ export const ruleFn = {
 			return true
 		}
 	},
-	isPassWord(value, checkVal, checkPassWord, ruleText, callback) { //密码
+	isPassWord (value, checkVal, checkPassWord, ruleText, callback) { //密码     //注册页写了  
 		if (!value) {
 			callback(new Error("请输入密码"));
 			return false
@@ -51,7 +51,7 @@ export const ruleFn = {
 			return true
 		}
 	},
-	checkPassWord(value, checkVal, callback) { //确认密码
+	checkPassWord (value, checkVal, callback) { //确认密码   //注册页写了
 		if (!value) {
 			callback(new Error('请再次输入密码'));
 		} else if (value !== checkVal) {
@@ -60,21 +60,21 @@ export const ruleFn = {
 			callback();
 		}
 	},
-	isAgree(value, callback) { //同意协议
+	isAgree (value, callback) { //同意协议       //注册页写了
 		if (!value) {
 			callback(new Error('请勾选我同意'));
 		} else {
 			callback();
 		}
 	},
-	isOldPassWord(value, callback) { //验证旧密码
+	isOldPassWord (value, callback) { //验证旧密码  //个人中心写了
 		if (!value) {
 			callback(new Error("请输入旧密码"));
 		} else {
 			callback();
 		}
 	},
-	isFundPassWord(value, checkVal, checkFundPassWord, ruleText, callback) { //验证资金密码
+	isFundPassWord (value, checkVal, checkFundPassWord, ruleText, callback) { //验证资金密码
 		if (!value) {
 			callback(new Error('请输入新密码'));
 		} else if (!regNum.test(value)) {
@@ -89,7 +89,7 @@ export const ruleFn = {
 			callback();
 		}
 	},
-	checkFundPassWord(value, checkVal, callback) { //核对资金密码
+	checkFundPassWord (value, checkVal, callback) { //核对资金密码
 		if (!value) {
 			callback(new Error("请再次输入密码"));
 		} else if (!regNum.test(value)) {
@@ -100,7 +100,7 @@ export const ruleFn = {
 			callback();
 		}
 	},
-	isRealName(value, callback) { //验证真实姓名
+	isRealName (value, callback) { //验证真实姓名     //注册页改了
 		if (!value) {
 			callback(new Error("请输入姓名"));
 			// this.$Message.info('请输入姓名')
@@ -113,28 +113,28 @@ export const ruleFn = {
 			callback();
 		}
 	},
-	isPhoneNumber(value, callback) {
+	isPhoneNumber (value, callback) {    //注册页改了
 		if (!phone.test(value) && value) {
 			callback(new Error("手机号码填写有误"));
 		} else {
 			callback();
 		}
 	},
-	isFundNumber(value, callback) { // 只能输入数字
+	isFundNumber (value, callback) { // 只能输入数字      
 		if (!regNum.test(value) && value) {
 			callback(new Error("只能输入数字"));
 		} else {
 			callback();
 		}
 	},
-	isFundQQ(value, callback) {
+	isFundQQ (value, callback) { //注册页写了
 		if (!regQQ.test(value) && value) {
 			callback(new Error("QQ号码填写有误"));
 		} else {
 			callback();
 		}
 	},
-	isFundIdcard(value, callback) {
+	isFundIdcard (value, callback) { //注册页写了
 		var regIdNo = /^((\d){14}|(\d){17})(\d|x|X)$/;
 		if (!value) {
 			callback(new Error("请填写身份证号"));

@@ -3,7 +3,7 @@
         <div class="search">
             <div class="selectWay">
                 <Select v-model="data.rechargeType">
-                    <Option v-for="(item,idx) in menuList" :value="item.itemValue" :key="item.itemValue">{{ item.itemKey }}</Option>
+                    <Option v-for="item in menuList" :value="item.itemValue" :key="item.itemValue">{{ item.itemKey }}</Option>
                 </Select>
             </div>
             <div class="datetext">起始日期：</div>
@@ -43,41 +43,34 @@ export default {
             },
             columns: [
                 {
-                    title: '订单号',
-                    key: 'userRechargeId',
-                    width: 192
+                    title: '交易时间',
+                    key: 'tradeTime',
+                    width: 150
                 },
                 {
-                    title: '充值状态',
-                    key: 'rechargeTypeDesc',
-                    width: 132
+                    title: '交易类型',
+                    key: 'tradeTypeDesc',
+                    width: 103
                 },
                 {
-                    title: '充值金额',
-                    key: 'totalFee',
+                    title: '交易描述',
+                    key: 'tradeDesc',
+                    width: 260
+                },
+                {
+                    title: '收支情况',
+                    key: 'amount',
+                    width: 110,
+                    render: (h, params) => {
+                        return h('span', Number(params.row.amount).toFixed(3))
+                    }
+                },
+                {
+                    title: '余额',
+                    key: 'userBalance',
                     width: 136,
                     render: (h, params) => {
-                        return h('span', Number(params.row.totalFee).toFixed(2))
-                    }
-                },
-                {
-                    title: '充值日期',
-                    key: 'createTime',
-                    width: 187,
-                    render: (h, params) => {
-                        return h('span', params.row.createTime)
-                    }
-                },
-                {
-                    title: '状态',
-                    key: 'statusDesc',
-                    width: 95,
-                    render: (h, params) => {
-                        return h('span', {
-                            style: {
-                                color: "#be1204"
-                            }
-                        }, params.row.statusDesc)
+                        return h('span', params.row.userBalance.toFixed(2))
                     }
                 }
             ]
@@ -100,21 +93,23 @@ export default {
                     endTime = dateUtil.getFormatDate(this.data.rechargeTime[1]);
                 }
             }
-            this.$http.post('/api/v2/user/queryRechargeList', { current: page, startTime: startTime, endTime: endTime, rechargeTypeArray: this.data.rechargeType == '' ? [] : [this.data.rechargeType] }, { userId: true }).then(response => {
-                // console.log(response);
+            //账户明细
+            this.$http.post('/api/v2/user/queryBalanceDetailList', { current: page, startTime: startTime, endTime: endTime, tradeTypeArray: this.data.rechargeType == '' ? [] : [this.data.rechargeType] }, { userId: true, unenc: true }).then(response => {
                 if (response.data.code !== 0) return;
                 this.pageParams.currentPage = page;
-                this.rechargeList = response.data.data.rechargeList;
+                this.rechargeList = response.data.data.balanceDetailList;
                 this.pageParams.total = response.data.data.total;
             })
         }
     },
     created () {
         this.queryRechargeList(1);
-        this.$http.post('/api/v2/sysDict/queryItemList', { 'dictName': 'RECHARGE_TYPE' }).then(response => {
+        // TRADE_TYPE
+        // RECHARGE_TYPE
+        this.$http.post('/api/v2/sysDict/queryItemList', { 'dictName': 'TRADE_TYPE' }).then(response => {
             if (response.data.code !== 0) return;
             let list = response.data.data.itemList;
-            list.unshift({ itemKey: '充值状态', itemValue: '' });
+            list.unshift({ itemKey: '交易类型', itemValue: '' });
             this.menuList = list;
         })
     }
@@ -146,6 +141,9 @@ export default {
     width: 66px;
 }
 .trecharge .table {
-    margin-top: 13px;
+    margin-top: 14px;
+}
+.trecharge .page-wrapper {
+    margin-top: 25px;
 }
 </style>

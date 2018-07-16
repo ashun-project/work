@@ -92,7 +92,7 @@
                     <strong>玩法提示</strong>
                 </span>
             </div>
-            <my-dialog v-model="showTip" class="tip-modal" title="玩法规则" btnSure="" btnCancle="">
+            <my-dialog v-model="showTip" class="tip-modal ui-dialog-red" title="玩法规则" btnSure="" btnCancle="">
                 <div v-for="item in tipContent" :key="item.key" class="tip-info">
                     <i class="iconfont" :class="item.icon"></i>
                     <h3>{{item.name}}</h3>
@@ -234,7 +234,7 @@ export default {
             this.showTab = false;
         },
         getCurrentLottery (id) {
-            this.$http.post('/api/v2/lottery/queryPlayLayoutByBettingId', { lotteryId: this.$route.params.id, lotteryPlayId: id }, { loading: 1 }).then(response => {
+            this.$http.post('/api/v2/lottery/queryPlayLayoutByBettingId', { lotteryId: this.$route.params.id, lotteryPlayId: id }, { loading: 1, noEncrypt: true }).then(response => {
                 if (response.data.code !== 0) return;
                 let data = response.data.data;
                 this.currentLottery = data;
@@ -243,6 +243,7 @@ export default {
         },
         getMaxOdd (max) {  // 获取最大赔率 
             this.maxOdds = max;
+            this.showMoreTip = false
             setTimeout(() => {
                 if (this.$refs.playTip.clientHeight > 51) {
                     this.showMoreTip = true
@@ -303,7 +304,7 @@ export default {
             }
             this.setDocument(false)
             this.showAllLottery = false;
-            this.$http.post('/api/v2/lottery/getLotteryDetailV2', { lotteryId: this.$route.params.id }, { loading: true }).then(response => {
+            this.$http.post('/api/v2/lottery/getLotteryDetailV2', { lotteryId: this.$route.params.id }, { loading: true, noEncrypt: true }).then(response => {
                 let data = response.data.data;
                 let list = data.lotteryPlayList;
                 vm.currentLottery = data.defaulPlay;
@@ -333,7 +334,7 @@ export default {
     },
     created () {
         this.init();
-        this.$http.post('/api/v2/lottery/queryLotteryList', { lotteryType: null }).then(response => {
+        this.$http.post('/api/v2/lottery/queryLotteryList', { lotteryType: null }, { noEncrypt: true }).then(response => {
             let data = response.data.data.lotteryTypeList;
             this.allLotteryList = data.filter(item => item.lotteryType === '-2')[0].lotteryList;
             let currentLottery = this.allLotteryList.find(item => item.lotteryId === this.$route.params.id);
@@ -544,17 +545,6 @@ export default {
 </style>
 
 <style lang="less">
-.buy-lottery .tip-modal {
-    width: 90%;
-    border-radius: 6px;
-    padding: 0;
-}
-.buy-lottery .tip-modal .head {
-    color: #fff;
-    background-color: #ec0022;
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
-}
 .buy-lottery .tip-modal .d-body {
     padding: 1rem;
     padding-left: 2rem;

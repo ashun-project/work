@@ -59,7 +59,7 @@ export default {
     created () {
         let firstTime = sessionStorage.getItem('firstTime');
         if (firstTime) return;
-        this.$http.post('/api/v2/cms/queryAnnounceEssayList', { type: '03' }).then(response => {
+        this.$http.post('/api/v2/cms/queryAnnounceEssayList', { type: '03' }, { unenc: true }).then(response => {
             if (response.data.code !== 0) return;
             // console.log(response.data.data);
             this.list = response.data.data.list;

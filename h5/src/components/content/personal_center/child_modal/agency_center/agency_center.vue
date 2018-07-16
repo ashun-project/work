@@ -16,7 +16,7 @@
           </div>
           <div class="info">
             <p class="name">{{user.userCode}}</p>
-            <p class="money">¥{{user.balance && user.balance.toFixed(2)}}元</p>
+            <p class="money">¥{{ user.balance | keepDecimalOf2}}元</p>
           </div>
         </div>
         <ul class="agent-list">
@@ -44,12 +44,7 @@
               代理佣金
             </span>
           </li>
-          <li class="item" @click="gopage('/agencyCenter/teamReport?type=1')">
-            <i class="my-icon6"></i>
-            <span class="t-grey-666 lf">
-              个人报表
-            </span>
-          </li>
+
           <!--   <li class="item" @click="gopage('/agencyCenter/teamReport')">
             <i class="my-icon5"></i>
             <span class="t-grey-666 lf">

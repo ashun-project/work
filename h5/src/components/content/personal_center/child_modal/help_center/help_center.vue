@@ -39,12 +39,12 @@ export default {
     },
     created () {
         // 获取指导列表
-        this.$http.post('/api/v2/cms/queryHelpCenterByIdGuideList', { id: '3' }).then(response => {
+        this.$http.post('/api/v2/cms/queryHelpCenterByIdGuideList', { id: '3' }, { noEncrypt: true }).then(response => {
             if (response.data.code !== 0) return;
             this.list = response.data.data;
         });
         // 获取指导列表
-        this.$http.post('/api/v2/cms/queryAdvisoryEssayList', { type: '05', size: 5 }).then(response => {
+        this.$http.post('/api/v2/cms/queryAdvisoryEssayList', { type: '05', size: 5 }, { loading: true, noEncrypt: true }).then(response => {
             if (response.data.code !== 0) return;
             this.questionList = response.data.data.list;
         });

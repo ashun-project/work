@@ -51,7 +51,7 @@ export default {
         }
     },
     created () {
-        this.$http.post('/api/v2/cms/queryHelpCenterByNameGuideList', { name: '常见问题' }).then(response => {
+        this.$http.post('/api/v2/cms/queryHelpCenterByNameGuideList', { name: '常见问题' }, { unenc: true }).then(response => {
             if (response.data.data === 1) return
             this.helpContent = response.data.data;
             this.helpContent.forEach(item => {

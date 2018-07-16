@@ -14,6 +14,9 @@
             <li @click="selectType('本周')">
                 <span>本周</span>
             </li>
+            <li @click="selectType('上周')">
+                <span>上周</span>
+            </li>
             <li @click="selectType('本月')">
                 <span>本月</span>
             </li>
@@ -35,23 +38,33 @@ export default {
         }
     },
     methods: {
+        reset () {
+            this.typeListShow = false;
+            this.currentTxt = '今天';
+        },
         selectType (type) {
             this.typeListShow = false;
             this.currentTxt = type;
             let obj = {};
             let days = 0;
             let currentDate = new Date();
+            let currentDay = currentDate.getDay();
             obj.endTime = dateUtil.getFormatDate(currentDate);
+            if (currentDay === 0) currentDay = 7;
             switch (type) {
                 case '今天':
                     days = 0;
                     break;
                 case '昨天':
                     days = 1;
-                    obj.endTime = dateUtil.getFormatDate(new Date(currentDate.getTime() - days * 24 * 3600 * 1000));
+                    obj.endTime = dateUtil.getFormatDate(currentDate.getTime() - days * 24 * 3600 * 1000);
                     break;
                 case '本周':
-                    days = currentDate.getDay() - 1;
+                    days = currentDay - 1;
+                    break;
+                case '上周':
+                    obj.endTime = dateUtil.getFormatDate(currentDate.getTime() - currentDay * 24 * 3600 * 1000);
+                    days = currentDay + 6;
                     break;
                 case '本月':
                     days = currentDate.getDate() - 1;
@@ -66,9 +79,7 @@ export default {
                     days = 0;
                     break;
             }
-            obj.startTime = dateUtil.getFormatDate(
-                new Date(currentDate.getTime() - days * 24 * 3600 * 1000)
-            );
+            obj.startTime = dateUtil.getFormatDate(currentDate.getTime() - days * 24 * 3600 * 1000);
             this.$emit('get-history-select', obj)
         }
     }

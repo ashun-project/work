@@ -14,7 +14,7 @@
             <!-- 中奖提示说明 -->
             <!-- 玩法说明 -->
             <div class='tip-wrap'>
-                <play-tip :playDesc="playTipInfo.playDesc" :maxOdd="maxOdd" :isLiuHe="true" :hasLogin="!!user.userId"></play-tip>
+                <play-tip :playDesc="playTipInfo.playDesc" :tip="playTipInfo.layout.tips && playTipInfo.layout.tips" :maxOdd="maxOdd" :isLiuHe="true" :hasLogin="!!user.userId"></play-tip>
             </div>
             <!-- 玩法说明结束 -->
         </div>

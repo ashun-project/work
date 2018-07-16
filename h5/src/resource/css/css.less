@@ -154,6 +154,9 @@ img{
 .t-red {
 	color: #f00 !important;
 }
+.t-green {
+	color: #008000 !important;
+}
 .ui-inner{
     padding:0 30/@rem;
 }
@@ -199,11 +202,11 @@ img{
 		background: transparent;
 		border: 1px solid #bdbdbd;
 		padding: 0 1.5rem;
-		height: 1.5rem;
-		line-height: 1.5rem;
+		// height: 1.5rem;
+		line-height: 0.9rem;
 		border-radius: 0.2rem;
-		white-space: nowrap;
-		text-overflow: ellipsis;
+		// white-space: nowrap;
+		// text-overflow: ellipsis;
 		color: #666;
 		margin-left: 10/@rem;
 		margin-bottom: 16/@rem;
@@ -300,7 +303,7 @@ img{
 .vux-pop-in-enter-active,
 .vux-pop-in-leave-active {
 	will-change: transform;
-	transition: transform 1ms 300ms;
+	transition: transform  300ms;
 	height: 100%; 
 	width: 100%;
 	top: 0;
@@ -312,7 +315,7 @@ img{
 	background-color: #fff;
 	.vuxPop-header{
 		position: absolute;
-		transition: all 1ms 300ms;
+		transition: all  300ms;
 		left:0;
 		opacity: 1;
 		z-index: 9999;
@@ -417,7 +420,10 @@ img{
     align-content: center;
     background: #fff;
     z-index: 91;
-    border-bottom: 1px solid #f3f3f3;
+	border-bottom: 1px solid #f3f3f3;
+	.ui-select-type{
+		margin-right: 0;
+	}
 }
 .ui-search-from-to input {
 	flex: 1;
@@ -495,4 +501,118 @@ img{
 
 .disable-img{
 	filter: grayscale(100%)!important;    
+}
+
+/* 号码球颜色 begin*/
+.ui-list-balls > span {
+    float: left;
+    display: block;
+    text-align: center;
+    margin-right: 0.1rem;
+}
+.ui-list-balls > span.liuhe {
+    width: 1rem;
+    margin-right: 0.2rem;
+    line-height: 18px;
+}
+.ui-list-balls > span i {
+    font-size: 0.6rem;
+}
+.ui-list-balls > span.liuhe .ball {
+    width: 1rem;
+    height: 1rem;
+    line-height: 1rem;
+}
+ .ui-list-balls .ball {
+    display: inline-block;
+    width: 1.2rem;
+    height: 1.2rem;
+    line-height: 1.24rem;
+    background: #d11606;
+    color: #fff;
+    text-align: center;
+    border-radius: 50%;
+    font-size: 0.7rem;
+}
+.ui-list-balls .symbol {
+    display: inline-block;
+    line-height: 1.24rem;
+}
+/* 号码球颜色 end*/
+
+
+.ui-bank-card{
+	display: flex;
+	align-items: center;
+	padding: 0.8rem 0;
+	border: 1px solid #eee;
+	border-radius: 6px;
+	margin-top: 0.6rem;
+	margin-bottom: .5rem;
+	background-color: #fff;
+	.img {
+		width: 3rem;
+		border-radius: 50%;
+		padding-right: 0.75rem;
+		padding-left: 0.5rem;
+		float: none;
+	}
+	.img-wrap{
+		width: 2.1rem;
+		height: 2.1rem;
+		background: #f1f1f1;
+		border-radius: 50%;
+		text-align: center;
+		line-height: 2.1rem;
+		margin-right: 0.75rem;
+		margin-left: 0.5rem;
+		i{
+			font-size: 1.3rem;
+			color: #999;
+		}
+	}
+	.cont {
+		flex: 1;
+	}
+	.row {
+		display: flex;
+		align-items: center;
+	}
+	.bankName {
+		font-size: 34 / @rem;
+		flex: 1;
+		margin-right: 20 / @rem;
+	}
+	.bankNo {
+		font-size: 0.8rem;
+		color: #757575;
+		flex: 2;
+	}
+	.openBankName {
+		flex: 1;
+		font-size: 26 / @rem;
+		color: #989898;
+		margin-right: 20 / @rem;
+	}
+	.real-name {
+		flex: 2;
+		font-size: 26 / @rem;
+		color: #989898;
+	}
+	&.card-created{
+		text-align: center;
+		padding: 1.5rem 0;
+		justify-content: center;
+		.icon-jia{
+			display: inline-block;
+			width: 25px;
+			height: 25px;
+			border-radius: 50%;
+			border: 1px solid #eee;
+			text-align: center;
+			line-height: 25px;
+			color: #e62c2c;
+			margin-right: 5px;
+		}
+	}
 }

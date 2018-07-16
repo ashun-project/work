@@ -191,7 +191,7 @@
                     </div>
                     <div class="yhk-button">
                         <Button type="primary" class="buttonback" size="large" @click="enteryhkback()">返回</Button>
-                        <Button type="error" :disabled="flagForOnlineBank && (bankListIndex == -1) " class="buttonnext" size="large" @click="enteryhkNext()">确认</Button>
+                        <Button type="error" :disabled="flagForOnlineBank && (bankListIndex == -1)" class="buttonnext" size="large" @click="enteryhkNext()">确认</Button>
                     </div>
                 </div>
                 <div class="clr"></div>
@@ -230,7 +230,8 @@ export default {
             flagForOnlineBank: false, //网银支付
             onLineBankList: [], //线上支付银行列表
             bankListIndex: -1,
-            bankId: 0
+            bankId: 0,
+            hasMoreClick: false
         };
     },
     watch: {
@@ -262,11 +263,16 @@ export default {
             this.$Message.success("复制成功");
         },
         enteryhkNext () {
+            if (this.hasMoreClick) { //阻止连续点击
+                return
+            }
+            this.hasMoreClick = true;
             let params = {
                 totalFee: this.money
             };
             if (this.money > this.maxMoney || this.money < this.minMoney) {
                 this.$Message.error(`金额只能输入${this.minMoney}-${this.maxMoney}之间`);
+                this.hasMoreClick = false;
                 return;
             }
             // 银行卡线下
@@ -304,6 +310,7 @@ export default {
                 var newWindow = window.open();
             }
             this.$http.post("/api/v2/user/recharge", params, { userId: true }).then(response => {
+                this.hasMoreClick = false;
                 if (response.data.code !== 0) return;
                 response.data.money = this.money;
                 response.data.currentData = this.currentData;
@@ -313,7 +320,11 @@ export default {
                     response.data.data.content = this.currentData.accountImgUrl;
                 }
                 if (this.flagForOnlineBank) {
-                    newWindow.document.write(response.data.data.content)
+                    if (response.data.data.type === "2") {
+                        newWindow.location.href = response.data.data.content
+                    } else if (response.data.data.type === "3") {
+                        newWindow.document.write(response.data.data.content)
+                    }
                     this.$emit("get-back-status", response.data, "01");
                 } else {
                     this.$emit("get-back-status", response.data);

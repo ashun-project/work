@@ -38,7 +38,7 @@ export default {
     },
     methods: {
         queryDiscountActivityList () {
-            this.$http.post('/api/v2/cms/queryDiscountActivityList', { frontType: 'h5' }, { loading: true }).then(response => {
+            this.$http.post('/api/v2/cms/queryDiscountActivityList', { frontType: 'h5' }, { loading: true, noEncrypt: true }).then(response => {
                 if (response.data.code !== 0) return;
                 this.list = response.data.data.list;
             })

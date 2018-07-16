@@ -92,7 +92,7 @@ export default {
         if (index !== undefined) {
             this.questionIndex = Number(index);
         }
-        this.$http.post('/api/v2/cms/queryHelpCenterByIdGuideList', { id: '3' }).then(response => {
+        this.$http.post('/api/v2/cms/queryHelpCenterByIdGuideList', { id: '3' }, { unenc: true }).then(response => {
             if (response.data.data === 1) return
             this.helpList = response.data.data;
         })

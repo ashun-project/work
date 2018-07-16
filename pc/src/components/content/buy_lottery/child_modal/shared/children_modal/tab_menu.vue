@@ -88,9 +88,10 @@ export default {
             this.getData(item);
         },
         getData (item) {
-            this.$http.post('/api/v2/lottery/queryPlayLayoutByBettingId', { lotteryId: this.$route.params.id, lotteryPlayId: item.lotteryPlayId }).then(response => {
+            this.$http.post('/api/v2/lottery/queryPlayLayoutByBettingId', { lotteryId: this.$route.params.id, lotteryPlayId: item.lotteryPlayId }, { unenc: true }).then(response => {
                 if (response.data.code !== 0) return
                 this.currentSub = response.data.data; //数据里layout不为空
+                // console.log(this.currentSub);
                 this.$emit('get-currentLottery', this.currentSub);
             })
         }

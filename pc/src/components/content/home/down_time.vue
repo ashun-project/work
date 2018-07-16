@@ -40,7 +40,7 @@ export default {
                     return;
                 }
             }
-            vm.$http.post('/api/v2/lottery/queryLotteryRecordList', { lotteryId: this.id, num: 1 }).then(response => {
+            vm.$http.post('/api/v2/lottery/queryLotteryRecordList', { lotteryId: this.id, num: 1 }, { unenc: true }).then(response => {
                 if (response.data.code !== 0) {
                     vm.getData();
                     return;

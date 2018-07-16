@@ -43,7 +43,6 @@
 </template>
 
 <script>
-import ball from "@/components/common/module_vue//ball";
 import Util from "@/components/common/module_js/util";
 import simpleBottom from "../../bottomSImple/bottom.vue";
 export default {
@@ -75,7 +74,6 @@ export default {
         };
     },
     components: {
-        ball,
         simpleBottom
     },
     computed: {

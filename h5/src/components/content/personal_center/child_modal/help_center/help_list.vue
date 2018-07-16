@@ -27,13 +27,13 @@ export default {
     created () {
         if (this.$route.params.id === '00') {
             // 获取常见问题列表
-            this.$http.post('/api/v2/cms/queryAdvisoryEssayList', { type: '04' }).then(response => {
+            this.$http.post('/api/v2/cms/queryAdvisoryEssayList', { type: '04' }, { noEncrypt: true }).then(response => {
                 if (response.data.code !== 0) return;
                 this.list = response.data.data.list;
             });
         } else {
             // 获取指导的问题列表
-            this.$http.post('/api/v2/cms/queryHelpCenterByNameGuideList', { name: this.$route.params.id }).then(response => {
+            this.$http.post('/api/v2/cms/queryHelpCenterByNameGuideList', { name: this.$route.params.id }, { noEncrypt: true }).then(response => {
                 if (response.data.code !== 0) return;
                 this.list = response.data.data;
             });

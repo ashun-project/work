@@ -88,7 +88,7 @@ export default {
                 }
             }
             params.current = page;
-            this.$http.post('/api/v2/user/queryUserMessage', params, { userId: true }).then(response => {
+            this.$http.post('/api/v2/user/queryUserMessage', params, { userId: true, unenc: true }).then(response => {
                 if (response.data.code !== 0) return;
                 let data = response.data.data;
                 vm.datas = data.messageList;

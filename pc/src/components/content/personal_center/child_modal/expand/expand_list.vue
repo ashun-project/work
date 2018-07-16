@@ -53,7 +53,7 @@
                         <span>
                             <font color="ff7614">{{'('+((expandInfo.bonusGroupName-expandInfo.minBonusGroupName)/20).toFixed(1)+'%) '+Number(expandInfo.bonusGroupName).toFixed(0)}}</font>
                         </span>
-                        <div class="slider">
+                        <div class="slider" v-if="bonusGroup[0]!=bonusGroup[1]">
                             <span color="ff7614">{{bonusGroup[0]}} ({{((groupName.min-expandInfo.minBonusGroupName)/20).toFixed(1)}}%)</span>
                             <Slider :value="groupName.max" :min="groupName.min" :max="groupName.max" :step="groupName.step" @on-input="changeGroupName" :tip-format="showProgress"></Slider>
                             <span>{{bonusGroup[1]}} ({{((groupName.max-expandInfo.minBonusGroupName)/20).toFixed(1)}}%)</span>
@@ -245,7 +245,8 @@ export default {
             this.detailFlag = true;
             this.title = "修改邀请码";
 
-            var user = JSON.parse(localStorage.getItem('user'));
+            // var user = JSON.parse(localStorage.getItem('user'));
+            var user = this.$store.state.user
             this.$set(this.groupName, 'min', Number(user.minBonusGroupName));
             this.$set(this.groupName, 'max', Number(user.bonusGroupName));
 
@@ -258,7 +259,8 @@ export default {
             this.title = "创建新邀请码";
             this.$set(this.expandInfo, 'expandId', null);
 
-            var user = JSON.parse(localStorage.getItem('user'));
+            // var user = JSON.parse(localStorage.getItem('user'));
+            var user = this.$store.state.user
             this.$set(this.groupName, 'min', Number(user.minBonusGroupName));
             this.$set(this.groupName, 'max', Number(user.bonusGroupName));
 
@@ -323,7 +325,7 @@ export default {
                     endTime = dateUtil.getFormatDate(this.data.updateTime[1]);
                 }
             }
-            this.$http.post('/api/v2/user/queryUserExpandList', { current: page, startTime: startTime, endTime: endTime }, { userId: true }).then(response => {
+            this.$http.post('/api/v2/user/queryUserExpandList', { current: page, startTime: startTime, endTime: endTime }, { userId: true, unenc: true }).then(response => {
                 if (response.data.code !== 0) return;
                 this.pageParams.currentPage = page;
                 this.expandList = response.data.data.expandList;
@@ -335,7 +337,7 @@ export default {
             this.$set(this.expandInfo, 'bonusGroupName', val);
         },
         createExpandCode () {
-            this.$http.post('/api/v2/user/randomExpand', {}, { userId: true }).then(response => {
+            this.$http.post('/api/v2/user/randomExpand', {}, { userId: true, unenc: true }).then(response => {
                 if (response.data.code !== 0) return;
                 this.expandInfo.expandCode = response.data.data.expand;
                 this.expandCodeSize = this.expandInfo.expandCode.length;

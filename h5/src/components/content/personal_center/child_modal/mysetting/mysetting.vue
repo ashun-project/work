@@ -9,15 +9,13 @@
                         <span>通用</span>
                     </dt>
                 </dl>
-                <dl class="" @click="gopage('/aboutme')">
+                <dl class="dl2">
                     <dt class="">
-                        <span class="p-l-15">关于我们</span>
+                        <span class="p-l-15">高级投注模式</span>
                     </dt>
-                </dl>
-                <dl class="" @click="gopage('/feedback', true)">
-                    <dt class="">
-                        <span class="p-l-15">意见反馈</span>
-                    </dt>
+                    <dd>
+                        <mt-switch @change="setBettingModal" v-model="highBettingModal"></mt-switch>
+                    </dd>
                 </dl>
                 <dl class="dl2" v-if="showRedpacket">
                     <dt class="">
@@ -27,13 +25,15 @@
                         <mt-switch @change="toggleRedPacket" v-model="isOpenRedPaket"></mt-switch>
                     </dd>
                 </dl>
-                <dl class="dl2">
+                <dl class="" @click="gopage('/feedback', true)">
                     <dt class="">
-                        <span class="p-l-15">高级投注模式</span>
+                        <span class="p-l-15">意见反馈</span>
                     </dt>
-                    <dd>
-                        <mt-switch @change="setBettingModal" v-model="highBettingModal"></mt-switch>
-                    </dd>
+                </dl>
+                <dl class="" @click="gopage('/aboutme')">
+                    <dt class="">
+                        <span class="p-l-15">关于我们</span>
+                    </dt>
                 </dl>
             </div>
             <div class="exit">

@@ -49,7 +49,8 @@ export default {
 <style scoped lang="less">
 @rem: 40rem;
 .all-lottery {
-    margin-top: -1.8rem;
+    /* 
+    margin-top: -1.8rem; */
 }
 .all-lottery .lottery-box {
     .box-hd {

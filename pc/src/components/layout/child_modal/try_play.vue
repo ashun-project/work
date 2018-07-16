@@ -22,7 +22,7 @@
                         </div>
                         <div class='verify'>
                             <i class='icon-verify'></i>
-                            <input autocomplete="off" type="text" placeholder='请输入验证码' @blur='playCode' v-model.trim='verifyCode' @keyup.enter='tryPlay'>
+                            <input autocomplete="off" type="text" placeholder='请输入验证码' @blur='playCode' @focus='refreshCheckCode()' v-model.trim='verifyCode' @keyup.enter='tryPlay'>
                             <img class="valida-code" :src='tryPlayCode' @click='changeTryPlayCode'>
                             <span v-html='codeError'></span>
                         </div>
@@ -61,6 +61,10 @@ export default {
     computed: {
         isPlay: {
             get () {
+                if (this.hasOpen && !this.initData) {  // 减少首页多余的请求
+                    this.init();
+                    this.initData = true;
+                }
                 return this.hasOpen;
             },
             set (newVal) {
@@ -87,6 +91,14 @@ export default {
                 this.$router.push('/');
             })
         },
+        refreshCheckCode () {
+            //获取焦点刷新验证码
+            if (this.hasRefreshChode) {
+                return
+            }
+            this.changeTryPlayCode()
+            this.hasRefreshChode = true
+        },
         changeTryPlayCode () {
             this.tryPlayCode = '/api/v2/user/captcha.jpg?d=' + new Date().getTime();
         },
@@ -100,11 +112,8 @@ export default {
                 this.pwdError = '请输入密码';
                 return false
             }
-            if (this.pwd.length < 6) {
-                this.pwdError = '密码最少六位';
-                return false
-            } else if (this.pwd.length > 14) {
-                this.pwdError = '密码最多十四位';
+            if (this.pwd.length < 6 || this.pwd.length > 14) {
+                this.pwdError = '密码六至十四位';
                 return false
             } else {
                 this.pwdError = '';
@@ -126,14 +135,14 @@ export default {
         },
         init () { //初始化弹窗
             this.changeTryPlayCode();
-            this.$http.post('/api/v2/user/getPlayAccount', {}).then(response => {
+            this.$http.post('/api/v2/user/getPlayAccount', {}, { unenc: true }).then(response => {
                 if (response.data.code !== 0) return;
                 this.userName = response.data.data.playAccount;
             })
         }
     },
     created () {
-        this.init();
+
     }
 }
 </script>

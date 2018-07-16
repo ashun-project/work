@@ -3,15 +3,15 @@
 import Vue from 'vue';
 import App from './App';
 import router from './router';
-// require("babel-polyfill");
-require('!style-loader!css-loader!less-loader!./common.less'); //5.28增加
+require("babel-polyfill");
+require('!style-loader!css-loader!less-loader!./commonLess/common.less');
 // vuex 数据管理
 import store from './vuex';
 
 // iview UI库
 // import iView from 'iview';
 import component from './iviewComponent/component'
-
+import './components/common/module_js/directive'
 // import 'iview/dist/styles/iview.css';    // 使用 CSS
 // import './iviewTheme/theme.less';  // 5.28注掉
 // Vue.use(iView);
@@ -25,7 +25,7 @@ import './axios';
 Vue.prototype.$bus = new Vue()
 // 自定义console
 Vue.prototype.myConsole = function (params) {
-  // console.log(params)
+    // console.log(params)
 }
 Vue.prototype.$configText = window.configText;
 Vue.config.productionTip = false
@@ -35,23 +35,11 @@ Vue.config.productionTip = false
 import './components/common/filter/numberReset'
 
 new Vue({
-  el: '#app',
-  router,
-  store,
-  template: '<App/>',
-  components: {
-    App
-  }
+    el: '#app',
+    router,
+    store,
+    template: '<App/>',
+    components: {
+        App
+    }
 })
-// router.beforeEach((to,from,next) =>{ //进入/buyLottery/*需登录
-//   if (to.name !== 'buyLottery') {
-//     next();
-//   } else {
-//       let user = localStorage.getItem('user');
-//       if (!user) {
-//         store.commit('getShowLoginDialog',true);
-//         return 
-//       }
-//       next();
-//   }
-// })

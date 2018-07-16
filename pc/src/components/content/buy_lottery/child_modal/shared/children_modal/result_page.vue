@@ -17,7 +17,7 @@
                     </div>
                 </div>
                 <span v-show="total.num">总注数：
-                    <strong class="red-font" v-if="chaseResult.length">{{chaseResult.length * reslutList.length}}</strong>
+                    <strong class="red-font" v-if="chaseResult.length">{{chaseResult.length * total.num}}</strong>
                     <strong class="red-font" v-else>{{total.num}}</strong>
                 </span>
                 <span v-show="total.num">总金额：
@@ -192,7 +192,9 @@ export default {
                     key: 'bettingMoney',
                     width: 100,
                     render: (h, params) => {
-                        return h('span', Number(params.row.bettingMoney).toFixed(2))
+                        // console.log(this.chaseResult);
+                        let chaseNum = this.chaseResult.length || 1;
+                        return h('span', (Number(params.row.bettingMoney) * chaseNum).toFixed(2))
                     }
                 },
                 {
@@ -232,14 +234,6 @@ export default {
     watch: {
         periodNo () {
             if (this.openStatus) {
-                //     this.$Modal.info({
-                //     title: '期数提示',
-                //     content: '当前期数已改变，请重新选择追号',
-                //     onOk: () => {
-                //         // this.openStatus = true;
-                //         this.chaseDetail = true;
-                //     },
-                // });
                 this.showChaseModal = true;
             }
         },
@@ -259,6 +253,10 @@ export default {
         // 监听添加单柱的数据    
         list: {
             handler (newValue, oldValue) {
+                if (!this.reslutList.length && this.openStatus) { // 6.17
+                    this.openStatus = false;
+                }
+                // console.log(newValue);
                 this.addNote(newValue)
             },
             deep: true
@@ -287,6 +285,7 @@ export default {
     methods: {
         // 随机添加注数
         randomBetting (num) {
+            if (!this.reslutList.length) this.openStatus = false; //6.17
             if (this.user && !this.user.userId) {
                 this.$store.commit('getShouldLogin', true);
                 return;
@@ -354,14 +353,16 @@ export default {
         // 添加单注
         addNote (data) {
             data = JSON.parse(JSON.stringify(data));
+            let order = this.$route.params.order;
             data.forEach(item => {
                 item.lotteryId = this.$route.params.id;
-                item.lotteryPlayId = this.data.lotteryPlayId;
-                item.lotteryBettingId = this.data.lotteryBettingId;
+                item.lotteryPlayId = this.data.lotteryPlayId || order.lotteryPlayId;
+                item.lotteryBettingId = this.data.lotteryBettingId || order.lotteryBettingId;
                 item.chase = this.chaseResult.length ? this.chaseResult.length : '无';
                 item.autoStop = this.autoStop;
                 this.reslutList.push(item);
             })
+            // console.log(this.reslutList);
             this.getTotal();
         },
         // 计算下单时的总金额与总注数
@@ -384,6 +385,8 @@ export default {
                 this.chaseResult.forEach(item => {
                     chaseMoney += item.odds * this.total.money;
                 });
+                // num *= this.chaseResult.lenght;
+
             }
             this.chaseMoney = chaseMoney.toFixed(2);
         },
@@ -447,7 +450,7 @@ export default {
             this.$set(this.params, 'singleMoney', layout.costAmount);
             this.$set(this.params, 'odds', layout.rates[0].maxOdds);
             this.$set(this.params, 'company', layout.rates[0].company);
-            this.$set(this.params, 'rebate', layout.rates[0].rebate);
+            this.$set(this.params, 'rebate', 0);
         },
         // 追号开关
         setSwitchStatus (status) {
@@ -477,6 +480,7 @@ export default {
                 item.chase = vm.chaseResult.length;
                 item.autoStop = vm.autoStop;
             });
+            this.num *= vm.chaseResult.length;
         },
         init () {
             this.data = this.currentLotterys;

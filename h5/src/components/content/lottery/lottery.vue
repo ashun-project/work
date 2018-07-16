@@ -30,14 +30,14 @@
                     <li v-for="lottery in curLotteryList" :key="lottery.lotteryId">
                         <dl class="box-shadow-grey" @click="goBetting(lottery)">
                             <dt>
-                                <img class="lottery-lottery-img" :class="{'disable-img': lottery.status==='0'}" style="min-height:60px;" crossOrigin='Anonymous' :src="lottery.lotteryIcon" />
+                                <img class="lottery-lottery-img" :class="{'disable-img': lottery.status==='0'}" crossOrigin='Anonymous' :src="lottery.lotteryIcon" />
                             </dt>
                             <dd>
                                 <h5 class="t-grey-333" v-text="lottery.lotteryName"></h5>
                                 <span v-text="lottery.prizeIntervalDesc"></span>
-                                <my-countDown :data="lottery" :routeName="$route.name" :id="lottery.lotteryId"></my-countDown>
+                                <my-countDown class="t-red" :data="lottery" :exitTime="exitTime" :routeName="$route.name" :id="lottery.lotteryId"></my-countDown>
                             </dd>
-                            <div class="clr"></div>
+
                         </dl>
                     </li>
                 </ul>
@@ -83,7 +83,9 @@ export default {
             lotteryTypeList: [],
             fixedLottery: {},
             showAllType: false,
-            refresh: true
+            refresh: true,
+            exitTime: 0,
+            timer: false
         }
     },
     components: {
@@ -145,7 +147,7 @@ export default {
             //初始化方法
             var vm = this;
             let id = this.$route.params.id;
-            this.$http.post('/api/v2/lottery/queryLotteryList', { lotteryType: null }, { loading: true }).then(response => {
+            this.$http.post('/api/v2/lottery/queryLotteryList', { lotteryType: null }, { loading: true, noEncrypt: true }).then(response => {
                 if (response.data.code !== 0) return;
                 // vm.lotteryTypeList = response.data.data.lotteryTypeList;
                 let data = response.data.data.lotteryTypeList;
@@ -167,15 +169,24 @@ export default {
         },
     },
     activated () {
+        this.exitTime = 0;
+        clearInterval(this.timer);
         if (!this.refresh) {
             this.getSwiper()
         }
     },
     deactivated () {
+        let vm = this;
         // 检测mySwiper是否加载完
         if (!mySwiper) {
             this.refresh = false;
         }
+        vm.timer = setInterval(() => {
+            vm.exitTime += 1;
+            if (vm.exitTime >= 300) {
+                clearInterval(vm.timer);
+            }
+        }, 1000)
     },
     destroyed () {
         sessionStorage.removeItem('lotteryTypeList')
@@ -225,31 +236,35 @@ export default {
 .lottery .list li {
     float: left;
     width: 50%;
-    padding: 5px;
+    padding: 0.3rem 0.5rem;
 }
 .lottery .list li dl {
     width: 100%;
     min-height: 80px;
-    padding: 10px 0.3rem;
+    padding: 10px 0.5rem;
     border-radius: 8px;
-    box-shadow: -1px 1px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 9px 1px #ccc;
+    display: flex;
+    align-items: center;
 }
 .lottery .list li dl dt {
-    float: left;
-    width: 36%;
-    margin-right: 3%;
-    display: table-cell;
+    width: 14vw;
+    min-height: 14vw;
+    max-width: 3rem;
+    max-height: 3rem;
+    margin-right: 2vw;
 }
 .lottery .list li dl dt img {
-    max-width: 3rem;
+    height: 100%;
+    width: 100%;
 }
 .lottery .list li dl dd {
     color: #999;
-    float: left;
     font-size: 0.7rem;
     white-space: nowrap;
     overflow: hidden;
     width: 60%;
+    flex: 1;
 }
 .lottery .list li dl dd > h5 {
     overflow: hidden;

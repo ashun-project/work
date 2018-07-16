@@ -197,7 +197,7 @@ export default {
         },
         init (id, displayId) {
             var vm = this;
-            this.$http.post("/api/v2/trend/queryTrend", { lotteryId: id, displayId: displayId }).then(response => {
+            this.$http.post("/api/v2/trend/queryTrend", { lotteryId: id, displayId: displayId }, { unenc: true }).then(response => {
                 // 返回列表页
                 if (response.data.code !== 0) {
                     this.$Modal.warning({

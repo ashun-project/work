@@ -16,7 +16,7 @@
                             <i class="iconfont icon-biaotou-daoxu"></i>
                         </span>
                     </div>
-                    <div class='balls' :class="{'balls-small':code ==='ssc'}" v-if="currentLotteryNum && currentLotteryNum.length > 0 ">
+                    <div class='balls' :class="{'balls-small':code ==='ssc' || code ==='klsf'}" v-if="currentLotteryNum && currentLotteryNum.length > 0 ">
                         <ul :class="{'small-width':code ==='ksan'}">
                             <template v-if="code === 'pk10'">
                                 <li v-if="currentLotteryNum.length">
@@ -75,7 +75,7 @@
         </div>
         <!-- 遮罩层 -->
         <div class="mask" @click="showLotteryResult"></div>
-        <div class='lotteryNumber-list'>
+        <div class='lotteryNumber-list' id="myScroll" v-refresh="downRefresh" scrollDom="#myScroll">
             <!-- 和值 -->
             <div v-if="code ==='ksan'" class='sum-val-wrap'>
                 <dl>
@@ -131,7 +131,8 @@
                             </span>
                             <span v-else-if="code ==='ssc'">
                                 <i v-for='(bal,index) in ball.lotteryNumber' :key='index'>{{bal}}</i>
-                                <span class="sumTxt">({{ball.sum}} {{ball.sumVal}} {{ball.singleDouble}})</span>
+                                <span class="sumTxt">({{ball.sum}} {{ball.sumVal}} {{ball.singleDouble}}
+                                    <b v-if="ball.bull">{{ball.bull}}</b>)</span>
                             </span>
                             <span v-else>
                                 <i v-for='(bal,index) in ball.lotteryNumber' :key='index'>{{bal}}</i>
@@ -148,7 +149,7 @@
 </template>
 
 <script>
-
+import getZodiac from '@/components/common/module_js/zodica.js'
 const SIX_PK = [
     // const 六合彩
     {
@@ -176,7 +177,30 @@ const PCDD_CLR = [    /* pc蛋蛋的彩种，显示中奖号码时，特码球�
         color: "gray", data: ["0", "13", "14", "27"]
     }
 ]
-import getZodiac from '@/components/common/module_js/zodica.js'
+
+
+let category = ['牛牛', '牛一', '牛二', '牛三', '牛四', '牛五', '牛六', '牛七', '牛八', '牛九', '无牛'];
+function bullfightingCount (arr) {
+    arr = arr.map(function (item) {
+        return Number(item)
+    })
+    for (let i = 0, len = arr.length - 3; i <= len; i++) {
+        for (let j = i + 1, len1 = arr.length - 2; j <= len1; j++) {
+            for (let k = j + 1, len2 = arr.length - 1; k <= len2; k++) {
+                let choiceSum = arr[i] + arr[j] + arr[k];
+                if (choiceSum % 10 === 0) {
+                    let totalSum = arr.reduce((preValue, curValue) => { return preValue + curValue }, 0);
+                    let count = (totalSum - choiceSum) % 10;
+                    return category[count];
+                }
+                if (i === len && j === len1 && k === len2) {
+                    return category[category.length - 1];
+                }
+            }
+        }
+    }
+}
+
 export default {
     props: {
         code: {
@@ -215,31 +239,29 @@ export default {
         noticeModify (data) {
             let vm = this;
             if (vm.$route.path.indexOf(data.path2) < 0 || vm.$route.params.id !== data.lotteryId) return;
-            vm.$http.post('/api/v2/lottery/queryLotteryNumberByPeriod', { lotteryId: data.lotteryId, periodNo: [data.periodNo] }).then(response => {
-                let result = response.data.data;
-                if (result && result[0].lotteryNumber && this.history) {
-                    let resultData = result[0], newLorrery = true;
-
-                    vm.history.forEach((item) => {
-                        if (resultData.periodNo === item.periodNo) {
-                            item.lotteryNumber = resultData.lotteryNumber;
-                            newLorrery = false;
-                        }
-                    })
-
-                    if (newLorrery) {
-                        vm.history.splice(0, 0, resultData);
+            if (data.lotteryNumber && vm.history) {
+                let newLorrery = true;
+                vm.history.forEach((item) => {
+                    if (data.periodNo === item.periodNo) {
+                        item.lotteryNumber = data.lotteryNumber;
+                        newLorrery = false;
                     }
-                    vm.handleHistoryList(vm.history);
+                })
+                if (newLorrery) {
+                    vm.history.splice(0, 0, {
+                        periodNo: data.periodNo,
+                        lotteryNumber: data.lotteryNumber,
+                    });
                 }
-            })
-        },
-        userCode (newVal) {
-            if (!newVal) {
-                clearTimeout(this.timer2)
-                clearTimeout(this.timer)
+                vm.handleHistoryList(vm.history);
             }
-        }
+        },
+        /*   userCode (newVal) {
+              if (!newVal) {
+                  clearTimeout(this.timer2)
+                  clearTimeout(this.timer)
+              }
+          } */
     },
     methods: {
         showLotteryResult () { //显示往期开奖号码
@@ -250,43 +272,58 @@ export default {
                 document.documentElement.style.overflow = 'auto';
             }
         },
-        // 轮询请求开奖结果
-        pollPeriod (data) {
-            // 防止退出时没有清除
-            if (this.$route.name !== 'buyLottery') return;
-            if (data[0].lotteryNumber) return;
-            let vm = this;
-            this.$http.post('/api/v2/lottery/queryLotteryNumberByPeriod', { lotteryId: this.$route.params.id, periodNo: [data[0].periodNo] }).then(response => {
-                let result = response.data.data;
-                if (!result || !result[0].lotteryNumber) {
-                    vm.timer2 = setTimeout(function () {
-                        vm.pollPeriod(data)
-                    }, 20000)
-                } else {
-                    data[0].lotteryNumber = result[0].lotteryNumber;
-                    vm.handleHistoryList(data);
-                }
+        downRefresh () {
+            return new Promise((resolve, rej) => {
+                this.$http.post('/api/v2/lottery/queryPrizeHistoryList', {
+                    lotteryId: this.$route.params.id
+                }, { noEncrypt: true }).then(response => {
+                    if (response.data.code !== 0) return;
+                    this.handleHistoryList(response.data.data.prizeHistoryList);
+                })
+                setTimeout(() => {
+                    resolve()
+                }, 1000)
             })
         },
+        // 轮询请求开奖结果
+        /*   pollPeriod (data) {
+              // 防止退出时没有清除
+              if (this.$route.name !== 'buyLottery') return;
+              if (data[0].lotteryNumber) return;
+              let vm = this;
+              this.$http.post('/api/v2/lottery/queryLotteryNumberByPeriod', { lotteryId: this.$route.params.id, periodNo: [data[0].periodNo] }, { noEncrypt: true }).then(response => {
+                  let result = response.data.data;
+                  if (!result || !result[0].lotteryNumber) {
+                      vm.timer2 = setTimeout(function () {
+                          vm.pollPeriod(data)
+                      }, 20000)
+                  } else {
+                      data[0].lotteryNumber = result[0].lotteryNumber;
+                      vm.handleHistoryList(data);
+                  }
+              })
+          }, */
         // 获取期号
         getPeriod (data) {
             let vm = this;
-            if (this.timer) clearTimeout(this.timer);
-            if (this.timer2) clearTimeout(this.timer2);
             if (this.period) this.$Message("期数已发生改变(当前期数" + data.current.periodNo + ")");
+
+            /* if (this.timer) clearTimeout(this.timer);
+            if (this.timer2) clearTimeout(this.timer2);
+          
             if (!this.userCode) {
                 this.timer = setTimeout(() => {
                     this.pollPeriod(data.history);
                 }, 20000);
 
-            }
+            } */
             this.history = data.history;
             this.handleHistoryList(data.history);
             this.period = data.current.periodNo;
             this.$emit('get-period', data.current);
 
         },
-        calPreHistoryListSum (relNum) {
+        calPreHistoryListSum (relNum, code) {
             let sum = 0, smallBig = null, singleDouble = null, lotterySum = 0, vm = this;
             vm.currentLotteryNum.forEach(item => {
                 lotterySum += Number(item);//和值号码的和
@@ -300,6 +337,11 @@ export default {
                 item.sum = sum;
                 item.sumVal = sum > relNum ? '大' : '小';
                 item.singleDouble = sum % 2 === 0 ? '双' : '单';
+
+
+                if (code === 'ssc') {
+                    item.bull = bullfightingCount(item.lotteryNumber)
+                }
                 sum = 0;
             })
             this.lotterySum = lotterySum;
@@ -400,24 +442,24 @@ export default {
                 })
             }
             if (vm.code === 'ssc') {
-                this.calPreHistoryListSum(22);
+                this.calPreHistoryListSum(22, vm.code);
             }
             if (vm.code === 'ksan') {
-                this.calPreHistoryListSum(10);
+                this.calPreHistoryListSum(10, vm.code);
             }
         }
     },
     created () {
-        // this.handleHistoryList();
+        /*  this.handleHistoryList(); */
     },
-    beforeDestroy () {
-        clearTimeout(this.timer);
-        clearTimeout(this.timer2);
-    },
-    destroyed () {
-        if (this.timer) clearTimeout(this.timer);
-        if (this.timer2) clearTimeout(this.timer2);
-    }
+    /*   beforeDestroy () {
+          clearTimeout(this.timer);
+          clearTimeout(this.timer2);
+      },
+      destroyed () {
+          if (this.timer) clearTimeout(this.timer);
+          if (this.timer2) clearTimeout(this.timer2);
+      } */
 }
 </script>
 
@@ -617,7 +659,7 @@ export default {
     left: 0;
     width: 100%;
     height: 13.2rem;
-    overflow: auto;
+    overflow: scroll;
     z-index: 3;
     display: none;
 }

@@ -51,7 +51,7 @@ export default {
         }, 20)
     },
     created () {
-        this.$http.post('/api/v2/cms/queryHelpCenterByNameGuideList', { name: '购彩' }).then(response => {
+        this.$http.post('/api/v2/cms/queryHelpCenterByNameGuideList', { name: '购彩' }, { unenc: true }).then(response => {
             if (response.data.data === 1) return
             this.helpContent = response.data.data;
             response.data.data.forEach(item => {

@@ -57,7 +57,7 @@ export default {
             if (this.typeId === 'skills') {
                 type = '03'
             }
-            this.$http.post(`/api/v2/cms/${urlStr}`, { type: type, current: page, size: this.pageParams.size }).then(response => {
+            this.$http.post(`/api/v2/cms/${urlStr}`, { type: type, current: page, size: this.pageParams.size }, { unenc: true }).then(response => {
                 if (response.data.code !== 0) return
                 let news = [];
                 response.data.data.list.slice(0, 11).forEach((newsitem, index) => {

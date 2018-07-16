@@ -21,9 +21,9 @@
                                 </div>
                                 <div class="child">
                                     <p v-for="(value) in item.lotteryList" :key="value.lotteryId">
-                                        <i><img :src="value.lotteryIcon" alt="" :class="{disabled: value.status === '0'}"></i>
-                                        <!-- <a @click.stop="setLottery(value)" :class="{active: value.lotteryId === currentList.lotteryId}">{{value.lotteryName}}</a> -->
-                                        <Button type="default" :disabled="value.status === '0'" :class="{active: value.lotteryId === currentList.lotteryId && value.status !== '0', disabled:value.status === '0'}" @click.stop="setLottery(value)">{{value.lotteryName}}</Button>
+                                        <Button type="default" :disabled="value.status === '0'" :class="{active: value.lotteryId === currentList.lotteryId && value.status !== '0', disabled:value.status === '0'}" @click.stop="setLottery(value)">
+                                            <i><img :src="value.lotteryIcon" alt="" :class="{disabled: value.status === '0'}"></i>{{value.lotteryName}}
+                                        </Button>
                                     </p>
                                 </div>
                             </li>
@@ -94,7 +94,7 @@ export default {
                 if (wrap.scrollTop <= 0) {
                     clearInterval(timer);
                 }
-            }, 35);
+            }, 10);
         }
     },
     computed: {
@@ -154,7 +154,7 @@ export default {
         let vm = this;
         let id = this.$route.params.id;
         let orderInfo = this.$route.params.order;
-        this.$http.post('/api/v2/lottery/queryLotteryList', { lotteryType: null }).then(response => {
+        this.$http.post('/api/v2/lottery/queryLotteryList', { lotteryType: null }, { unenc: true }).then(response => {
             if (response.data.code !== 0) return;
             vm.lotteryTypeList = response.data.data.lotteryTypeList;
             let filterArr = vm.lotteryTypeList.filter(item => {// 获取当前彩种
@@ -295,28 +295,17 @@ export default {
     position: relative;
     height: 42px;
 }
-.buy-lottery .list li .child p i {
-    width: 25px;
-    height: 25px;
-    position: absolute;
-    top: 8px;
-    left: 8px;
-}
-.buy-lottery .list li .child p i .disabled {
-    filter: gray;
-    -webkit-filter: grayscale(100%);
-    -moz-filter: grayscale(100%);
-    -ms-filter: grayscale(100%);
-    -o-filter: grayscale(100%);
-}
+
 .buy-lottery .list li .child .ivu-btn {
     color: #333;
     display: block;
     height: 100%;
     width: 100%;
     padding-right: 10px;
+    padding-top: 8px;
+    padding-bottom: 8px;
     border: 1px solid #fff;
-    padding-left: 50px;
+    padding-left: 10px;
     text-align: left;
     border-radius: 0;
     -webkit-border-radius: 0;
@@ -342,6 +331,36 @@ export default {
 }
 </style>
 <style scoped>
+.buy-lottery .list li .child p >>> .ivu-btn i img {
+    width: 25px;
+    height: 25px;
+    margin-right: 17px;
+}
+.buy-lottery .list li .child p >>> .ivu-btn i .disabled {
+    filter: gray;
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+}
+.buy-lottery .list li .child p >>> .ivu-btn {
+    transition: padding-left 0.2s linear, background-color 0.2s linear,
+        color 0.2s linear, border 0.2s linear;
+    -webkit-transition: padding-left 0.2s linear, background-color 0.2s linear,
+        color 0.2s linear, border 0.2s linear;
+    -moz-transition: padding-left 0.2s linear, background-color 0.2s linear,
+        color 0.2s linear, border 0.2s linear;
+    -ms-transition: padding-left 0.2s linear, background-color 0.2s linear,
+        color 0.2s linear, border 0.2s linear;
+    -o-transition: padding-left 0.2s linear, background-color 0.2s linear,
+        color 0.2s linear, border 0.2s linear;
+}
+.buy-lottery .list li .child p >>> .ivu-btn:hover {
+    padding-left: 22px;
+}
+.buy-lottery .list li .child p >>> .ivu-btn span {
+    line-height: 26px;
+}
 /* 期数提示弹框 */
 .v-transfer-dom >>> .period-modal .ivu-modal-header {
     height: 0;

@@ -33,7 +33,7 @@
                                 <td>{{item.redpacketType}}</td>
                                 <td>{{item.money |keepDecimalOf2}}元</td>
                                 <td>
-                                    <span class="btn" v-if="item.status === '01'" @click="takeMoney(item,$event)">提现</span>
+                                    <span class="btn" v-if="item.status === '01'" @click="takeMoney(item,$event)" :class="{'disabled':!isSubmit}">提现</span>
                                     <!-- 红包状态：00冻结，01未提现，02已提现 -->
                                     <span class="" v-else>{{item.statusDesc}}</span>
                                 </td>
@@ -77,6 +77,7 @@ export default {
             showDialg1: false,
             warnMsg: '',
             status: 0,
+            isSubmit: true,
             //  clientType:'wap'
         }
     },
@@ -86,9 +87,6 @@ export default {
     filters: {
         formateDate (val) {
             return val ? dateUtil.getFormatDate(val) : ''
-        },
-        keepDecimalOf2 (val) {
-            return val ? val.toFixed(2) : "0.00";
         }
     },
     methods: {
@@ -106,7 +104,7 @@ export default {
             this.$http.post('/api/v2/user/redpacket/me', {
                 current: this.current,
                 size: this.size
-            }, { userId: true, loading: 2 }).then(response => {
+            }, { userId: true, loading: 2, noEncrypt: true }).then(response => {
                 this.status = 0;
                 if (response.data.code !== 0) {
                     this.status = 2;
@@ -128,16 +126,23 @@ export default {
         },
         takeMoney (info, event) {
             if (!event.target.className) return
+            if (!this.isSubmit) {
+                return
+            }
+            this.isSubmit = false;
             this.$http.post('/api/v2/user/redpacket/take', {
                 redpacketId: info.redpacketId,
             }, { userId: true, loading: 2, notTip: true }).then(response => {
+                this.isSubmit = true;
                 if (response.data.code === 139) {
                     this.warnMsg = response.data.msg;
                     this.showDialg = true
                 } else if (response.data.code === 0) {
-                    event.target.className = '';
-                    event.target.innerText = '已提现';
-                    this.redpacketAmount = (this.redpacketAmount + info.money).toFixed(2)
+                    /* event.target.className = '';
+                    event.target.innerText = '已提现'; */
+                    info.status = '02'
+                    info.statusDesc = '已提现'
+                    this.redpacketAmount = Number(Number(this.redpacketAmount) + (info.money)).toFixed(2)
                     this.showDialg1 = true
 
                 }
@@ -194,6 +199,10 @@ export default {
                 border: 0;
                 border-radius: 2px;
                 padding: 5 / @rem 10 / @rem;
+            }
+            .disabled {
+                color: #fff;
+                background-color: #999;
             }
         }
         .empty {

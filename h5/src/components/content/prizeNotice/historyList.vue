@@ -185,7 +185,7 @@ export default {
                 lotteryId: id
             };
             let vm = this;
-            vm.$http.post('/api/v2/lottery/queryPrizeHistoryList', param, { loading: true }).then(response => {
+            vm.$http.post('/api/v2/lottery/queryPrizeHistoryList', param, { loading: true, noEncrypt: true }).then(response => {
                 if (resolve) {
                     resolve()
                 }

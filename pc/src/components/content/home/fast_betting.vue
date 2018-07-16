@@ -1,206 +1,207 @@
 <template>
-  <div class="fast-betting lf">
-    <ul class="detail-hot">
-      <li class="color-hover" v-for="(item, idx) in quickList" @mouseenter="changeHotLettery(item)" :key="idx" :style="{width: 100 / quickList.length + '%'}" :class="{active: item.lotteryId === selectedId}">
-        <span>{{item.lotteryName}}</span>
-      </li>
-    </ul>
-    <div class="selected-lottery">
-      <div class="lf">
-        <img :src="currentQuick.lotteryIcon">
-        <!-- count-down获取倒计时组件 只用到getTimePerido方法获取的数据-->
-        <!-- <count-down :id="selectedId" v-if="quickList.length" @on-change="getTimePerido" style="display:none"></count-down> -->
-        <div class="txt">
-          <h5>
-            <span>{{currentQuick.lotteryName}}&nbsp;&nbsp;</span>
-            <span v-if="downTime.record.data">第
-              <i>{{downTime.record.data.recordList[0].periodNo}}</i>期</span>
-          </h5>
-          <!-- <p>{{downTime.hours}}时 {{downTime.minutes}}分 {{downTime.seconds}}秒后截止</p> -->
-          <down-time :id="selectedId" v-if="quickList.length" :routeName="$route.name"></down-time>
+    <div class="fast-betting lf">
+        <ul class="detail-hot">
+            <li class="color-hover" v-for="(item, idx) in quickList" @mouseenter="changeHotLettery(item)" :key="idx" :style="{width: 100 / quickList.length + '%'}" :class="{active: item.lotteryId === selectedId}">
+                <span>{{item.lotteryName}}</span>
+            </li>
+        </ul>
+        <div class="selected-lottery">
+            <div class="lf">
+                <img :src="currentQuick.lotteryIcon">
+                <!-- count-down获取倒计时组件 只用到getTimePerido方法获取的数据-->
+                <!-- <count-down :id="selectedId" v-if="quickList.length" @on-change="getTimePerido" style="display:none"></count-down> -->
+                <div class="txt">
+                    <h5>
+                        <span>{{currentQuick.lotteryName}}&nbsp;&nbsp;</span>
+                        <span v-if="downTime.record.data">第
+                            <i>{{downTime.record.data.recordList[0].periodNo}}</i>期</span>
+                    </h5>
+                    <!-- <p>{{downTime.hours}}时 {{downTime.minutes}}分 {{downTime.seconds}}秒后截止</p> -->
+                    <down-time :id="selectedId" v-if="quickList.length" :routeName="$route.name"></down-time>
+                </div>
+            </div>
+            <div class="rf">
+                <p>
+                    <span>
+                        <router-link :to="{name: 'trend_detail', params: {id: currentQuick.lotteryId}}" v-if="currentQuick.lotteryId">走势图</router-link>
+                    </span>
+                    <!-- <span class="interval">&nbsp;|&nbsp;</span> -->
+                    <!-- <span><router-link :to="''">手动自选</router-link></span> -->
+                </p>
+                <span class="change-one" @click="setQuick()">
+                    <i class="i-icon i-refresh"></i>换一注</span>
+            </div>
         </div>
-      </div>
-      <div class="rf">
-        <p>
-          <span>
-            <router-link :to="{name: 'trend_detail', params: {id: currentQuick.lotteryId}}" v-if="currentQuick.lotteryId">走势图</router-link>
-          </span>
-          <!-- <span class="interval">&nbsp;|&nbsp;</span> -->
-          <!-- <span><router-link :to="''">手动自选</router-link></span> -->
-        </p>
-        <span class="change-one" @click="setQuick()">
-          <i class="i-icon i-refresh"></i>换一注</span>
-      </div>
+        <div class="clr"></div>
+        <div class="award-number">
+            <ul>
+                <li v-for="item in currentQuick.nums" :key="item">
+                    <i class="i-icon i-main-code"></i>
+                    <span>{{item}}</span>
+                </li>
+            </ul>
+        </div>
+        <!-- <p class="jackpot">当前奖池：<span>{{prizeMoney}}</span>&nbsp;元</p> -->
+        <div class="multiple">
+            <div class="lf fill">
+                <span class="btn sign" @click="setOdds(-1)">¯</span>
+                <input type="number" v-model="currentQuick.chaseNum" @blur="changeInput()" @input="changeMoney($event)">
+                <span class="btn plus" @click="setOdds(1)">+</span>
+            </div>
+            <div class="txt lf">
+                &nbsp;&nbsp;倍，共&nbsp;
+                <span>{{totalOdds}}</span>&nbsp;元
+            </div>
+            <div class="input-wrapper rf">
+                <!-- <a class="btn primary" @click="goLottery()">立即投注</a> -->
+                <Button type='primary' @click="goLottery()" style='width:152px;height:40px;line-height:20px;font-size:18px;text-align:center;border:none;'>立即投注</Button>
+            </div>
+        </div>
+        <!-- 登录弹框 -->
+        <loginDlg :isShow="showLoginDialog" @close-login-modal="closeLoginModal"></loginDlg>
+        <!-- 登录弹框 -->
     </div>
-    <div class="clr"></div>
-    <div class="award-number">
-      <ul>
-        <li v-for="item in currentQuick.nums" :key="item">
-          <i class="i-icon i-main-code"></i>
-          <span>{{item}}</span>
-        </li>
-      </ul>
-    </div>
-    <!-- <p class="jackpot">当前奖池：<span>{{prizeMoney}}</span>&nbsp;元</p> -->
-    <div class="multiple">
-      <div class="lf fill">
-        <span class="btn sign" @click="setOdds(-1)">¯</span>
-        <input type="number" v-model="currentQuick.chaseNum" @blur="changeInput()" @input="changeMoney($event)">
-        <span class="btn plus" @click="setOdds(1)">+</span>
-      </div>
-      <div class="txt lf">
-        &nbsp;&nbsp;倍，共&nbsp;
-        <span>{{totalOdds}}</span>&nbsp;元
-      </div>
-      <div class="input-wrapper rf">
-        <!-- <a class="btn primary" @click="goLottery()">立即投注</a> -->
-        <Button type='primary' @click="goLottery()" style='width:152px;height:40px;line-height:20px;font-size:18px;text-align:center;border:none;'>立即投注</Button>
-      </div>
-    </div>
-    <!-- 登录弹框 -->
-    <loginDlg :isShow="showLoginDialog" @close-login-modal="closeLoginModal"></loginDlg>
-    <!-- 登录弹框 -->
-  </div>
 </template>
 
 <script>
 import downTime from "./down_time.vue";
 import loginDlg from '@/components/common/module_vue/login_dlg.vue';
 export default {
-  data () {
-    return {
-      showLoginDialog: false,
-      selectedId: "",
-      quickList: [],
-      currentQuick: {},
-      downTime: {
-        record: {},
-        hours: "",
-        minutes: "",
-        seconds: ""
-      },
-      totalOdds: 2,
-      totalPrizeMoney: 0 //奖金池
-    };
-  },
-  computed: {
-    prizeMoney () {
-      return this.formatPrize();
+    data () {
+        return {
+            showLoginDialog: false,
+            selectedId: "",
+            quickList: [],
+            currentQuick: {},
+            downTime: {
+                record: {},
+                hours: "",
+                minutes: "",
+                seconds: ""
+            },
+            totalOdds: 2,
+            totalPrizeMoney: 0 //奖金池
+        };
     },
-    user () {
-      return this.$store.state.user;
+    computed: {
+        prizeMoney () {
+            return this.formatPrize();
+        },
+        user () {
+            return this.$store.state.user;
+        }
+    },
+    components: {
+        downTime,
+        loginDlg
+    },
+    methods: {
+        formatPrize () {
+            let money = `${this.totalPrizeMoney.toFixed(0)}`.split("");
+            let count = Math.floor(money.length / 3);
+            let arr = [];
+            for (let i = 0; i < count; i++) {
+                let splitArr = money.splice(-3, 3);
+                splitArr.unshift(",");
+                arr.push(splitArr);
+            }
+            return money.concat(...arr).join("");
+        },
+        closeLoginModal (flag) {
+            this.showLoginDialog = false;
+            flag && this.goLottery();
+        },
+        // 下单
+        goLottery () {
+            // if (!localStorage.getItem('user')) {
+            //    sessionStorage.setItem('path',`buyLottery&${this.currentQuick.lotteryId}&${JSON.stringify(this.currentQuick)}`);
+            // }
+            if (!this.user.userId) {
+                this.showLoginDialog = true;
+                return
+            }
+            this.$router.push({
+                name: "buyLottery",
+                params: { id: this.currentQuick.lotteryId, order: this.currentQuick }
+            });
+        },
+        // 获取倒计时
+        getTimePerido (obj) {
+            let vm = this;
+            for (let key in obj) {
+                vm.$set(vm.downTime, key, obj[key]);
+            }
+        },
+        // 切换彩种
+        changeHotLettery (item) {
+            let chaseNum = this.currentQuick.chaseNum || 1;
+            this.totalPrizeMoney = 1000000 + (Math.random() * 9000000);
+            if (this.selectedId !== item.lotteryId) {
+                this.selectedId = item.lotteryId;
+                this.currentQuick = item;
+                this.currentQuick.chaseNum = chaseNum;
+                this.setQuick();
+            }
+        },
+        setOdds (num) {
+            let odds = this.currentQuick.chaseNum + num;
+            if (odds <= 0) odds = 1;
+            this.$set(this.currentQuick, "chaseNum", odds);
+            this.totalOdds = odds * 2;
+        },
+        changeInput () {
+            let num = parseInt(this.currentQuick.chaseNum) || 1;
+            if (num > 10000) num = 10000;
+            this.$set(this.currentQuick, "chaseNum", num);
+        },
+        changeMoney (e) { //添加
+            let money = parseFloat(e.target.value);
+            if (Number.isNaN(money) || money < 1) {
+                money = 1;
+                this.currentQuick.chaseNum = 1;
+            } else if (money > 10000) {
+                money = 10000;
+                this.currentQuick.chaseNum = 10000;
+            }
+            this.totalOdds = money * 2;
+        },
+        // 获取随机数
+        setQuick () {
+            let chaseNum = this.currentQuick.chaseNum || 1;
+            let random = require(`@/components/common/module_random/${
+                this.currentQuick.code
+                }.js`);
+            let layout = JSON.parse(this.currentQuick.layout);
+            let balls = random[this.currentQuick.lotteryPlayId](layout.optballs);
+            let arr = balls.split(",");
+            if (balls.indexOf("|") > -1) {
+                arr = balls.split("|");
+            }
+            this.$set(this.currentQuick, "nums", arr);
+            this.$set(this.currentQuick, "chaseNum", chaseNum);
+            this.$set(this.currentQuick, "balls", balls);
+        }
+    },
+    created () {
+        //  获取热门彩种
+        this.$http.post("/api/v2/lottery/queryIndexQuickBettingList", '', { unenc: true }).then(response => {
+            if (response.data.code !== 0) return;
+            $('.fast-betting')[0].style.opacity = 1
+            // console.log(response.data.data);
+            this.quickList = response.data.data.quickBettingList;
+            this.selectedId = this.quickList[0].lotteryId;
+            this.currentQuick = this.quickList[0];
+            this.setQuick();
+        });
+        this.totalPrizeMoney = 1000000 + (Math.random() * 9000000);
     }
-  },
-  components: {
-    downTime,
-    loginDlg
-  },
-  methods: {
-    formatPrize () {
-      let money = `${this.totalPrizeMoney.toFixed(0)}`.split("");
-      let count = Math.floor(money.length / 3);
-      let arr = [];
-      for (let i = 0; i < count; i++) {
-        let splitArr = money.splice(-3, 3);
-        splitArr.unshift(",");
-        arr.push(splitArr);
-      }
-      return money.concat(...arr).join("");
-    },
-    closeLoginModal (flag) {
-      this.showLoginDialog = false;
-      flag && this.goLottery();
-    },
-    // 下单
-    goLottery () {
-      // if (!localStorage.getItem('user')) {
-      //    sessionStorage.setItem('path',`buyLottery&${this.currentQuick.lotteryId}&${JSON.stringify(this.currentQuick)}`);
-      // }
-      if (!this.user.userId) {
-        this.showLoginDialog = true;
-        return
-      }
-      this.$router.push({
-        name: "buyLottery",
-        params: { id: this.currentQuick.lotteryId, order: this.currentQuick }
-      });
-    },
-    // 获取倒计时
-    getTimePerido (obj) {
-      let vm = this;
-      for (let key in obj) {
-        vm.$set(vm.downTime, key, obj[key]);
-      }
-    },
-    // 切换彩种
-    changeHotLettery (item) {
-      let chaseNum = this.currentQuick.chaseNum || 1;
-      this.totalPrizeMoney = 1000000 + (Math.random() * 9000000);
-      if (this.selectedId !== item.lotteryId) {
-        this.selectedId = item.lotteryId;
-        this.currentQuick = item;
-        this.currentQuick.chaseNum = chaseNum;
-        this.setQuick();
-      }
-    },
-    setOdds (num) {
-      let odds = this.currentQuick.chaseNum + num;
-      if (odds <= 0) odds = 1;
-      this.$set(this.currentQuick, "chaseNum", odds);
-      this.totalOdds = odds * 2;
-    },
-    changeInput () {
-      let num = parseInt(this.currentQuick.chaseNum) || 1;
-      if (num > 10000) num = 10000;
-      this.$set(this.currentQuick, "chaseNum", num);
-    },
-    changeMoney (e) { //添加
-      let money = parseFloat(e.target.value);
-      if (Number.isNaN(money) || money < 1) {
-        money = 1;
-        this.currentQuick.chaseNum = 1;
-      } else if (money > 10000) {
-        money = 10000;
-        this.currentQuick.chaseNum = 10000;
-      }
-      this.totalOdds = money * 2;
-    },
-    // 获取随机数
-    setQuick () {
-      let chaseNum = this.currentQuick.chaseNum || 1;
-      let random = require(`@/components/common/module_random/${
-        this.currentQuick.code
-        }.js`);
-      let layout = JSON.parse(this.currentQuick.layout);
-      let balls = random[this.currentQuick.lotteryPlayId](layout.optballs);
-      let arr = balls.split(",");
-      if (balls.indexOf("|") > -1) {
-        arr = balls.split("|");
-      }
-      this.$set(this.currentQuick, "nums", arr);
-      this.$set(this.currentQuick, "chaseNum", chaseNum);
-      this.$set(this.currentQuick, "balls", balls);
-    }
-  },
-  created () {
-    //  获取热门彩种
-    this.$http
-      .post("/api/v2/lottery/queryIndexQuickBettingList")
-      .then(response => {
-        if (response.data.code !== 0) return;
-        // console.log(response.data.data);
-        this.quickList = response.data.data.quickBettingList;
-        this.selectedId = this.quickList[0].lotteryId;
-        this.currentQuick = this.quickList[0];
-        this.setQuick();
-      });
-    this.totalPrizeMoney = 1000000 + (Math.random() * 9000000);
-  }
 };
 </script>
 
 <style lang="less" scoped>
 .fast-betting {
+    opacity: 0;
+    transition: 1.2s;
     height: 100%;
     border: 1px solid @home-component-border;
     padding: 8px;

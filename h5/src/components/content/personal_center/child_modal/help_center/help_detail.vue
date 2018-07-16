@@ -21,7 +21,7 @@ export default {
         // }
     },
     created () {
-        this.$http.post('/api/v2/cms/queryAdvisoryEssayById', { id: this.$route.params.id }).then(response => {
+        this.$http.post('/api/v2/cms/queryAdvisoryEssayById', { id: this.$route.params.id }, { noEncrypt: true }).then(response => {
             if (response.data.code !== 0) return;
             this.detail = this.escapeHtml(response.data.data.content);
         });

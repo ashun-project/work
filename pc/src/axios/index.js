@@ -109,27 +109,31 @@ axios.interceptors.request.use(function (config) {
     //         return config;                             
     //     }
     // }
-    // 参数加密
-    function RndNum(n) {
-        let rnd = "";
-        let x = "0123456789qwertyuioplkjhgfdsazxcvbnm";
-        for (let i = 0; i < n; i++) {
-            let num = Math.round(Math.random() * 36);
-            if (num === 36) num--;
-            rnd += x.substring(num, num + 1);
-        }
-        return rnd;
-    }
-    let key = RndNum(16);
 
-    config.headers.key = RSA(key);
-    config.data = {
-        body: AESEnc(key, JSON.stringify(config.data))
-    };
-    config.key = key;
-    config.headers.timestamp = time + '';
+    // 参数加密
+    if (!config.unenc) {
+        function RndNum (n) {
+            let rnd = "";
+            let x = "0123456789qwertyuioplkjhgfdsazxcvbnm";
+            for (let i = 0; i < n; i++) {
+                let num = Math.round(Math.random() * 36);
+                if (num === 36) num--;
+                rnd += x.substring(num, num + 1);
+            }
+            return rnd;
+        }
+        let key = RndNum(16);
+
+        config.headers.key = RSA(key);
+        config.key = key;
+        config.data = {
+            body: AESEnc(key, JSON.stringify(config.data))
+        };
+    }
+
     config.headers.sign = sign;
-    config.headers.userId = userId;
+    config.headers.timestamp = time + '';
+    config.headers.userId = userId || '';
     config.headers.deviceId = 'aaaaaaaaaaaaaa';
 
     return config;
@@ -144,12 +148,16 @@ axios.interceptors.response.use(function (response) {
     //对响应数据做些事
     if (!response.data.code) {
         // 解密
-        response.data = JSON.parse(AESDec(response.config.key, response.data.body));
+        if (!response.config.unenc) {
+
+            response.data = JSON.parse(AESDec(response.config.key, response.data.body));
+
+        }
     }
     let code = response.data.code;
     if (code !== 0) {
         let errText = response.data.msg || '服务异常'
-        if (code === 301 || code === 110 || code === 302 || code === 111 || code === 503) {
+        if (code === 301 || code === 110 || code === 302 || code === 111 || code === 503 || code === 170) {
             iView.Modal.error({
                 title: '温馨提示',
                 content: '<p>' + errText + '</p>',
@@ -162,8 +170,10 @@ axios.interceptors.response.use(function (response) {
         } else if (code === 165) { //封盘不能投注提示框
             store.commit('getClosePie', true);
         } else if (code === 502) {
-            store.commit('netStatus', true);
+            store.commit('getNetStatus', true);
             // }else if('/api/v2/user/get/redpacket' !== response.config.url && '/api/v2/user/queryBankFrom' !== response.config.url){
+        } else if (code === 303) { //ip限制
+            store.commit('getIpForbid', response.data.data.url);
         } else if (!response.config.stopDialog) {
             iView.Modal.error({
                 title: '请求异常',

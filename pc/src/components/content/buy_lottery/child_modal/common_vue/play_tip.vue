@@ -5,6 +5,7 @@
         </span>
         <span class="tip">玩法提示 :</span>
         <span v-html="playDesc"></span>
+        <span v-html="tip"></span>
         <span class='maxOdd' v-if="isLiuHe && hasLogin">【最大赔率：{{maxOdd}}】</span>
     </div>
 </template>
@@ -12,6 +13,10 @@
 export default {
     props: {
         playDesc: {
+            type: String,
+            default: ''
+        },
+        tip: {
             type: String,
             default: ''
         },

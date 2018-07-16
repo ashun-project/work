@@ -7,7 +7,10 @@
         </div>
         <div v-if="!offBank">
             <div class="head-info">
-                <img src="/static/images/commit.png" alt=""> 订单已生成
+                <img src="/static/images/commit.png" alt="">
+                <!-- 订单已生成 -->
+                <span v-if="data.currentData.onOrOff !== '01'">订单已生成</span>
+                <span v-else>充值申请成功</span>
             </div>
             <div class="cont-info" v-if="data.data.type === '2' || data.data.type === '3'">
                 <!-- <h6>审核订单</h6> -->
@@ -35,7 +38,12 @@
                 </div>
                 <a class="btn" :href="data.data.content" target="_blank" @click="goSubmit(data.data.type)" v-if="!beforSubmit && data.data.type === '2'">确认支付</a>
                 <a class="btn" @click="goSubmit(data.data.type)" target="_blank" v-else-if="!beforSubmit && data.data.type === '3' && !flag">确认支付</a>
-                <a class="btn ordered" v-if="!(!beforSubmit && data.data.type === '3')">订单已提交</a>
+                <a class="btn ordered" v-if="!(!beforSubmit && data.data.type === '3')">
+                    <span v-if="data.currentData.onOrOff !== '01'">订单已提交</span>
+                    <span v-else>充值申请成功</span>
+                </a>
+                <!-- <a class="btn ordered" v-if="(!(!beforSubmit && data.data.type === '3')) && data.currentData.onOrOff !== '01'">订单已提交</a>
+                <a class="btn ordered" v-else-if="(!(!beforSubmit && data.data.type === '3')) && data.currentData.onOrOff === '01'">充值申请成功</a> -->
                 <a class="btn" @click="queryRechargeList" v-show="beforSubmit">查看充值记录</a>
             </div>
             <div class="cont-info saoma" v-else>
@@ -90,16 +98,18 @@
             </div>
         </div>
         <div class="done-order" v-else>
-            <div class="confirmicon">
-                <!-- <Icon type="checkmark-circled" size="65" color="green"></Icon> -->
+            <div class="top-tip">
+                <div class="confirmicon"></div>
+                <div class="confirm1">
+                    <!-- <span>订单已提交</span> -->
+                    <span v-if="data.currentData.onOrOff !== '01'">订单已提交</span>
+                    <span v-else>充值申请成功</span>
+                    <p>
+                        <span>一般到账时间在5分钟左右，最快2分钟内到账。</span>
+                    </p>
+                </div>
             </div>
-            <div class="confirm1">
-                <span>订单已提交</span>
-                <p>
-                    <span>一般到账时间在5分钟左右，最快2分钟内到账。</span>
-                </p>
-            </div>
-            <Button type="primary" size="large" class="confirmbutton" @click="queryRechargeList">查看充值记录</Button>
+
             <div class="info">
                 <dl class="first-in">
                     <dt>
@@ -145,13 +155,25 @@
                     </dd>
                 </dl>
             </div>
+            <div style="text-align:center;">
+                <Button type="primary" size="large" class="confirmbutton" @click="queryRechargeList">查看充值记录</Button>
+            </div>
         </div>
+        <!-- 回退提示 -->
+        <modal :modalShow="payTip" claName="pay_tip" :width="355" :maskClosable="true" :hasFooter="true" :hasOkBtn="true" @btn-ok="closePayTipDialog" @btn-cancel="holdPayTipDialog">
+            <div slot="content" style="text-align:center;font-size:12px;padding-top:10px;">
+                <p style="font-weight:bold;font-size:16px">请确认支付已完成后再退出!</p>
+                <p style="line-height:26px;">若未实际付款，审核将不通过</p>
+            </div>
+        </modal>
     </div>
 </template>
 
 <script>
-import QRCode from 'qrcodejs2'
+import QRCode from 'qrcodejs2';
+import modal from "@/components/common/module_vue/modal";
 export default {
+    components: { modal },
     props: {
         data: {
             type: Object,
@@ -166,10 +188,53 @@ export default {
     data () {
         return {
             beforSubmit: false,
-            offBank: false
+            offBank: false,
+            payTip: false,
+            nextFlag: false //返回还是查看充值记录的标识
         }
     },
     methods: {
+        /**
+         * 阻止键盘后退
+         */
+        stopBackSpace () {
+            history.pushState(null, null, document.URL);
+            window.addEventListener('popstate', (e) => {
+                history.pushState(null, null, document.URL);
+                this.payTip = true;
+            }, false)
+            document.addEventListener('keydown', this.handlerKey, false);
+            document.addEventListener('keypress', this.handlerKey, false);
+        },
+        /**
+         * 键盘后退事件
+         */
+        handlerKey (e) {
+            let ev = e || window.event;
+            if (this.$route.params.id === 'recharge' && ev.keyCode === 8) {
+                window.event && (window.event.returnValue = false);
+                e && e.preventDefault();
+                this.payTip = true;
+            }
+        },
+        holdPayTipDialog () {
+            this.payTip = false;
+            if (this.nextFlag) this.nextFlag = false;
+        },
+        closePayTipDialog () { //返回充值列表提示支付
+            this.payTip = false;
+            document.removeEventListener('keydown', this.handlerKey, false);
+            document.removeEventListener('keypress', this.handlerKey, false);
+            window.removeEventListener('popstate', (e) => {
+                history.pushState(null, null, document.URL);
+                this.payTip = true;
+            }, false);
+            if (this.nextFlag) { //去充值记录
+                this.$router.push({ name: "personalCenter", params: { id: "trade" } });
+                return
+            }
+            this.$emit('get-back-status', 0); //返回
+        },
         copyWords (text) {
             //复制文本
             let copyInput = document.createElement('input');
@@ -181,7 +246,12 @@ export default {
             this.$Message.success('复制成功')
         },
         queryRechargeList () {
-            this.$router.push({ name: "personalCenter", params: { id: "trade" } });
+            if (this.data.currentData.onOrOff !== '01') {
+                this.$router.push({ name: "personalCenter", params: { id: "trade" } });
+                return
+            }
+            this.nextFlag = true;
+            this.payTip = true;
         },
         goSubmit (type) {
             if (type === '3') {
@@ -195,7 +265,11 @@ export default {
             this.beforSubmit = true;
         },
         goBack () {
-            this.$emit('get-back-status', 0)
+            if (this.data.currentData.onOrOff !== '01') {
+                this.$emit('get-back-status', 0);
+                return
+            }
+            this.payTip = true;
         }
     },
     mounted () {
@@ -205,13 +279,21 @@ export default {
         }
     },
     created () {
-        // this.myConsole(this.data)
+        this.stopBackSpace();
         if (this.data.currentData.accountType === '0' && this.data.currentData.onOrOff === '01') {
             this.offBank = true;
         }
         // if (this.data.data.type === '2') {
         //     window.open(this.data.data.content)
         // }
+    },
+    beforeDestroy () {
+        document.removeEventListener('keydown', this.handlerKey, false);
+        document.removeEventListener('keypress', this.handlerKey, false);
+        window.removeEventListener('popstate', (e) => {
+            history.pushState(null, null, document.URL);
+            this.payTip = true;
+        }, false);
     }
 }
 </script>
@@ -262,6 +344,9 @@ export default {
 .step-three .done-order {
     margin-top: 86px;
 }
+// .step-three .done-order .top-tip{
+
+// }
 .step-three .done-order .info {
     border-right: 1px solid #e2e2e2;
     width: 425px;
@@ -305,14 +390,18 @@ export default {
     line-height: 34px;
 }
 .step-three .confirmicon {
-    float: left;
+    // float: left;
+    display: inline-block;
+    vertical-align: top;
     width: 60px;
     height: 60px;
     margin-left: 170px;
     background: url('/configstatic/pc/images/icon.png') no-repeat -76px -509px;
 }
 .step-three .confirm1 {
-    float: left;
+    // float: left;
+    display: inline-block;
+    vertical-align: top;
     margin-left: 20px;
 }
 .step-three .confirm1 span {
@@ -325,7 +414,7 @@ export default {
     font-weight: normal;
 }
 .step-three .confirmbutton {
-    margin-left: 290px;
+    // margin-left: 290px;
     margin-top: 28px;
     width: 162px;
     background-color: @common-bg;
@@ -442,3 +531,10 @@ export default {
     background: #860e03;
 }
 </style>
+<style scoped>
+.v-transfer-dom >>> .ivu-modal-wrap.pay_tip .ivu-modal-footer {
+    padding-bottom: 28px;
+    padding-top: 8px;
+}
+</style>
+

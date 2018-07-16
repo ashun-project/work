@@ -4,7 +4,7 @@
             <img :src="roleDetail.imageUrl" alt="图片">
             <span class="lottery_name">{{roleDetail.name}}</span>
         </div>
-        <iframe :src="roleDetail.url" frameborder="0" width="724" scrolling="no" id="iframe"></iframe>
+        <iframe frameborder="no" width="724" scrolling="no" id="iframe"></iframe>
     </div>
 </template>
 <script>
@@ -27,9 +27,12 @@ export default {
     methods: {
         getRoleContent () {
             let vm = this;
-            this.$http.post('/api/v2/cms/queryLotteryGamePlay', { lotteryId: this.lotteryId }).then(response => {
+            this.$http.post('/api/v2/cms/queryLotteryGamePlay', { lotteryId: this.lotteryId }, { unenc: true }).then(response => {
                 if (response.data.code !== 0) return;
                 this.roleDetail = response.data.data;
+                let iframe = document.getElementById('iframe');
+                iframe.src = this.roleDetail.url;
+                this.setHeight();
             })
         },
         setHeight (height = 'getHeight') {
@@ -45,9 +48,9 @@ export default {
             }
         }
     },
-    mounted () {
-        this.setHeight();
-    },
+    //     mounted () {
+    //  this.setHeight();
+    //     },
     created () {
         this.lotteryId = this.$route.params.id;
         this.getRoleContent();

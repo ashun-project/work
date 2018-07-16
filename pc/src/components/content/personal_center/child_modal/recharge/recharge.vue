@@ -80,9 +80,10 @@ export default {
         }
     },
     created () {
-        this.$http.post('/api/v2/user/getUsablePayType', '', { userId: true }).then(response => {
+        this.$http.post('/api/v2/user/getUsablePayType', '', { userId: true, unenc: true }).then(response => {
             if (response.data.code !== 0) return;
             this.list = response.data.data;
+            // console.log(this.list);
         })
     },
     beforeDestroy () {

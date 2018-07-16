@@ -8,13 +8,13 @@
             </my-header>
             <my-scroll :fetchData="queryMoreList" :status="status" id="balanceDetail-scroll">
                 <ul class="ui-list">
-                    <li class="item" v-for="(balanceDetail,index) in balanceDetailList" :key="index">
+                    <li class="item" v-for="(balanceDetail,index) in balanceDetailList" :key="index" v-longtap="{fn:clkDetail,param:balanceDetail}">
                         <div class="flex-1">
-                            <p v-text="balanceDetail.tradeTypeDesc"></p>
+                            <p class="txt" v-text="balanceDetail.tradeTypeDesc"></p>
                             <p class="t-999" v-text="balanceDetail.tradeTime"></p>
                         </div>
                         <div class="flex-w">
-                            <span class="t-red" v-text="showMoney(balanceDetail.amount)"></span>
+                            <span v-text="showMoney(balanceDetail.amount)"></span>
                         </div>
                     </li>
                 </ul>
@@ -48,6 +48,46 @@
             </mt-popup>
             <mt-datetime-picker type="date" ref="picker" v-model="pickerCurrentTime" @confirm="confirm" year-format="{value} 年" month-format="{value} 月" date-format="{value} 日">
             </mt-datetime-picker>
+
+            <my-dialog class="ui-dialog-red" :showClose="true" btnSure="" btnCancle="" v-model="showDetail" title="交易明细">
+                <ul class="currentBalance">
+                    <li>
+                        <i class="iconfont icon-report"></i>
+                        <div class="cont">
+                            <p class="key">交易时间</p>
+                            <p class="val">{{currentBalance.tradeTime}}</p>
+                        </div>
+                    </li>
+                    <li>
+                        <i class="iconfont icon-jiaoyi"></i>
+                        <div class="cont">
+                            <p class="key">交易类型</p>
+                            <p class="val">{{currentBalance.tradeTypeDesc}}</p>
+                        </div>
+                    </li>
+                    <li>
+                        <i class="iconfont icon-other"></i>
+                        <div class="cont">
+                            <p class="key">交易描述</p>
+                            <p class="val">{{currentBalance.tradeDesc}}</p>
+                        </div>
+                    </li>
+                    <li>
+                        <i class="iconfont icon-qian"></i>
+                        <div class="cont">
+                            <p class="key">收支情况</p>
+                            <p class="val">{{currentBalance.amount | keepDecimalOf4}}元</p>
+                        </div>
+                    </li>
+                    <li>
+                        <i class="iconfont icon-chongzhi"></i>
+                        <div class="cont">
+                            <p class="key">余额</p>
+                            <p class="val">{{currentBalance.userBalance | keepDecimalOf2}}</p>
+                        </div>
+                    </li>
+                </ul>
+            </my-dialog>
         </div>
     </div>
 </template>
@@ -65,7 +105,7 @@ export default {
                 endTime: '',
                 tradeTypeArray: [],
                 current: 1,
-                size: 10
+                size: 20
             },
             balanceDetailList: [],
             startTime: '',
@@ -74,7 +114,23 @@ export default {
             tradeTypeObj: {},
             popupVisible: false,
             pickerCurrentTime: '',
-            tradeTypes: []
+            tradeTypes: [],
+            showDetail: false,
+            currentBalance: {},
+        }
+    },
+    filters: {
+        keepDecimalOf4 (v) {
+            if (!v) return '0'
+            let val = Number(v).toFixed(4);
+            while (val.charAt(val.length - 1) === '0') {
+                val = val.substring(0, val.length - 1);
+                if (val.charAt(val.length - 1) === '.') {
+                    val = val.substring(0, val.length - 1);
+                    break;
+                }
+            }
+            return val
         }
     },
     methods: {
@@ -85,6 +141,10 @@ export default {
                     resolve();
                 }, 1000)
             })
+        },
+        clkDetail (el, val) {
+            this.showDetail = true;
+            this.currentBalance = val.param;
         },
         showMoney (num) {
             return parseFloat(num).toFixed(2) + '元'
@@ -150,7 +210,7 @@ export default {
             if (resolve) {
                 this.cond.current = 1
             }
-            this.$http.post('/api/v2/user/queryBalanceDetailList', this.cond, { userId: true }).then(response => {
+            this.$http.post('/api/v2/user/queryBalanceDetailList', this.cond, { userId: true, noEncrypt: true }).then(response => {
                 if (resolve) {
                     resolve()
                 }
@@ -174,6 +234,10 @@ export default {
 
                 if (this.balanceDetailList <= 0) {
                     this.status = 3;
+                }
+
+                if (result.balanceDetailList.length < this.cond.size) {
+                    this.status = 2;
                 }
             })
         }

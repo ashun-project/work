@@ -86,7 +86,7 @@ export default {
         }
     },
     created () {
-        this.$http.post('/api/v2/user/getPlayAccount').then(response => {
+        this.$http.post('/api/v2/user/getPlayAccount', {}, { noEncrypt: true }).then(response => {
             if (response.data.code !== 0) return;
             this.userCode = response.data.data.playAccount
         })

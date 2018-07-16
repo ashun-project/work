@@ -153,7 +153,7 @@
         <!-- 线下充值二维码页面 -->
         <div v-if="!finishFlag && step == 2 && payType === PATY_CODE.XXCZ" class="order-body">
             <my-header :title="payTopTypeNameTit">
-                <span slot="h-left" @click="goLast">
+                <span slot="h-left" @click="goLastTip">
                     <i class="iconfont icon-arrowLeft"></i>
                 </span>
             </my-header>
@@ -273,13 +273,13 @@
             </div>
             <div class="btn-wrap" style="margin:1rem 1rem 0">
                 <span class="btn" @click="preStep">上一步</span>
-                <span class="btn" @click="bankRechargeSave">我已支付</span>
+                <span class="btn" @click="bankRechargeSave" :class="{'disabled':!isSubmit}">我已支付</span>
             </div>
         </div>
 
         <!-- 银行转账 线下充值完成 -->
         <div v-if="finishFlag && (payType === PATY_CODE.YHZZ || payType === PATY_CODE.XXCZ) " class="bankZz">
-            <my-header title="充值成功">
+            <my-header title="充值申请成功">
                 <span slot="h-left" @click="goLast">
                     <i class="iconfont icon-arrowLeft"></i>
                 </span>
@@ -305,7 +305,7 @@
                     </div>
                 </li>
             </ul>
-            <div class="btn-wrap">
+            <div class="btn-wrap" style="margin:1rem 0.8rem">
                 <span class="btn" @click="gopage('/rechargeList')">完成</span>
             </div>
         </div>
@@ -338,11 +338,11 @@ import QRCode from 'qrcodejs2'
 const LINK_TYPE = { QRCODE: '0', QRIMG: '1', LINK: '2', PAGE: '3', BASE64: '4' }  //0:二维码信息,1:二维码图片地址,2:支付链接,3:支付页面 4.base64
 const APP_LINK = [
     { code: '1', url: 'mqq://' },//qq
-    { code: '2', url: 'alipay://' }, //支付宝
-    { code: '3', url: 'wechat://' }, //微信
+    { code: '2', url: 'alipays://' }, //支付宝
+    { code: '3', url: 'weixin://' }, //微信
     { code: '4', url: 'wangyin://' }, //京东钱包
     { code: '5', url: 'baiduwallet://' },//百度钱包
-    { code: '6', url: 'uppaywallet://' }, //云闪付   
+    { code: '6', url: 'uppaywallet://' }, //云闪付  
 ]
 const RECHARGE_PAY_TYPE_QQ = "1";//11:QQ,21:支付宝,31:微信,41:京东,51:百度,61:银联
 const RECHARGE_PAY_TYPE_ALIPAY = "2";
@@ -374,7 +374,8 @@ export default {
             isIos: isIos,
             wyzlVisible: false,
             wyzlIndex: -1,
-            isApp: window.nativeDevice
+            isApp: window.nativeDevice,
+            isSubmit: true,
             // isApp: true
         }
     },
@@ -570,31 +571,43 @@ export default {
             });
         },
         bankRechargeSave () {  //保存银行卡充值
-
             if (this.payMoney === '' || this.payMoney <= 0) {
                 this.$Message('请输入充值金额');
                 return
             } else if (this.rechargeUsername === '') {
-                this.$Message('请输入开户姓名');
+                this.$Message('请输入存款人姓名');
                 return
             }
+            if (!this.isSubmit) {
+                return
+            }
+            this.$Modal.confirm('<div style="color:#333">请确认支付已完成后再退出!</div><div style="font-size:0.7rem">若未实际付款, 审核将不通过</div>', '温馨提示').then(() => {
+                this.isSubmit = false
+                this.$http.post('/api/v2/user/recharge', {
+                    totalFee: this.payMoney,
+                    rechargeType: this.currentPayType.onOrOff,
+                    rechargeUsername: this.rechargeUsername,
+                    rechargeTime: this.rechargeTime + ':00',//时间精确到秒
+                    rechargeUserType: this.rechargeUserType,
+                    companyAccountId: this.currentPayType.companyAccountId
+                }, { userId: true }).then(res => {
+                    this.isSubmit = true;
+                    if (res.data.code !== 0) return;
+                    this.$Message("充值成功");
+                    this.finishFlag = true
+                });
+            }, () => { })
 
-            this.$http.post('/api/v2/user/recharge', {
-                totalFee: this.payMoney,
-                rechargeType: this.currentPayType.onOrOff,
-                rechargeUsername: this.rechargeUsername,
-                rechargeTime: this.rechargeTime + ':00',//时间精确到秒
-                rechargeUserType: this.rechargeUserType,
-                companyAccountId: this.currentPayType.companyAccountId
-            }, { userId: true }).then(res => {
-                if (res.data.code !== 0) return;
-                this.$Message("充值成功");
-                this.finishFlag = true
-            });
         },
         goLast () { // 返回第一页
             this.step = 1;
             this.finishFlag = false;
+        },
+        goLastTip () {
+            /*  this.goLast(); */
+            this.$Modal.confirm('<div style="color:#333">请确认支付已完成后再退出!</div> <div style="font-size:0.7rem">若未实际付款, 审核将不通过</div>', '温馨提示').then(() => {
+                this.goLast();
+            }, () => { })
         },
         preStep () {
             this.step--;
@@ -681,7 +694,7 @@ export default {
             YHZZ: 3        } //定义支付类型
         this.rechargeType = JSON.parse(sessionStorage.getItem('rechargeType'));
         //重新查询余额
-        this.$http.post('/api/v2/user/queryBalance', '', { userId: true }).then(response => {
+        this.$http.post('/api/v2/user/queryBalance', '', { userId: true, noEncrypt: true }).then(response => {
             if (response.data.code !== 0) return;
             this.balance = response.data.data.balance;
         });
@@ -702,12 +715,7 @@ export default {
                 vm.$Message("请安装app");
             }
         }
-    },
-    filters: {
-        keepDecimalOf2 (val) {
-            return val ? val.toFixed(2) : "0.00";
-        }
-    },
+    }
 }
 </script>
 <style  lang="less">
@@ -998,6 +1006,10 @@ export default {
             border: 0;
             &:last-child {
                 margin-right: 0;
+            }
+            &.disabled {
+                color: #fff;
+                background-color: #999;
             }
         }
     }

@@ -35,7 +35,7 @@
                     <!-- 未开奖 -->
                     <i v-if="!isTarBall">
                         第
-                        <span>&nbsp;{{recordList.prePeriodNo}}&nbsp;</span>期<br/>开奖中...
+                        <span>&nbsp;{{recordList.prePeriodNo}}&nbsp;</span>期<br/>正在开奖...
                     </i>
                     <i class="history-ball">
                         <div class="txt">
@@ -45,7 +45,7 @@
                         <div class="history" :class="{'short-padding' : !isTarBall}">
                             <div class="history-inside-wrapper">
                                 <!-- <prize-list :code="$attrs.code" :prePrizeList="prePrizeList"></prize-list> -->
-                                <prize-list v-bind="$attrs" :prePrizeList="prePrizeList"></prize-list>
+                                <prize-list v-bind="$attrs" @getRefresh="getPrePrizeResult" :prePrizeList="prePrizeList"></prize-list>
                             </div>
                         </div>
                     </i>
@@ -121,7 +121,6 @@ export default {
             lotteryId: 0,
             pcggSum: { sum: 0, clr: 'red' }, //pcgg的特码
             isTarBall: false //开奖号码
-            // remindTimer: null,//期数提示定时器
         }
     },
     computed: {
@@ -135,7 +134,7 @@ export default {
         data: {
             handler (newValue, oldValue) {
                 this.btnList = []
-                if (this.timer) clearInterval(this.timer)
+                if (this.timer) clearInterval(this.timer);
                 this.getData()
             },
             deep: true
@@ -166,7 +165,7 @@ export default {
                 .post('/api/v2/lottery/queryLotteryRecordListV2', {
                     lotteryId: this.data.lotteryId,
                     num: 1
-                })
+                }, { unenc: true })
                 .then(response => {
                     if (response.data.code !== 0) {
                         setTimeout(vm.getData(), 3000)
@@ -192,14 +191,15 @@ export default {
                     vm.lotteryId = vm.data.lotteryId //彩种改变
                     vm.downNum = 0
                     let preLotteryNumber = vm.recordList.preLotteryNumber
-                    if (preLotteryNumber) {
-                        //上期开奖
+                    if (preLotteryNumber) {//上期开奖
                         vm.getBalls(preLotteryNumber.replace(/\|/g, ','))
                         this.isTarBall = true
-                    } else {
-                        //上期没开奖
+                    } else {//上期没开奖
                         this.btnList = []
                         this.isTarBall = false
+                        // if (!Object.keys(vm.$store.state.user).length) {
+                        //     vm.getPrePrizeResult();
+                        // }
                     }
                     if (vm.recordList) {
                         if (vm.timer) clearInterval(vm.timer)
@@ -211,6 +211,19 @@ export default {
                         vm.getData()
                     }, 3000)
                 })
+        },
+        //未登录状态请求上期结果
+        getPrePrizeResult () {
+            this.$http.post("/api/v2/lottery/queryLotteryNumberByPeriod", { lotteryId: this.lotteryId, periodNo: [this.recordList.prePeriodNo] }, { unenc: true }).then(response => {
+                if (response.data.code !== 0) return;
+                let preLotteryNumber = response.data.data[0].lotteryNumber;
+                if (preLotteryNumber) {
+                    this.getBalls(preLotteryNumber.replace(/\|/g, ','));
+                    this.isTarBall = true;
+                    this.prePrizeList[0].periodNo = response.data.data[0].periodNo;
+                    this.prePrizeList[0].lotteryNumber = response.data.data[0].lotteryNumber;
+                }
+            })
         },
         setFirstTime () {
             let vm = this
@@ -445,7 +458,8 @@ export default {
 }
 .last-result .last-time {
     display: inline-block;
-    width: 132px;
+    // width: 132px;
+    width: 140px;
     font-size: 14px;
     text-align: center;
     line-height: 18px;

@@ -1,7 +1,7 @@
 <template>
     <div class="">
         <div class="list">
-            <div class="draw-notice">
+            <div class="draw-notice lee-draw-notice">
                 <h3>
                     <i class="i-icon i-trophy"></i>
                     开奖公告
@@ -60,7 +60,8 @@
                     <ul>
                         <li v-for="(item, idx) in newsList" :key="idx">
                             <i class="i-icon i-small-box"></i>&nbsp;
-                            <router-link :to="item.essayId">{{item.title}}</router-link>
+                            <a href="#" class="link" :title="item.title" @click.prevent="goPath(item.essayId,'/newsList/news')">{{item.title}}</a>
+                            <!--      <router-link class="link" :title="item.title" :to="item.essayId">{{item.title}}</router-link> -->
                             <span class="rf">{{item.date}}</span>
                         </li>
                     </ul>
@@ -73,15 +74,16 @@
                     <ul>
                         <li v-for="(item, idx) in skillList" :key="idx">
                             <i class="i-icon i-small-box"></i>&nbsp;
-                            <router-link :to="item.essayId">{{item.title}}</router-link>
+                            <a href="#" class="link" :title="item.title" @click.prevent="goPath(item.essayId,'/newsList/skills')">{{item.title}}</a>
+                            <!--   <router-link class="link" :title="item.title" :to="item.essayId">{{item.title}}</router-link> -->
                             <span class="rf">{{item.date}}</span>
                         </li>
                     </ul>
                 </div>
             </div>
             <div class="ranking">
-                <h3>
-                    <i class="i-icon i-rank"></i>
+                <h3>&nbsp;
+                    <i class="i-icon i-rank" style="marginLeft:15px;"></i>
                     最新中奖榜
                 </h3>
                 <div class="cont">
@@ -161,30 +163,33 @@ export default {
                 { name: "skillList", sign: "03" }
             ];
             list.forEach(listItem => {
-                vm.$http
-                    .post("/api/v2/cms/queryAdvisoryEssayList", {
-                        type: listItem.sign
-                    })
-                    .then(response => {
-                        if (response.data.code !== 0) return;
-                        // console.log(response.data.data);
-                        vm[listItem.name] = response.data.data.list.slice(0, 5);
-                        vm[listItem.name].forEach(item => {
-                            if (listItem.sign === "01") {
-                                item.essayId = `newsDetail/${
-                                    item.essayId
-                                    }?type=news`;
-                            } else {
-                                item.essayId = `newsDetail/${
-                                    item.essayId
-                                    }?type=skills`;
-                            }
-                            let date = dateModal
-                                .getFormatDate(item.createDate)
-                                .split("-");
-                            item.date = date[1] + "/" + date[2];
-                        });
+                vm.$http.post("/api/v2/cms/queryAdvisoryEssayList", {
+                    type: listItem.sign
+                }, { unenc: true }).then(response => {
+                    if (response.data.code !== 0) {
+                        $('.consult')[0].style.opacity = 0
+                        return
+                    };
+                    $('.consult')[0].style.opacity = 1
+
+                    // console.log(response.data.data);
+                    vm[listItem.name] = response.data.data.list.slice(0, 5);
+                    vm[listItem.name].forEach(item => {
+                        if (listItem.sign === "01") {
+                            item.essayId = `newsDetail/${
+                                item.essayId
+                                }?type=news`;
+                        } else {
+                            item.essayId = `newsDetail/${
+                                item.essayId
+                                }?type=skills`;
+                        }
+                        let date = dateModal
+                            .getFormatDate(item.createDate)
+                            .split("-");
+                        item.date = date[1] + "/" + date[2];
                     });
+                });
             });
         },
         /**
@@ -192,12 +197,18 @@ export default {
          *
          * ***/
         requestForqueryIndexLotteryPrizeList () {
-            this.$http
-                .post("/api/v2/lottery/queryPrizeRankingList")
-                .then(response => {
-                    if (response.data.code !== 0) return;
-                    this.ranking = response.data.data.prizeRankingList;
-                });
+            this.$http.post("/api/v2/lottery/queryPrizeRankingList", '', { unenc: true }).then(response => {
+                if (response.data.code !== 0) {
+                    $('.ranking')[0].style.opacity = 0
+                    return;
+                }
+                $('.ranking')[0].style.opacity = 1
+                this.ranking = response.data.data.prizeRankingList;
+            });
+        },
+        goPath (path, typePath) {
+            this.$router.push(path);
+            sessionStorage.setItem('newsView', typePath)
         },
         leaveMove () {
             clearTimeout(this.scrollObjLeft)
@@ -223,18 +234,17 @@ export default {
     },
     created () {
         // 开奖公告
-        this.$http
-            .post("/api/v2/lottery/queryIndexLotteryPrizeList")
-            .then(response => {
-                if (response.data.code !== 0) return;
-                this.drawNotice = response.data.data.lotteryPrizeList;
-                this.drawNotice.forEach(item => {
-                    if (item.prizeTime) {
-                        let arr = item.prizeTime.split(" ")[0].split("-");
-                        item.prizeTime = arr[1] + "-" + arr[2];
-                    }
-                });
+        this.$http.post("/api/v2/lottery/queryIndexLotteryPrizeList", '', { unenc: true }).then(response => {
+            if (response.data.code !== 0) return;
+            $('.lee-draw-notice')[0].style.opacity = 1
+            this.drawNotice = response.data.data.lotteryPrizeList;
+            this.drawNotice.forEach(item => {
+                if (item.prizeTime) {
+                    let arr = item.prizeTime.split(" ")[0].split("-");
+                    item.prizeTime = arr[1] + "-" + arr[2];
+                }
             });
+        });
         // 中奖排行榜
         this.requestForqueryIndexLotteryPrizeList();
         this.loop = setInterval(() => {
@@ -280,6 +290,8 @@ export default {
 }
 .list .draw-notice {
     width: 220px;
+    opacity: 0;
+    transition: 1.2s;
 }
 .list .draw-notice h3 a {
     float: right;
@@ -306,9 +318,9 @@ export default {
 .list .draw-notice li:last-child {
     border-bottom: none;
 }
-.list .draw-notice h6:hover span {
-    color: @common-active-color;
-}
+// .list .draw-notice h6:hover span {
+//     color: @common-active-color;
+// }
 .list .draw-notice li h6 {
     font-weight: normal;
     font-size: 14px;
@@ -424,12 +436,23 @@ export default {
 .list .consult {
     margin-left: 15px;
     width: 500px;
+    opacity: 0;
+    transition: 1.2s;
 }
 .list .consult .lump {
     padding: 0 14px;
     border: 1px solid @home-component-border;
     border-top: 0;
     height: 400px;
+}
+.list .consult .lump .link {
+    float: left;
+    width: 410px;
+    height: 100%;
+    margin-left: 5px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 .list .consult .lump .title {
     border-bottom: 1px solid @home-component-border;
@@ -475,6 +498,8 @@ export default {
 .list .ranking {
     float: right;
     width: 250px;
+    opacity: 0;
+    transition: 1.2s;
 }
 .list .ranking .cont {
     border: 1px solid @home-component-border;

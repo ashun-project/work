@@ -141,10 +141,9 @@ export default {
         },
         // 初始化方法
         init () {
-            this.$http.post('/api/v2/lottery/getLotteryDetailV2', { lotteryId: this.$route.params.id }).then(response => {
+            this.$http.post('/api/v2/lottery/getLotteryDetailV2', { lotteryId: this.$route.params.id }, { unenc: true }).then(response => {
                 if (response.data.code !== 0) return;
                 this.lotteryData = response.data.data;
-                // console.log(this.lotteryData);
                 // this.defaultId = response.data.data.defaulPlay.parentPlayId.slice(0, 3); //默认玩法id
                 this.showSpin = false;
             });

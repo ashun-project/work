@@ -95,14 +95,34 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
+                                        <tr v-for="(item,index) in tableInfo" :key="index">
+                                            <td>{{item.rechargeMoney}}以上</td>
+                                            <td>{{item.effectiveBetting}}以上</td>
+                                            <td>{{item.prizeTime}}</td>
+                                            <template v-if="index === 0">
+                                                <td :rowspan="tableInfo.length">
+                                                    <span v-if="flowingWater">
+                                                        {{flowingWater}}倍流水
+                                                    </span>
+                                                    <span v-else>无需流水</span>
+                                                </td>
+                                                <td :rowspan="tableInfo.length">抢到红包后 系统自动派彩 秒到账</td>
+                                            </template>
+
+                                        </tr>
+                                        <!-- <tr>
                                             <td v-if="tableInfoshow[0].rechargeMoney!==undefined">{{tableInfoshow[0].rechargeMoney}}以上</td>
                                             <td v-else>暂未查询到相关信息</td>
                                             <td v-if="tableInfoshow[0].effectiveBetting!==undefined">{{tableInfoshow[0].effectiveBetting}}以上</td>
                                             <td v-else>暂未查询到相关信息</td>
                                             <td v-if="tableInfoshow[0].prizeTime!==undefined">{{tableInfoshow[0].prizeTime}}</td>
                                             <td v-else>暂未查询到相关信息</td>
-                                            <td rowspan="3">1倍流水</td>
+                                            <td rowspan="3">
+                                                <span v-if="flowingWater">
+                                                    {{flowingWater}}倍流水
+                                                </span>
+                                                <span v-else>无需流水</span>
+                                            </td>
                                             <td rowspan="3">
                                                 <p class="tip">抢到红包后 系统自动派彩 秒到账</p>
                                             </td>
@@ -122,7 +142,7 @@
                                             <td v-else>暂未查询到相关信息</td>
                                             <td v-if="tableInfoshow[2].rechargeMoney!==undefined">{{tableInfoshow[2].prizeTime}}</td>
                                             <td v-else>暂未查询到相关信息</td>
-                                        </tr>
+                                        </tr> -->
                                     </tbody>
                                 </table>
                             </div>
@@ -132,14 +152,8 @@
 
                             </div>
                             <div class="box-bd" style="padding-bottom:0">
-                                <div class="xz-list">
-                                    1、每日北京时间{{configRedket.robBeginTime}}到次日{{configRedket.robEndTime}}计算一天; <br/> 2、每位会员每个IP当日累计抢红包次数最多为3次;
-                                    <br/> 3、当日获得的抽奖次数需当日完成抽奖;
-                                    <br/> 4、撤单和其他无效投注将不计算在内;
-                                    <br/> 5、彩金自动添加到账户上一倍流水即可取款;
-                                    <br/> 6、活动奖金逾期未领取，视为自动放弃活动资格;
-                                    <br/> 7、为了避免文字理解差异造成的误解，{{$configText.main}}彩票享有最终解释权
-                                    <br/>
+                                <div class="xz-list" v-html="escapeHtml(activityRuleDetail)">
+
                                 </div>
 
                             </div>
@@ -227,13 +241,14 @@
 <script>
 import dateModal from "@/components/common/module_js/format_date.js";
 import Page from "@/components/common/module_vue/page";
-import { Spin } from 'iview'
+import { Spin } from 'iview';
+import { getConfigList } from '@/components/common/module_js/getConfig.js';
+import { setScrollTop } from '@/components/common/module_js/scroll_top.js';
 export default {
     data () {
         return {
             orderList: [],
             orderList2: [],
-            activityRuleDetail: '',
             notice: '',
             fixShow: true,
             robBeginTime: '', // 活动开始时间
@@ -259,45 +274,20 @@ export default {
             tbLoading: false,
             clientType: 'pc',
             host: window.location.host,
-            tableInfo: []
+            tableInfo: [],
+            hasMoreClick: false,
+            configList: [],//全局配置
+            flowingWater: 0, //流水
+            activityRuleDetail: ''// 活动规则
         };
     },
     computed: {
-        configList () {
-            return this.$store.state.configList;
-        },
-        configRedket () {
-            let obj = {
-                robBeginTime: '',
-                robEndTime: '',
-                tableInfo: []
-            }
-            this.$store.state.configList.forEach(itm => {
-                if (itm.key == "robBeginTime") {
-                    obj.robBeginTime = itm.value
-                }
-                if (itm.key == "robEndTime") {
-                    obj.robEndTime = itm.value
-                }
-                if (itm.key == "activityRule") {
-                    this.tableInfo = JSON.parse(itm.value)
-                }
-            })
-            return obj
-        },
         servicer () {
             return this.$store.state.servicer
         },
         getRacketTxt () {
             return this.redPacketFlag === 0 ? '距离运气红包开始' : (this.redPacketFlag === 1 ? '距离运气红包结束' : '红包已结束')
         },
-        tableInfoshow () {
-            if (this.tableInfo.length) {
-                return this.tableInfo
-            } else {
-                return [{ "rechargeMoney": undefined, "effectiveBetting": undefined, "prizeTime": undefined }, { "rechargeMoney": undefined, "effectiveBetting": undefined, "prizeTime": undefined }, { "rechargeMoney": undefined, "effectiveBetting": undefined, "prizeTime": undefined }]
-            }
-        }
     },
     filters: {
         formateDate (val) {
@@ -313,7 +303,7 @@ export default {
             this.$http.post('/api/v2/user/redpacket/me', {
                 current: currentPage,
                 size: this.pageSize
-            }, { userId: true }).then(response => {
+            }, { userId: true, unenc: true }).then(response => {
                 if (response.data.code !== 0) return;
                 let data = response.data.data;
                 this.total = data.total;
@@ -329,7 +319,7 @@ export default {
             this.fixShow = false
         },
         toTop () {
-            document.body.scrollTop = 0;
+            setScrollTop(0);
         },
         showDlg (flag) {  // 用户红包弹框
             this.digShow = flag;
@@ -350,19 +340,26 @@ export default {
             this.$router.push(url);
         },
         goRule () {
-            document.body.scrollTop = 1200;
+            setScrollTop(1200);
             this.digShow3 = false;
         },
         takeMoney (info, event) {
             if (!event.target.className) return
+            if (this.hasMoreClick) { //阻止连续提交
+                return
+            }
+            this.hasMoreClick = true;
             this.$http.post('/api/v2/user/redpacket/take', {
                 redpacketId: info.redpacketId,
             }, { userId: true }).then(response => {
+                this.hasMoreClick = false;
                 if (response.data.code === 139) {
 
                 } else if (response.data.code === 0) {
-                    event.target.className = '';
-                    event.target.innerText = '已提现';
+                    // event.target.className = '';
+                    // event.target.innerText = '已提现';
+                    info.status = '02'
+                    info.statusDesc = '已提现'
                     this.digShow4 = true;
                 }
 
@@ -435,7 +432,6 @@ export default {
                 this.robHour = Math.floor(dirSec / (60 * 60 * 1000));
                 this.robMinus = Math.floor(dirSec2 / (60 * 1000));
                 this.robSec = Math.round(dirSec3 / 1000);
-
             }
         },
         countDown (time, callBack) {   // 倒计时
@@ -458,9 +454,10 @@ export default {
     components: { Page },
     mounted () {
         this.$refs.hb.className = 'hb swing animated';
-        this.$http.post('/api/v2/user/redpacket/pattern').then(response => { // 查询榜单
+        this.$http.post('/api/v2/user/redpacket/pattern', '', { unenc: true }).then(response => { // 查询榜单
             if (response.data.code !== 0) return;
             this.orderList = response.data.data;
+            // console.log(this.orderList);
             this.orderList2 = this.orderList.slice().reverse();
             setTimeout(() => {
                 this.scroll('scroll1');
@@ -468,7 +465,7 @@ export default {
             })
 
         })
-        this.$http.post('/api/v2/user/redpacketSetting/info').then(response => { // 查询活动信息
+        this.$http.post('/api/v2/user/redpacketSetting/info', '', { unenc: true }).then(response => { // 查询活动信息
             if (response.data.code !== 0) return;
             let data = response.data.data, vm = this;
             this.activityRuleDetail = data.activityRuleDetail;
@@ -487,31 +484,29 @@ export default {
                 this.redPacketFlag = 2
             }
         })
-        this.configList.forEach(itm => {
-            if (itm.key == "robBeginTime") {
-                this.robBeginTime = itm.value
-            }
-            if (itm.key == "robEndTime") {
-                this.robEndTime = itm.value
-            }
-            if (itm.key == "activityRule") {
-                this.tableInfo = JSON.parse(itm.value)
-            }
-        })
-        // this.$http.post("/api/v2/sysDict/querySystemConfig").then(({ data }) => {
-        //     data.data.forEach(itm => {
-        //         if (itm.key == "robBeginTime") {
-        //             this.robBeginTime = itm.value
-        //         }
-        //         if (itm.key == "robEndTime") {
-        //             this.robEndTime = itm.value
-        //         }
-        //         if (itm.key == "activityRule") {
-        //             this.tableInfo = JSON.parse(itm.value)
-        //         }
-        //     })
-        // })
 
+    },
+    created () {
+        let vm = this;
+        getConfigList().then(res => {
+            vm.configList = res;
+            vm.configList.forEach(itm => {
+                if (itm.key == "robBeginTime") {
+                    this.robBeginTime = itm.value
+                }
+                if (itm.key == "robEndTime") {
+                    this.robEndTime = itm.value
+                }
+                if (itm.key == "activityRule") {
+                    this.tableInfo = JSON.parse(itm.value);
+
+                }
+                if (itm.key == "flowingWater") {
+                    this.flowingWater = itm.value;
+                }
+
+            })
+        })
     }
 };
 </script>
@@ -541,7 +536,7 @@ export default {
         width: 100%;
     }
     .head {
-        background-color: @head-bg;
+        background-color: #cc0000;
         height: 70px;
         line-height: 70px;
         .logo {
@@ -715,14 +710,14 @@ export default {
             width: 20%;
         }
         thead {
-            background-color: @thead-bg;
+            background-color: #c60001;
             th {
                 font-size: 16px;
                 height: 56px;
             }
         }
         tbody {
-            background-color: @tbody-bg;
+            background-color: #860000;
             td {
                 font-size: 14px;
                 height: 40px;
@@ -889,7 +884,7 @@ export default {
         background: url(/static/images/packet/dlg-hd-bg.png) repeat;
     }
     .dlalog-bd {
-        height: 452px;
+        height: 480px;
         padding: 10px 60px;
         background: url(/static/images/packet/dig-bg.png) repeat;
         border-bottom-left-radius: 10px;
@@ -937,7 +932,7 @@ export default {
     }
 }
 .packet-dlalog2 {
-    background: url(/configstatic/pc/images/hb-bg2.png) no-repeat;
+    background: url(/static/images/packet/hb-bg2.png) no-repeat;
     width: 570px;
     height: 500px;
     margin-top: -250px;

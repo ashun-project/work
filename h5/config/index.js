@@ -3,7 +3,7 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 
 const path = require('path')
-const proxy = ['https://api.558822.co:6869/lottery-api', 'https://api.tgceshi.com:6869/lottery-api', 'https://api.tgkaifa.com:6869/lottery-api', 'http://192.168.2.217:6868/lottery-api']
+const proxy = ['https://api.558822.co:6869/lottery-api', 'https://api2.tgceshi.com:6869/lottery-api', 'https://api.tgkaifa.com:6869/lottery-api', 'http://192.168.2.217:6868/lottery-api']
 module.exports = {
 	dev: {
 		// Paths

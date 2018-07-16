@@ -1,20 +1,20 @@
 <template>
-  <div class="liuhe">
-    <div class="liuhe-nva">
-      <ul>
-        <li v-for="item in menu" :key="item.id" :style="{width: 100 / menu.length + '%'}" :class="{curr: currMenu === item.id}" @click="chooseMenu(item)">
-          <span>{{item.name}}</span>
-        </li>
-      </ul>
+    <div class="liuhe">
+        <div class="liuhe-nva">
+            <ul>
+                <li v-for="item in menu" :key="item.id" :style="{width: 100 / menu.length + '%'}" :class="{curr: currMenu === item.id}" @click="chooseMenu(item)">
+                    <span>{{item.name}}</span>
+                </li>
+            </ul>
+        </div>
+        <div class="liuhe-content">
+            <component :is="view" :data="data" @add-note="addNotes" @has-change-menu="changeMenu" v-if="data"></component>
+            <result-page :list="orderList" :data="menu" :isChangeSubMenu="isChangeSubMenu"></result-page>
+        </div>
+        <div v-if='showSpin' style='width:1150px;position:absolute;left:0;top:0;' :style="{height: menuHeight + 'px'}">
+            <Spin size="large" fix :style="{'height':menuHeight + 'px'}" v-if='showSpin'></Spin>
+        </div>
     </div>
-    <div class="liuhe-content">
-      <component :is="view" :data="data" @add-note="addNotes" @has-change-menu="changeMenu" v-if="data"></component>
-      <result-page :list="orderList" :data="menu" :isChangeSubMenu="isChangeSubMenu"></result-page>
-    </div>
-    <div v-if='showSpin' style='width:1150px;position:absolute;left:0;top:0;' :style="{height: menuHeight + 'px'}">
-      <Spin size="large" fix :style="{'height':menuHeight + 'px'}" v-if='showSpin'></Spin>
-    </div>
-  </div>
 
 </template>
 
@@ -23,95 +23,95 @@ import allLiuhe from "./child_modal/index";
 import resultPage from './result_page'
 import liuhe from './child_modal/common_modal/handle_data.js'
 export default {
-  components: Object.assign({}, allLiuhe, { resultPage: resultPage }),
-  data () {
-    return {
-      menuHeight: this.$attrs.menuHeight,
-      view: "",
-      currMenu: "",
-      data: " ",
-      menu: [],
-      showSpin: true,
-      orderList: [],
-      isChangeSubMenu: 0  //判断是否多次空投
-    };
-  },
-  watch: {
-    '$route' () {
-      // this.menu = []; // 5.6
-      // this.data = {}; // 5.6
-      this.orderList = [];
-      this.showSpin = true;
-      this.init();
-    }
-  },
-  methods: {
-    reInit () {
-      this.init();
+    components: Object.assign({}, allLiuhe, { resultPage: resultPage }),
+    data () {
+        return {
+            menuHeight: this.$attrs.menuHeight,
+            view: "",
+            currMenu: "",
+            data: " ",
+            menu: [],
+            showSpin: true,
+            orderList: [],
+            isChangeSubMenu: 0  //判断是否多次空投
+        };
     },
-    changeMenu (digistal) { //判断是否多次空投
-      this.isChangeSubMenu = digistal;
-    },
-    addNotes (list) {
-      this.orderList = list;
-    },
-    chooseMenu (item) { //切换六合彩玩法项---玩法的数据都存在
-      if (this.view === item.id) return
-      this.orderList = [];
-      this.view = item.id;
-      this.currMenu = item.id;
-      this.data = this.handleData(item);
-    },
-    handleData (data) { //处理data
-      data.children.forEach(child => {
-        let originRates = child.children[0].layout.rates;
-        let balls = child.children[0].layout.optballs.split('|');
-        if (originRates.length === 1) {
-          let rate = originRates[0];
-          originRates = [];
-          balls.forEach(ball => {
-            let obj = Object.assign({}, rate);
-            obj.ball = ball;
-            originRates.push(obj);
-          })
-          child.children[0].layout.rates = originRates;
-        } else if (originRates.length > 1) {
-          let rates = [];
-          for (let i = 0, len = balls.length; i < len; i++) {
-            for (let j = 0, len2 = originRates.length; j < len2; j++) {
-              if (originRates[j].ball === balls[i]) {
-                rates.push(originRates[j]);
-                break;
-              }
-            }
-          }
-          child.children[0].layout.rates = rates;
+    watch: {
+        '$route' () {
+            // this.menu = []; // 5.6
+            // this.data = {}; // 5.6
+            this.orderList = [];
+            this.showSpin = true;
+            this.init();
         }
-      })
-      data = liuhe.editData(data.children, true);
-      return data;
     },
-    init () {
-      this.$http.post("/api/v2/lottery/getLotteryDetail", { lotteryId: this.$route.params.id }).then(response => {
-        if (response.data.code !== 0) return;
-        this.showSpin = false;
-        this.menu = response.data.data.list;
-        // console.log
-        let defaultId = response.data.data.title1Id;
-        this.view = defaultId; //默认玩法
-        this.currMenu = defaultId;
-        this.data = this.menu.filter(item => item.id === defaultId)[0];
-        // debugger;
-        this.data = this.handleData(this.data);
-        // console.log(this.data);
-        this.showSpin = false;
-        this.changeAssembly = true;
-      });
+    methods: {
+        reInit () {
+            this.init();
+        },
+        changeMenu (digistal) { //判断是否多次空投
+            this.isChangeSubMenu = digistal;
+        },
+        addNotes (list) {
+            this.orderList = list;
+        },
+        chooseMenu (item) { //切换六合彩玩法项---玩法的数据都存在
+            if (this.view === item.id) return
+            this.orderList = [];
+            this.view = item.id;
+            this.currMenu = item.id;
+            this.data = this.handleData(item);
+        },
+        handleData (data) { //处理data
+            data.children.forEach(child => {
+                let originRates = child.children[0].layout.rates;
+                let balls = child.children[0].layout.optballs.split('|');
+                if (originRates.length === 1) {
+                    let rate = originRates[0];
+                    originRates = [];
+                    balls.forEach(ball => {
+                        let obj = Object.assign({}, rate);
+                        obj.ball = ball;
+                        originRates.push(obj);
+                    })
+                    child.children[0].layout.rates = originRates;
+                } else if (originRates.length > 1) {
+                    let rates = [];
+                    for (let i = 0, len = balls.length; i < len; i++) {
+                        for (let j = 0, len2 = originRates.length; j < len2; j++) {
+                            if (originRates[j].ball === balls[i]) {
+                                rates.push(originRates[j]);
+                                break;
+                            }
+                        }
+                    }
+                    child.children[0].layout.rates = rates;
+                }
+            })
+            data = liuhe.editData(data.children, true);
+            return data;
+        },
+        init () {
+            this.$http.post("/api/v2/lottery/getLotteryDetail", { lotteryId: this.$route.params.id }, { unenc: true }).then(response => {
+                if (response.data.code !== 0) return;
+                this.showSpin = false;
+                this.menu = response.data.data.list;
+                // console.log
+                let defaultId = response.data.data.title1Id;
+                this.view = defaultId; //默认玩法
+                this.currMenu = defaultId;
+                this.data = this.menu.filter(item => item.id === defaultId)[0];
+                // debugger;
+                this.data = this.handleData(this.data);
+                // console.log(this.data);
+                this.showSpin = false;
+                this.changeAssembly = true;
+            });
+        }
+    },
+    created () {
+        this.init();
     }
-  },
-  created () {
-    this.init();
-  }
 };
 </script>
 

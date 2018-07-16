@@ -118,8 +118,7 @@ export default {
             }
             params.current = page;
             this.$http
-                .post("/api/v2/cms/queryAnnounceEssayList", params)
-                .then(response => {
+                .post("/api/v2/cms/queryAnnounceEssayList", params, { unenc: true }).then(response => {
                     if (response.data.code !== 0) return;
                     let data = response.data.data;
                     vm.datas = data.list;

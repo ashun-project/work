@@ -63,12 +63,14 @@ export default {
         getData () {
             let resourceId = this.$route.query.resourceId;
             let vm = this;
-            this.$http.post('/api/v2/cms/queryDiscountActivityList', { frontType: 'pc' }).then(response => {
+            this.$http.post('/api/v2/cms/queryDiscountActivityList', { frontType: 'pc' }, { unenc: true }).then(response => {
                 if (response.data.code !== 0) return;
                 this.list = response.data.data.list;
                 if (resourceId) {
+                    debugger
                     this.list.forEach((itm, idx) => {
                         if (itm.resourceId === resourceId) {
+                            debugger
                             this.showActityDetail(itm, idx);
                             this.$nextTick(() => {
                                 this.scrollToContent(idx);
@@ -99,7 +101,7 @@ export default {
             }
             this.showDetail = idx;
             this.resourceId = item;
-            this.$http.post('/api/v2/cms/queryDiscountActivityById', { resourceId: item.resourceId }).then(response => {
+            this.$http.post('/api/v2/cms/queryDiscountActivityById', { resourceId: item.resourceId }, { unenc: true }).then(response => {
                 if (response.data.code !== 0) return;
                 this.$set(this.list[idx], 'detailContent', escapeHtml(response.data.data.content));
             })

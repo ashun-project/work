@@ -5,9 +5,11 @@
                 期号
             </div>
             <div class='rt'>
-                <!-- <div class="fresh-wrap">
-                    <span>刷新<span class="refresh" @click="refreshResult"></span></span>  
-                </div> -->
+                <div class="fresh-wrap" @click="refreshResult">
+                    <span>刷新
+                        <span class="refresh"></span>
+                    </span>
+                </div>
                 <div class="more-wrap">
                     <router-link :to="{name:'notice_detail',params: {id: $route.params.id}}" target="_blank">
                         <span>
@@ -58,7 +60,7 @@ export default {
                     width: 343,
                     render: (h, params) => {
                         if (!params.row.lotteryNumber) {
-                            return h('div', '正在开奖中...')
+                            return h('div', '正在开奖...')
                         }
                         let str = params.row.lotteryNumber.replace(/\+/g, ',')
                         let listArray = str.split(',')
@@ -119,7 +121,9 @@ export default {
                                             ' ' +
                                             info.size +
                                             ' | ' +
-                                            info.num
+                                            info.num +
+                                            ' | ' +
+                                            info.niuniu
                                         )
                                     )
                                 }
@@ -274,35 +278,16 @@ export default {
         }
     },
     methods: {
-        // updataPrizeHistory (historyPrize) {
-        //     this.prePrizeList.forEach(list =>{
-        //         if (list.periodNo === historyPrize.periodNo && this.$route.params.id === historyPrize.lotteryId) {
-        //             list.lotteryNumber = historyPrize.lotteryNumber;
-        //         }
-        //     })
-        // },
         gopage () {
             this.$router.push({
                 name: 'notice_detail',
                 params: { id: this.$route.params.id }
             })
+        },
+        refreshResult () {
+            this.$emit('getRefresh', '')
         }
-        // refreshResult() {
-        //     this.getPrePrizeList();
-        // },
-        // refreshResult () {
-        //     this.getPrePrizeList();
-        // },
-        // getPrePrizeList() {
-        //     this.$http.post('/api/v2/lottery/queryLotteryRecordListV2',{lotteryId: this.lotteryId,num:1}).then(response =>{
-        //         if (response.data.code !== 0)  return
-        //         this.prePrizeList = response.data.data.prizeHistoryList;
-        //     })
-        // }
     },
-    created () {
-        // console.log(this.prePrizeList);
-    }
 }
 </script>
 <style lang="less" scoped>
@@ -381,6 +366,10 @@ export default {
     width: 458px;
     height: 44px;
     padding: 0 4px;
+}
+.history-prize >>> .ivu-table-cell {
+    padding-top: 0;
+    padding-bottom: 0;
 }
 .history-prize >>> td:first-child .ivu-table-cell {
     padding-left: 0 !important;

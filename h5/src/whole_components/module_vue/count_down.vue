@@ -18,6 +18,9 @@ export default {
         },
         historyList: {
             type: Boolean
+        },
+        exitTime: {
+            type: Number
         }
     },
     data () {
@@ -26,7 +29,19 @@ export default {
             timer: null,
             surplusTime: 0,
             timeTxt: '00:00:00',
-            downNum: 0
+            downNum: 0,
+            stopContinue: false
+        }
+    },
+    watch: {
+        exitTime (n, o) {
+            if (n >= 300) {
+                this.stopContinue = true;
+            }
+            if (n === 0 && this.stopContinue) {
+                this.stopContinue = false;
+                this.getData();
+            }
         }
     },
     methods: {
@@ -41,7 +56,7 @@ export default {
             if (this.historyList)
                 url = '/api/v2/lottery/queryLotteryRecordListV2'
             vm.$http
-                .post(url, { lotteryId: this.id, num: 1 })
+                .post(url, { lotteryId: this.id, num: 1 }, { noEncrypt: true })
                 .then(response => {
                     if (response.data.code !== 0) {
                         vm.getData()
@@ -82,8 +97,10 @@ export default {
                 ) {
                     clearInterval(vm.timer)
                     // 停留5秒为开奖时间
-                    this.timeTxt = '开奖中...'
-                    setTimeout(vm.getData, 1000)
+                    vm.timeTxt = '开奖中...'
+                    if (!vm.stopContinue) {
+                        setTimeout(vm.getData, 1000)
+                    }
                 } else {
                     vm.countDown()
                 }

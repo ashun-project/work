@@ -14,7 +14,7 @@
                             <p class="t-999" v-text="recharge.createTime"></p>
                         </div>
                         <div class="flex-w">
-                            <span class="t-red" v-text="recharge.statusDesc"></span>
+                            <span :class="{'t-green':recharge.status ==='01','t-red':recharge.status !='01'}" v-text="recharge.statusDesc"></span>
 
                         </div>
                         <i class="icon iconfont icon-arrowRight"></i>
@@ -205,7 +205,7 @@ export default {
             if (isRefresh) {
                 this.cond.current = 1;
             }
-            this.$http.post('/api/v2/user/queryRechargeList', this.cond, { userId: true }).then(response => {
+            this.$http.post('/api/v2/user/queryRechargeList', this.cond, { userId: true, noEncrypt: true }).then(response => {
                 if (response.data.code !== 0) {
                     this.$refs.myScroll.onBottomLoaded(0);
                     return
@@ -244,8 +244,9 @@ export default {
     }
     .ui-list-xq {
         .item {
-            border-bottom: 1px solid transparent;
+            border-bottom: 1px solid #eeeeee;
             font-size: 0.8rem;
+            padding: 0.5rem 0;
             .flex-w {
                 width: 300 / @rem;
                 font-size: 0.7rem;

@@ -2,7 +2,7 @@
     <div class="home">
         <my-header v-if="!user.userCode">
             <span slot="h-left" @click="goPage('/login',false)">
-                登入
+                登录
             </span>
             <span slot="h-center"><img class="logo" src="/configstatic/h5/images/mb-logo.png" alt=""></span>
             <span slot="h-right" @click="goPage('/register',false)">
@@ -12,14 +12,14 @@
         <my-header v-else noHistory>
             <span slot="h-center"><img class="logo" src="/configstatic/h5/images/mb-logo.png" alt=""></span>
             <span class="balance" slot="h-right">
-                ￥{{user.balance.toFixed(2)}}
+                ￥{{user.balance | keepDecimalOf2}}
             </span>
         </my-header>
         <div v-refresh="refresh">
             <div class="banner">
                 <mt-swipe :auto="6000">
                     <mt-swipe-item v-if="bannerList.length" v-for="(banner,idx) in bannerList" :key="idx">
-                        <div @click="goBannerLink(banner.targetUrl,$event)" :data-url="banner.targetUrl">
+                        <div @click="goBannerLink(banner,$event)" :data-url="banner.targetUrl">
                             <img :src="banner.imgUrl" />
                         </div>
                     </mt-swipe-item>
@@ -27,7 +27,7 @@
             </div>
             <div class="notice" @click.stop="goInformation">
                 <div class="po-icon">
-                    <i>公告：</i>
+                    <i>公告</i>
                 </div>
                 <marquee v-if="notice" scrolldelay="100">
                     <div v-html="notice"></div>
@@ -59,29 +59,31 @@
 
             <div class="aui-content h-business hot-list">
                 <h4 class="list-title">热门精选</h4>
-                <div v-for="(lottery,idx) in lotteryList" class="lottery-content" :key="idx">
-                    <div @click="goBetting(lottery)">
-                        <dl style="width: 100%">
-                            <dt class="aui-pull-left">
-                                <img class="home-lottery-img" :class="{'disable-img': lottery.status==='0'}" :src="lottery.lotteryIcon" crossOrigin='anonymous' />
-                                <!-- <img class="home-lottery-img" style="min-height:60px;" crossOrigin='anonymous' /> -->
-                            </dt>
-                            <dd class="aui-pull-left aui-font-size-14 t-grey-999">
-                                <h5 class="t-grey-333" v-text="lottery.lotteryName"></h5>
-                                <span v-text="lottery.prizeInterval"></span>
-                            </dd>
-                            <div class="clear"></div>
-                        </dl>
+                <div class="hot-lists">
+                    <div v-for="(lottery,idx) in lotteryList" class="lottery-content" :key="idx">
+                        <div @click="goBetting(lottery)">
+                            <dl style="width: 100%">
+                                <dt class="aui-pull-left">
+                                    <img class="home-lottery-img" :class="{'disable-img': lottery.status==='0'}" :src="lottery.lotteryIcon" crossOrigin='anonymous' />
+                                    <!-- <img class="home-lottery-img" style="min-height:60px;" crossOrigin='anonymous' /> -->
+                                </dt>
+                                <dd class="aui-pull-left aui-font-size-14 t-grey-999">
+                                    <h5 class="t-grey-333" v-text="lottery.lotteryName"></h5>
+                                    <span class="t-999" v-text="lottery.prizeInterval"></span>
+                                </dd>
+                            </dl>
+                        </div>
                     </div>
                 </div>
-                <div v-show="(lotteryList.length) % 2==1">
+
+                <!--   <div v-show="(lotteryList.length) % 2==1">
                     <dl>
                         <dt class="aui-pull-left">
                             <div style="height: 60px;"></div>
                         </dt>
                     </dl>
                 </div>
-                <div class="clr"></div>
+                <div class="clr"></div> -->
             </div>
             <div class="division small"></div>
             <rank ref="rank"></rank>
@@ -146,14 +148,21 @@ export default {
                 }, 1000);
             })
         },
-        goBannerLink (url, event) {
-            if (!url) return false;
-
-            if (url.indexOf('http') > -1) {
-                window.open(url, '_blank')
-                return true
-            } else {
-                this.$router.push(url);
+        goBannerLink (banner, event) {
+            let { targetUrl, contentType, id } = banner;
+            if (contentType === -1) {
+                if (targetUrl) {
+                    if (targetUrl.indexOf('http') > -1) {
+                        window.open(targetUrl.trim(), '_blank')
+                        return true
+                    } else {
+                        this.$router.push(targetUrl.trim());
+                    }
+                }
+            } else if (contentType === 1 || contentType === 2) {
+                this.$router.push(`/active_detail/${id}`);
+            } else if (contentType === 3) {
+                this.$router.push('/active');
             }
         },
         goInformation () {
@@ -258,11 +267,12 @@ export default {
         },
         init () {
             var vm = this;
-            this.$http.post('/api/v2/home/index', '', { loading: true }).then(response => {
+            this.$http.post('/api/v2/home/index', '', { loading: true, noEncrypt: true }).then(response => {
                 if (response.data.code !== 0) return;
                 let data = response.data.data;
                 vm.bannerList = data.bannerList;
                 vm.lotteryList = data.lotteryList;
+
 
                 // this.$nextTick(() => {
                 //     let domList = Array.prototype.slice.call($('.home-lottery-img'))
@@ -341,12 +351,12 @@ export default {
                 }) */
 
             // 客服信息
-            this.$http.post('/api/v2/cms/queryQrcodesAndServicer').then(response => {
+            this.$http.post('/api/v2/cms/queryQrcodesAndServicer', {}, { noEncrypt: true }).then(response => {
                 if (response.data.code !== 0) return;
                 vm.serviceUrl = response.data.data.servicer.url;
             })
             // 公告
-            this.$http.post('/api/v2/cms/queryAnnounceEssayList', { current: 1, size: 100, type: '02' }).then(response => {
+            this.$http.post('/api/v2/cms/queryAnnounceEssayList', { current: 1, size: 100, type: '02' }, { noEncrypt: true }).then(response => {
                 if (response.data.code !== 0) return;
                 if (response.data.data.list.length) {
                     for (let item of response.data.data.list) {
@@ -479,43 +489,62 @@ export default {
     left: 0.3rem;
     top: 0;
     color: #ec0022;
-    color: #666;
-    font-size: 0.66rem;
+    font-size: 0.7rem;
 }
 .home .division {
     height: 0.5rem;
     background: #f3f3f3;
 }
-.home .hot-list {
-    padding-bottom: 10px;
-}
 .home .hot-list .list-title {
     height: 2rem;
     line-height: 2rem;
     font-size: 0.8rem;
-    padding-left: 0.3rem;
+    padding-left: 0.8rem;
     border-bottom: 1px solid #eee;
-    margin-bottom: 10px;
-    color: #757575;
+    color: #747474;
+}
+.home .hot-list .hot-lists {
+    display: flex;
+    flex-wrap: wrap;
+    position: relative;
+}
+.home .hot-list .hot-lists::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 1px;
+    width: 100%;
+    background: #fff;
 }
 .home .lottery-content {
     overflow: hidden;
-    height: 80px;
-    padding: 10px 0.3rem;
-    width: 48%;
-    float: left;
-    box-shadow: -2px 2px 5px rgba(0, 0, 0, 0.09);
-    margin-left: 2%;
+    padding: 0.5rem 0.8rem;
+    width: 50%;
+    border-right: 1px solid #eee;
+    border-bottom: 1px solid #eee;
     border-radius: 3px;
 }
+.home .lottery-content:nth-child(2n) {
+    border-right: 1px solid transparent;
+}
+.home .h-business dl {
+    display: flex;
+    align-items: center;
+}
 .home .h-business dl dt {
-    width: 37%;
-    display: table-cell;
-    margin-right: 3%;
-    max-width: 60px;
+    width: 13vw;
+    height: 13vw;
+    max-width: 3rem;
+    max-height: 3rem;
+    margin-right: 3vw;
+}
+.home .h-business dl dt img {
+    width: 100%;
+    height: 100%;
 }
 .home .h-business dl dd {
-    width: 60%;
+    flex: 1;
 }
 .home .h-business dl dd h5 {
     margin-top: 0.3rem;

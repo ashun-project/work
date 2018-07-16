@@ -9,14 +9,15 @@
                 </my-header>
                 <my-scroll :fetchData="queryMoreList" :status="status" id="take-feeList-scroll">
                     <ul class="ui-list">
-                        <li class="item" v-for="(takefee,index) in takeFeeList" :key="index">
+                        <li class="item" v-for="(takefee,index) in takeFeeList" :key="index" @click="showDetail(takefee)">
                             <div class="flex-1">
                                 <p v-text="'提现 '+takefee.takeFee+'元'"></p>
                                 <p class="t-999" v-text="takefee.takeFeeTime"></p>
                             </div>
                             <div class="flex-w">
-                                <span class="t-red">{{takefee.statusDesc}}</span>
+                                <span :class="{'t-green':takefee.takeFeeStatus ==='0101','t-red':takefee.status !='0101'}">{{takefee.statusDesc}}</span>
                             </div>
+                            <i class="icon iconfont icon-arrowRight"></i>
                         </li>
                     </ul>
                     <!--   <p class="empty-data" v-if="!takeFeeList.length && status===2 ">
@@ -40,10 +41,7 @@
                             <p class="hd">类 型</p>
                             <div class="bd">
                                 <ul class="ui-switch clearfix">
-                                    <li class="item" :class="[takefeeTypeObj['00']?'selected':'']" @click="setRechargeType('00')">等待审核</li>
-                                    <li class="item" :class="[takefeeTypeObj['01']?'selected':'']" @click="setRechargeType('01')">处理中</li>
-                                    <li class="item" :class="[takefeeTypeObj['02']?'selected':'']" @click="setRechargeType('02')">成功</li>
-                                    <li class="item" :class="[takefeeTypeObj['03']?'selected':'']" @click="setRechargeType('03')">审核未通过</li>
+                                    <li class="item" v-for="(item, index) in zzTypes" :key="index" :class="[takefeeTypeObj[item.itemValue]?'selected':'']" @click="setRechargeType(item.itemValue)">{{item.itemKey}}</li>
                                 </ul>
                             </div>
                         </div>
@@ -106,9 +104,10 @@ export default {
                 endTime: '',
                 statusArray: [],
                 current: 1,
-                size: 10
+                size: 20
             },
             takeFeeList: [],
+            zzTypes: [],
             startTime: '',
             endTime: '',
             tradeTypeArray: [],
@@ -123,6 +122,16 @@ export default {
             }
         }
     },
+    created () {
+        this.$http.post('/api/v2/sysDict/queryItemList', {
+            dictName: 'TAKE_FEE'
+        }).then((res) => {
+            this.zzTypes = res.data.data.itemList;
+            if (this.zzTypes.length > 0) {
+                /// this.rechargeUserType = this.zzTypes[0].itemValue
+            }
+        })
+    },
     methods: {
         downRefresh () {
             return new Promise((reslove, rej) => {
@@ -131,7 +140,7 @@ export default {
                     endTime: '',
                     statusArray: [],
                     current: 1,
-                    size: 10
+                    size: 20
                 }, true, reslove)
                 setTimeout(() => {
                     reslove()
@@ -203,7 +212,7 @@ export default {
         //下拉更多
         queryMoreList (cond = this.cond, bool, reslove) {
             this.status = 1;
-            this.$http.post('/api/v2/user/queryTakeFeeList', cond, { userId: true }).then(response => {
+            this.$http.post('/api/v2/user/queryTakeFeeList', cond, { userId: true, noEncrypt: true }).then(response => {
                 this.status = 0;
                 if (response.data.code !== 0) return;
                 if (bool) {
@@ -225,6 +234,10 @@ export default {
                 if (this.takeFeeList.length <= 0) {
                     this.status = 3;
                 }
+
+                if (result.takeFeeList.length < this.cond.size) {
+                    this.status = 2;
+                }
             })
         }
     },
@@ -245,8 +258,9 @@ export default {
     }
     .ui-list-xq {
         .item {
-            border-bottom: 1px solid transparent;
+            border-bottom: 1px solid #eee;
             font-size: 0.8rem;
+            padding: 0.5rem 0;
             .flex-w {
                 width: 300 / @rem;
                 font-size: 0.7rem;

@@ -1,5 +1,5 @@
 <template>
-    <div class="trend content">
+    <div class="trend content" v-loading="loading">
         <div v-for="item in list" :key="item.lotteryType" class="list">
             <h5>{{item.lotteryTypeName}}</h5>
             <ul>
@@ -23,7 +23,8 @@
 export default {
     data () {
         return {
-            list: []
+            list: [],
+            loading: false
         }
     },
     methods: {
@@ -33,7 +34,9 @@ export default {
     },
     created () {
         let vm = this;
-        this.$http.post('/api/v2/lottery/queryLotteryList', { lotteryType: '' }).then(response => {
+        this.loading = true
+        this.$http.post('/api/v2/lottery/queryLotteryList', { lotteryType: '' }, { unenc: true }).then(response => {
+            this.loading = false
             if (response.data.code !== 0) return;
             vm.list = response.data.data.lotteryTypeList;
             // console.log(vm.list);
@@ -46,6 +49,7 @@ export default {
 .trend {
     padding-top: 36px;
     padding-bottom: 28px;
+    min-height: 650px;
 }
 .trend .list {
     padding-top: 8px;

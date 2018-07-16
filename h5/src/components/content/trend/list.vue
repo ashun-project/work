@@ -115,7 +115,7 @@ export default {
             getArr.push(key + '=' + this.porpsParams[key]);
         };
         if (getArr.length) params += '?' + getArr.join('&');
-        this.$http.post(this.porpsUrl, this.porpsParams).then(response => {
+        this.$http.post(this.porpsUrl, this.porpsParams, { noEncrypt: true }).then(response => {
             if (response.data.code !== 0) return;
             vm.headData = response.data.data.head;
             vm.bodyList = response.data.data.bodyList;

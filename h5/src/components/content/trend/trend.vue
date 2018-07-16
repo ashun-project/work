@@ -14,7 +14,10 @@
                     </li>
                 </ul>
             </div>
-            <div class="h-right" slot="h-right" v-if="allLottery.length" @click.stop="setParentMenuShow('allLottery')">选择彩种</div>
+            <div class="h-right" slot="h-right" v-if="allLottery.length" @click.stop="setParentMenuShow('allLottery')">
+                选择彩种
+                <i class="iconfont icon-arrowDown"></i>
+            </div>
         </my-header>
         <div class="swiper-container child-menu-swiper" v-if="loading">
             <div class="swiper-wrapper">
@@ -71,10 +74,10 @@ export default {
             this.popupList = this[item];
         },
         nextRequest: function () {
+            this.$Indicator.close();
             if (this.requestNum >= this.childMenu.length) return;
             var obj = this.childMenu[this.requestNum];
             this.$set(this.params, 'displayId', obj.displayId);
-            this.$Indicator.close();
             this.requestNum++
         },
         gotoSwiper: function (idx) {
@@ -122,7 +125,7 @@ export default {
             var vv = this;
             this.loading = false;
             this.$Indicator.open('加载中...');
-            this.$http.post('/api/v2/trend/queryDisplays', { 'lotteryId': this.params.lotteryId }).then(response => {
+            this.$http.post('/api/v2/trend/queryDisplays', { 'lotteryId': this.params.lotteryId }, { noEncrypt: true }).then(response => {
                 if (response.data.code !== 0) return;
                 vv.title = response.data.data[0].displayName;
                 vv.parentMenu = response.data.data;
@@ -175,7 +178,7 @@ export default {
     created: function () {
         this.params.lotteryId = this.$route.params.id;
         this.getParentMenu();
-        this.$http.post('/api/v2/lottery/queryLotteryList', { lotteryType: null }).then(response => {
+        this.$http.post('/api/v2/lottery/queryLotteryList', { lotteryType: null }, { noEncrypt: true }).then(response => {
             this.allLottery = response.data.data.lotteryTypeList.filter(item => item.lotteryType === '-2')[0].lotteryList;
         })
     }

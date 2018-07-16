@@ -19,11 +19,13 @@ export default new Vuex.Store({
         resourceId: undefined,
         updateNotice: '',
         updateRecord: '',
-        anotherObj: null,  //another页面内容
-        isLogin: false,    //是否登录
+        betDetailDialog: '',
+        anotherObj: null, //another页面内容
+        isLogin: false, //是否登录
         isSuccessModal: false, //投注成功弹框
         freePlayValue: 0,
-        isClosePie: false  //判断是否封盘
+        isClosePie: false, //判断是否封盘
+        isIpForbid: '' //ip是否被限制
     },
     mutations: {
         getConfigList (state, list) {
@@ -70,6 +72,9 @@ export default new Vuex.Store({
         getNoticeList (state, data) {
             state.updateNotice = data;
         },
+        getRecord (state, data) {
+            state.updateRecord = data;
+        },
         //是否登录
         getShouldLogin (state, data) {
             state.isLogin = data;
@@ -79,6 +84,9 @@ export default new Vuex.Store({
         },
         getClosePie (state, data) { //是否封盘
             state.isClosePie = data;
+        },
+        getIpForbid (state, data) { //IP限制
+            state.isIpForbid = data;
         }
     }
 })

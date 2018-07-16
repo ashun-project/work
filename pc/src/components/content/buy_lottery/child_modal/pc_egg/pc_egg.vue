@@ -12,6 +12,7 @@
                         玩法提示 :
                     </span>
                     <span>{{item.playDesc}}</span>
+                    <span>{{item.layout.tips&&item.layout.tips}}</span>
                 </div>
                 <div class='rt'>
                     <span class="">
@@ -433,7 +434,7 @@ export default {
         // 初始化方法
         init () {
             let vm = this;
-            this.$http.post('/api/v2/lottery/getLotteryDetail', { lotteryId: this.$route.params.id }).then(response => {
+            this.$http.post('/api/v2/lottery/getLotteryDetail', { lotteryId: this.$route.params.id }, { unenc: true }).then(response => {
                 if (response.data.code !== 0) return;
                 response.data.data.list.forEach(item => {
                     item.layout = JSON.parse(item.layout);

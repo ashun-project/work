@@ -16,10 +16,10 @@
             <input id="start-time" v-model="param.gtTime" type="text" name="" readonly @click="selectDate(0)" placeholder="开始时间">
             <span>至</span>
             <input id="end-time" v-model="param.ltTime" type="text" name="" readonly @click="selectDate(1)" placeholder="结束时间">
-            <a @click="refresh()">
+            <!--  <a @click="refresh()">
                 <strong>
-                    <i class="iconfont icon-shuaxin"></i>&nbsp;</strong>重选</a>
-
+                    <i class="iconfont icon-shuaxin"></i>&nbsp;</strong>重选</a> -->
+            <history-select @get-history-select="getHistorySelect"></history-select>
         </div>
         <ul class="agent-reports clearfix">
             <li class="item" v-for="(item,index) of reportData" :key="index">
@@ -33,14 +33,13 @@
 </template>
 <script>
 import dateUtil from "@/components/common/module_js/format_date.js";
-import historySelect from "./child_modal/history_select.vue";
 export default {
     data () {
         return {
             param: {
                 userCode: this.$route.query.userCode || '',
-                gtTime: '',
-                ltTime: '',
+                gtTime: dateUtil.getFormatDate(new Date()),
+                ltTime: dateUtil.getFormatDate(new Date()),
                 flage: '01',// 01 :查询当前用户 ；02:查询下级用户
             },
             reportData: {},
@@ -93,20 +92,25 @@ export default {
         },
         search () {
             this.param.flage = this.param.userCode ? '02' : '01';
-            this.$http.post('api/v2/agent/queryTeamReport', this.param, { userId: true, loading: true }).then(res => {
+            this.$http.post('api/v2/agent/queryTeamReport', this.param, { userId: true, loading: true, noEncrypt: true }).then(res => {
                 if (res.data.code !== 0) return
                 this.reportData = res.data.data
             })
-        }
+        },
+        getHistorySelect (obj) {
+            this.param.ltTime = obj.endTime;
+            this.param.gtTime = obj.startTime;
+            this.search();
+        },
     },
     created () {
         this.search();
-    },
-    components: {
-        historySelect
-    },
+    }
 };
 </script>
+<style lang="less">
+@import './agency.less';
+</style>
 <style lang="less">
 @rem: 40rem;
 .agent-reports {

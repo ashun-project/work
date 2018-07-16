@@ -13,12 +13,12 @@
                 <div class="clr"></div>
             </div>
             <ul>
-                <li><input v-model="userCode" class="login-icon1" placeholder="请输入用户名" type="text" /> </li>
-                <li><input v-model="password" class="login-icon2" ref="pwd" placeholder="请输入密码" type="password" />
+                <li><input v-model="userCode" class="login-icon1" @input="changeInput($event,'userCode')" placeholder="请输入用户名" type="text" /> </li>
+                <li><input v-model="password" class="login-icon2" @input="changeInput($event,'password')" ref="pwd" placeholder="请输入密码" type="password" />
                     <i class="eye" @click="showPwd('pwd','isOpen')" :class='{"open-eye" : isOpen}'></i>
                 </li>
                 <li class="relative">
-                    <input style="display: inherit;" class="login-icon3" @focus="changeInter()" placeholder="请输入验证码" type="text" v-model="checkCode" />
+                    <input style="display: inherit;" class="login-icon3" @input="changeInput($event,'checkCode')" @focus="changeInter()" placeholder="请输入验证码" type="text" v-model="checkCode" />
                     <div class="absolute" style="top:7px;right: 10px;">
                         <a href="#" class="radius-8 absolute yzm " @click.stop.prevent="timeInter = new Date().getTime()">
                             <img :src="'/api/v2/user/captcha.jpg?d='+ timeInter" height="28" />
@@ -27,7 +27,7 @@
                 </li>
             </ul>
             <div>
-                <a v-on:click="doLogin" class="login-btn" :class="{'box-shadow-red': userCode && password && checkCode}">登 录</a>
+                <a v-on:click="doLogin" class="login-btn" :class="{'box-shadow-red':btnDisable }">登 录</a>
             </div>
             <dl class="other-opear">
                 <dt class="aui-pull-left">
@@ -56,14 +56,22 @@ export default {
             password: "",
             checkCode: "",
             isOpen: false,
+            btnDisable: false
         }
     },
     computed: {
         onLineServicer () {
             return this.$store.state.onLineServicer;
+        },
+        user () {
+            return this.$store.state.user;
         }
     },
     methods: {
+        changeInput (e, key) {
+            let val = (key === 'userCode' ? this.password && this.checkCode : key === 'password' ? this.userCode && this.checkCode : this.password && this.userCode)
+            this.btnDisable = val && e.target.value
+        },
         changeInter () {
             if (this.computeTime === 0) {
                 this.timeInter = new Date().getTime();
@@ -91,8 +99,23 @@ export default {
                 this.$Modal.alert("验证码不能为空");
                 return;
             }
-            var passwordMd5 = encryption.encrypt.md5(this.password);
 
+            if (this.user.userCode) {
+                this.$Modal.confirm('当前已登录，是否切换账号', '温馨提示').then(() => {
+                    this.$http.post('/api/v2/user/loginOut', '', { userId: true }).then(response => {
+                        if (response.data.code !== 0) return;
+                        localStorage.setItem('user', '');
+                        this.$store.commit('getUser', {});
+                        this.loginFetch();
+                    })
+                }, () => { })
+                return
+            }
+            this.loginFetch();
+
+        },
+        loginFetch () {
+            var passwordMd5 = encryption.encrypt.md5(this.password);
             this.$http.post('/api/v2/user/login', { userCode: this.userCode, password: passwordMd5, checkCode: this.checkCode }, { loading: 1 }).then(response => {
                 this.timeInter = new Date().getTime();
                 if (response.data.code !== 0) return;
@@ -102,16 +125,6 @@ export default {
                 this.$goBack(this)
             })
         },
-        /*   doForget(e){
-              this.$http.post('/api/v2/cms/queryQrcodesAndServicer',{
-                  frontType : 'h5'
-              }).then((response)=>{
-                     if (response.data.code !== 0) return;
-                     let data = response.data.data;
-                     window.open(data.servicer.url, '_blank');       
-              })
-              return false
-          }, */
         fastReg () {
             this.$router.push('/register');
         },

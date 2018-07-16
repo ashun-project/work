@@ -57,11 +57,6 @@ export default {
             }
         }
     },
-    filters: {
-        keepDecimalOf2 (val) {
-            return val ? val.toFixed(2) : "0.00";
-        }
-    },
     computed: {
         user () {
             return this.$store.state.user;
@@ -79,11 +74,11 @@ export default {
     },
     created () {
         //重新查询余额
-        this.$http.post('/api/v2/user/queryBalance', '', { userId: true }).then(response => {
+        this.$http.post('/api/v2/user/queryBalance', '', { userId: true, noEncrypt: true }).then(response => {
             if (response.data.code !== 0) return;
             this.balance = response.data.data.balance;
         });
-        this.$http.post('/api/v2/user/getUsablePayType', '', { userId: true, loading: 2 }).then(response => {
+        this.$http.post('/api/v2/user/getUsablePayType', '', { userId: true, loading: 2, noEncrypt: true }).then(response => {
             if (response.data.code !== 0) return;
             this.payTypeList = response.data.data;
         });

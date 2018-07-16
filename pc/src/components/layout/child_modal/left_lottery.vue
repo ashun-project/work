@@ -1,5 +1,5 @@
 <template>
-    <div class="lottery">
+    <div class="lottery home-lottery">
         <div class="lottery-list">
             <ul class="lee-change-background">
                 <li v-for="item in hotList" :key="item.lotteryId">
@@ -14,12 +14,10 @@
             <div class="high-frequency lee-frequency " @mouseenter="enterMoreList(1)" :class="{active: type === 1}">
                 <div class="before-document" v-show="type == 1 "></div>
                 <div class="label">
-                    <!-- <i class="i-icon i-high"></i> -->
                     <p class="frequency-left">高频彩</p>
                 </div>
                 <ul>
                     <li v-for="item in highList.slice(0, 4)" :key="item.lotteryId" class="lee-change-height">
-                        <!-- <a @click.prevent="goBetting(item)" class="color-hover ">{{item.lotteryName}}</a> -->
                         <router-link :to="item.status === '0' ? `${$route.fullPath}` : {name:'buyLottery',params: {id: item.lotteryId}}" class="color-hover" :class="[item.status === '0' ? 'lottery-pointer-not' : '']" :target="item.status === '1' ?  '_blank' : '' ">{{item.lotteryName}}</router-link>
                     </li>
                 </ul>
@@ -30,13 +28,10 @@
             <div class="low-frequency lee-frequency" @mouseenter="enterMoreList(2)" :class="{active: type === 2}">
                 <div class="before-document" v-show="type==2"></div>
                 <div class="label">
-                    <!-- <i class="i-icon i-low"></i> -->
                     <p class="frequency-left2 frequency-left">低频彩</p>
                 </div>
                 <ul>
                     <li v-for="item in lowList.slice(0, 4)" :key="item.lotteryId" class="lee-change-height">
-                        <!-- <a @click.prevent="goBetting(item)" class="color-hover ">{{item.lotteryName}}</a> -->
-                        <!-- <router-link :to="{name:'buyLottery',params: {id: item.lotteryId}}" class="color-hover" target="_blank">{{item.lotteryName}}</router-link> -->
                         <router-link :to="item.status === '0' ? `${$route.fullPath}` : {name:'buyLottery',params: {id: item.lotteryId}}" class="color-hover" :class="[item.status === '0' ? 'lottery-pointer-not' : '']" :target="item.status === '1' ?  '_blank' : '' ">{{item.lotteryName}}</router-link>
                     </li>
                 </ul>
@@ -53,15 +48,14 @@
                 </h3>
                 <ul>
                     <li v-for="item in moreList" :key="item.lotteryId">
-                        <!-- <a @click.prevent="goBetting(item)" class="color-hover" :class="{'lottery-pointer-not' : item.status == 0 ,'pointer-not' : item.status == 0}">{{item.lotteryName}}</a> -->
                         <router-link :to="item.status === '0' ? `${$route.fullPath}` : {name:'buyLottery',params: {id: item.lotteryId}}" :target=" item.status === '1' ? '_blank' : ''" class="color-hover" :class="{'lottery-pointer-not' : item.status === '0' ,'pointer-not' : item.status === '0'}">{{item.lotteryName}}</router-link>
                     </li>
                 </ul>
             </div>
         </div>
         <div class="open-all">
-            <router-link to="/lottery">全部彩种
-                <span style="margin-left: 10px;">>></span>
+            <router-link to="/lottery" target="_blank">
+                全部彩种&nbsp;&nbsp;&gt;&gt;
             </router-link>
         </div>
     </div>
@@ -81,13 +75,6 @@ export default {
         };
     },
     methods: {
-        // goBetting (item) {
-        // let user = localStorage.getItem('user'); //去投注
-        // if (!user) {
-        //     sessionStorage.setItem('path',`buyLottery&${item.lotteryId}`);
-        // }
-        //     this.$router.push(`/buyLottery/${item.lotteryId}`);
-        // },
         enterMoreList (type) {
             if (type === 1) {
                 this.moreList = this.highList;
@@ -105,17 +92,25 @@ export default {
         }
     },
     created () {
-        let vm = this;
-        this.$http.post("/api/v2/lottery/queryLotteryBar").then(response => {
+        this.$http.post("/api/v2/lottery/queryLotteryBar", '', { unenc: true }).then(response => {
             if (response.data.code !== 0) return;
+            this.showFlag = true
             let data = response.data.data;
-            vm.hotList = data.lotteryHotList;
-            vm.highList = data.lotteryHightList;
-            vm.lowList = data.lotteryLowList;
+            this.hotList = data.lotteryHotList;
+            this.highList = data.lotteryHightList;
+            this.lowList = data.lotteryLowList;
+            $('.home-lottery')[0].style.maxHeight = "606px";
+            $('.home-lottery')[0].style.height = "606px";
+            setTimeout(() => {
+                $('.home-lottery')[0].style.overflow = "visible"
+            }, 2000)
         });
     }
 };
 </script>
+<style lang="less">
+</style>
+
 <style lang="less">
 .lottery {
     background-color: @lottery-bg;
@@ -126,7 +121,6 @@ export default {
         border-bottom: 1px solid transparent;
         ul {
             height: 100%;
-
             .lee-change-height {
                 height: 50%;
                 line-height: 40px;
@@ -158,11 +152,6 @@ export default {
     .frequency-left2 {
         border: 1px solid @lottery-low-frequency-border;
     }
-    .lee-change-background {
-        li {
-            line-height: 58px;
-        }
-    }
     .all-list {
         box-shadow: 3px 1px 2px 0px #b50d0042;
     }
@@ -178,8 +167,7 @@ export default {
     }
 }
 </style>
-
-<style lang="less" scoped>
+<style lang="less">
 .lottery {
     width: 220px;
     position: absolute;
@@ -189,51 +177,69 @@ export default {
     color: #333;
     border: 1px solid @lottery-border;
     border-top: none;
+    .lottery-list {
+        li {
+            width: 100%;
+            a {
+                display: flex;
+                align-items: center;
+                width: 218px;
+                height: 57px;
+                line-height: 56px;
+                border-bottom: 1px solid @lottery-list-border;
+                padding-left: 10px;
+                color: #000;
+                transition: padding-left 0.2s linear,
+                    background-color 0.2s linear, color 0.2s linear;
+                -webkit-transition: padding-left 0.2s linear,
+                    background-color 0.2s linear, color 0.2s linear;
+                -moz-transition: padding-left 0.2s linear,
+                    background-color 0.2s linear, color 0.2s linear;
+                -ms-transition: padding-left 0.2s linear,
+                    background-color 0.2s linear, color 0.2s linear;
+                -o-transition: padding-left 0.2s linear,
+                    background-color 0.2s linear, color 0.2s linear;
+                img {
+                    width: 42px;
+                    height: 42px;
+                    margin-right: 10px;
+                }
+                &:hover {
+                    color: @common-active-color;
+                    background-color: @lottery-list-nav-hover-bg;
+                    padding-left: 31px;
+                }
+                &.not-allow {
+                    color: @lottery-list-not-allow-color;
+                    cursor: not-allowed;
+                    img {
+                        filter: gray;
+                        -webkit-filter: grayscale(100%);
+                        -webkit-filter: gray;
+                        -o-filter: grayscale(100%);
+                        -ms-filter: grayscale(100%);
+                        -moz-filter: grayscale(100%);
+                    }
+                    &:hover {
+                        color: @lottery-list-not-allow-color;
+                        background: inherit;
+                    }
+                }
+            }
+        }
+    }
+    .all-lottery {
+        position: relative;
+        // .lee-frequency {
+        //     height: 82px;
+        //     border-bottom: 1px solid #ffe2cd;
+        //     position: relative;
+        // }
+    }
 }
-.lottery-list li {
-    line-height: 56px;
-    width: 100%;
-}
-.lottery-list li a {
-    color: #000;
-    font-size: 14px;
-    display: flex;
-    width: 100%;
-    height: 100%;
-    border-bottom: 1px solid @lottery-list-border;
-    padding-left: 10px;
-    align-items: center;
-}
-.lottery-list li .not-allow {
-    color: @lottery-list-not-allow-color;
-    cursor: not-allowed;
-}
-.lottery-list li .not-allow:hover {
-    color: @lottery-list-not-allow-color;
-    background: inherit;
-}
-.lottery-list li .not-allow img {
-    filter: gray;
-    -webkit-filter: grayscale(100%);
-    -webkit-filter: gray;
-    -o-filter: grayscale(100%);
-    -ms-filter: grayscale(100%);
-    -moz-filter: grayscale(100%);
-}
-.lottery-list li a:hover {
-    color: @common-active-color;
-    background-color: @lottery-list-nav-hover-bg;
-}
-.lottery-list li a img {
-    width: 42px;
-    height: 42px;
-    margin-right: 10px;
-}
-.all-lottery {
-    border-top: 0;
-    position: relative;
-    border-bottom: 0;
-}
+</style>
+
+<style lang="less">
 .all-lottery > div {
     height: 82px;
     border-bottom: 1px solid #ffe2cd;
@@ -256,6 +262,9 @@ export default {
 }
 .all-lottery .low-frequency .label {
     color: @lottery-low-frequency-color;
+}
+.all-lottery .low-frequency {
+    border-bottom: 1px solid @lottery-list-border;
 }
 .all-lottery .label i {
     margin-top: 14px;
@@ -316,8 +325,7 @@ export default {
     border: 0;
     padding: 10px;
     border: 1px solid @common-active-border-color;
-    /* height: 195px; */
-    height: 202px;
+    height: 207px;
 }
 .all-lottery .all-list h3 {
     font-size: 14px;
@@ -350,12 +358,11 @@ export default {
 .lottery .open-all {
     text-align: center;
     font-size: 14px;
-    line-height: 37px;
+    line-height: 43px;
     cursor: pointer;
-    height: 37px;
+    height: 43px;
     border-bottom: 0;
     width: 100%;
-    // border: 1px solid #eee;
     border-top-color: @lottery-list-border;
     border-top: 0;
 }
@@ -364,6 +371,20 @@ export default {
 }
 .lottery .open-all:hover a {
     color: @common-active-color;
+}
+.lottery-list li:last-child a {
+    border-bottom-color: transparent;
+}
+.lottery .lee-frequency {
+    border-top: 1px solid @lottery-list-border;
+    // border-bottom: 1px solid #ffe2cd;
+}
+.lottery .lee-frequency:last-child {
+    border-bottom: 1px solid @lottery-list-border;
+}
+.lottery .lee-frequency:hover {
+    border-top: 1px solid @common-active-border-color;
+    border-bottom: 1px solid @common-active-border-color;
 }
 </style>
 

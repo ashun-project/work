@@ -1,8 +1,11 @@
 <template>
     <mt-popup v-model="show" class="ui-dialog" :modal="modal" :closeOnClickModal="closeOnClickModal" position="center">
+        <i class="iconfont icon-close" @click="close" v-if="showClose"></i>
         <slot name="d-head">
             <div class="head" v-if="title" v-html="title"></div>
+
         </slot>
+
         <div class="d-body">
             <slot></slot>
         </div>
@@ -32,6 +35,9 @@ export default {
         closeOnClickModal: {
             default: true
         },
+        showClose: {
+            default: false
+        },
         modal: true
     },
     data () {
@@ -44,13 +50,26 @@ export default {
             this.show = v
         },
         show (v) {
+            if (v) {
+                document.body.style.height = "100%";
+                document.body.style.overflow = "hidden";
+                document.documentElement.style.overflow = "hidden";
+                document.documentElement.style.height = "100%";
+            } else {
+                document.body.style.overflow = "auto";
+                document.body.style.height = "";
+                document.documentElement.style.overflow = "auto";
+                document.documentElement.style.height = "";
+            }
+
             this.$emit('input', v)
         }
     },
 
     methods: {
         close (type) {
-            this.show = false
+            this.show = false;
+
             if (type) {
                 this.$emit('on-end')
             }
@@ -58,6 +77,9 @@ export default {
         open () {
             this.show = true
         }
+    },
+    beforeDestroy () {
+        document.body.style.overflow = "auto"
     }
 }
 </script>
@@ -67,11 +89,20 @@ export default {
     width: 90%;
     border-radius: 6px;
     padding: 0.5rem;
+    .icon-close {
+        position: absolute;
+        right: 10px;
+        top: 0;
+        color: #ec0022;
+        font-size: 1.4rem;
+        z-index: 1;
+    }
     .head {
         height: 80 / @rem;
         line-height: 80 / @rem;
         text-align: center;
         border-bottom: 1px solid #f2f2f2;
+        position: relative;
     }
     .d-body {
         padding: 20 / @rem 0;
@@ -102,6 +133,20 @@ export default {
                 color: #666;
             }
         }
+    }
+}
+.ui-dialog-red {
+    width: 90%;
+    border-radius: 6px;
+    padding: 0;
+    .icon-close {
+        color: #fff;
+    }
+    .head {
+        color: #fff;
+        background-color: #ec0022;
+        border-top-left-radius: 6px;
+        border-top-right-radius: 6px;
     }
 }
 </style>

@@ -162,8 +162,6 @@ function drag(dom, disTop = 40, disBottom = 40) {
 	})
 }
 
-
-
 export default {
 	removeClass: removeClass,
 	addClass: addClass,

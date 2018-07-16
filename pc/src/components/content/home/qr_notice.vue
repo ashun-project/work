@@ -1,5 +1,5 @@
 <template>
-    <div class="notice rf">
+    <div class="notice lee-notice rf">
         <div class="rq">
             <div class="rq-abel">
                 <p @mouseenter="clientType = 1" :class="{active: clientType === 1}">
@@ -33,7 +33,9 @@
                     <span>
                         <i class="i-icon i-small-box"></i>
                     </span>&nbsp;
-                    <router-link :to="item.jumpUrl">{{item.title}}</router-link>
+                    <a v-if="idx===0" @click.prevent="goPath(item.jumpUrl,'/newsList/announce')">{{item.title}}</a>
+                    <router-link v-else :to="item.jumpUrl">{{item.title}}</router-link>
+
                 </li>
             </ul>
         </div>
@@ -56,6 +58,10 @@ export default {
         }
     },
     methods: {
+        goPath (path, typePath) {
+            this.$router.push(path);
+            sessionStorage.setItem('newsView', typePath)
+        },
         // 获取公告列表
         getList (type, sign) {
             let vm = this;
@@ -64,7 +70,8 @@ export default {
             this.guidanceType = type;
             let url = '/api/v2/cms/queryAnnounceEssayList';
             if (type === 'guidance') url = '/api/v2/cms/queryAdvisoryEssayList';
-            this.$http.post(url, { type: sign }).then(response => {
+            this.$http.post(url, { type: sign }, { unenc: true }).then(response => {
+                $('.lee-notice')[0].style.opacity = 1
                 if (response.data.code !== 0) return;
                 // console.log(response.data);
                 this.noticeList = response.data.data.list.slice(0, 4);
@@ -88,6 +95,10 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.lee-notice {
+    opacity: 0;
+    transition: 1.2s;
+}
 .notice {
     width: 250px;
 }

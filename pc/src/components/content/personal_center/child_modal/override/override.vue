@@ -25,14 +25,18 @@
         <div class="table">
             <Table :columns="columns" :data="rebateList" stripe></Table>
             <div class='total-money' v-if='rebateList.length'>
-                <p>
+                <!-- <p>
                     <span>总结</span>
                     <span>{{total.buyMoneyTotal.toFixed(2)}}</span>
                     <span>{{total.rebateSumTotal.toFixed(2)}}</span>
-                </p>
+                </p> -->
             </div>
         </div>
-        <page :total="pageParams.total" :current="pageParams.currentPage" @get-Page-Data="queryList"></page>
+        <Spin fix v-show="leeWrapSpinShow">
+            <Icon type="load-c" size=24 class="demo-spin-icon-load"></Icon>
+            <div>Loading</div>
+        </Spin>
+        <page :total="pageParams.total" :current="pageParams.currentPage" :pageSize="pageParams.size" @get-Page-Data="queryList"></page>
     </div>
 </template>
 <script>
@@ -64,62 +68,80 @@ export default {
                 periodNo: '',
                 lotteryRecordId: ''
             },
+            leeWrapSpinShow: false,
+            // columns: [
+            //     {
+            //         title: '交易期号',
+            //         key: 'periodNo',
+            //         width: 161
+            //     },
+            //     {
+            //         title: '彩种名称',
+            //         key: 'lotteryName',
+            //         width: 98
+            //     },
+            //     {
+            //         title: '投注人数',
+            //         key: 'bettingUserCount',
+            //         width: 98
+            //     },
+            //     {
+            //         title: '投注金额',
+            //         key: 'buyMoney',
+            //         width: 98,
+            //         render: (h, params) => {
+            //             return h('span', params.row.buyMoney.toFixed(2))
+            //         }
+            //     },
+            //     {
+            //         title: '佣金',
+            //         key: 'rebateSum',
+            //         width: 98,
+            //         render: (h, params) => {
+            //             return h('span', params.row.rebateSum.toFixed(2));
+            //         }
+            //     },
+            //     {
+            //         title: '状态',
+            //         key: 'status',
+            //         width: 98
+            //     },
+            //     {
+            //         title: '详情',
+            //         key: 'takeFeeTotal',
+            //         width: 100,
+            //         render: (h, params) => {
+            //             return h('div', [
+            //                 h('span', {
+            //                     style: {
+            //                         color: '#be1204',
+            //                         cursor: 'pointer'
+            //                     },
+            //                     on: {
+            //                         click: () => {
+            //                             this.show(params.row)
+            //                         }
+            //                     }
+            //                 }, '详情')
+            //             ]);
+            //         }
+            //     }
+            // ],
             columns: [
                 {
-                    title: '交易期号',
-                    key: 'periodNo',
-                    width: 161
-                },
-                {
-                    title: '彩种名称',
-                    key: 'lotteryName',
-                    width: 98
-                },
-                {
-                    title: '投注人数',
-                    key: 'bettingUserCount',
-                    width: 98
+                    title: '代理名称',
+                    key: 'userCode',
+                    width: 240
                 },
                 {
                     title: '投注金额',
                     key: 'buyMoney',
-                    width: 98,
-                    render: (h, params) => {
-                        return h('span', params.row.buyMoney.toFixed(2))
-                    }
+                    width: 240
                 },
                 {
-                    title: '佣金',
+                    title: '代理佣金',
                     key: 'rebateSum',
-                    width: 98,
-                    render: (h, params) => {
-                        return h('span', params.row.rebateSum.toFixed(2));
-                    }
-                },
-                {
-                    title: '状态',
-                    key: 'status',
-                    width: 98
-                },
-                {
-                    title: '详情',
-                    key: 'takeFeeTotal',
-                    width: 100,
-                    render: (h, params) => {
-                        return h('div', [
-                            h('span', {
-                                style: {
-                                    color: '#be1204',
-                                    cursor: 'pointer'
-                                },
-                                on: {
-                                    click: () => {
-                                        this.show(params.row)
-                                    }
-                                }
-                            }, '详情')
-                        ]);
-                    }
+                    width: 280
                 }
             ],
             columnsDetail: [
@@ -179,8 +201,11 @@ export default {
                 gtBuyTime = dateUtil.getFormatDate(this.query.queryTime[0]);
                 ltBuyTime = dateUtil.getFormatDate(this.query.queryTime[1]);
             }
-            this.$http.post('/api/v2/agent/subuser/rebate', { current: page, userId: this.userInfo.userId, gtBuyTime: gtBuyTime, ltBuyTime: ltBuyTime }, { userId: true }).then(response => {
+            this.leeWrapSpinShow = true
+            this.$http.post('/api/v2/agent/subuser/rebate', { current: page, userId: this.userInfo.userId, gtBuyTime: gtBuyTime, ltBuyTime: ltBuyTime, size: this.pageParams.size }, { userId: true, unenc: true }).then(response => {
+                this.leeWrapSpinShow = false
                 if (response.data.code !== 0) return;
+                // console.log(response)
                 this.pageParams.currentPage = page;
                 this.total = response.data.data;
                 this.rebateList = response.data.data.rebateList;
@@ -188,7 +213,7 @@ export default {
             })
         },
         queryInfoList (page, row) {
-            this.$http.post('/api/v2/agent/subuser/rebate/info', { current: page, lotteryRecordId: row.lotteryRecordId }, { userId: true }).then(response => {
+            this.$http.post('/api/v2/agent/subuser/rebate/info', { current: page, lotteryRecordId: row.lotteryRecordId }, { userId: true, unenc: true }).then(response => {
                 if (response.data.code !== 0) return;
                 this.showModel = true;
                 this.modelTitle = row.periodNo;

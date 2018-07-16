@@ -1,27 +1,34 @@
 <template>
     <div id="app">
         <!-- <audio src="/static/images/8868.mp3" ref="music" id="music" controls="controls" style="display: none;"></audio> -->
-        <router-view v-if="!netStatus" />
+        <router-view v-if="!netStatus &&!iPInfo" />
         <div class="net-error" v-if="netStatus">
             系统维护中。。。
         </div>
+        <!-- ip限制 -->
+        <ip-forbid v-if="iPInfo"></ip-forbid>
     </div>
 </template>
 
 <script>
+import ipForbid from '@/components/common/module_vue/ipforbid.vue';
 let socket;
 export default {
+    components: { ipForbid },
     name: 'app',
     computed: {
         netStatus () {
             return this.$store.state.netStatus;
-        }
+        },
+        iPInfo () {
+            return this.$store.state.isIpForbid;
+        },
     }
 }
 </script>
 
-<style>
-@import './components/common/style/common';
+<style lang="less">
+@import './components/common/style/common.less';
 
 * {
     margin: 0;
@@ -45,7 +52,7 @@ a {
     text-decoration: none;
 }
 .color-hover:hover {
-    color: #be1204;
+    color: @primary-color;
 }
 img {
     width: 100%;
@@ -61,8 +68,8 @@ html,
 body {
     height: 100%;
     font-size: 14px !important;
-    font-family: '微软雅黑';
-    overflow-y: auto;
+    /* font-family: '微软雅黑'; */
+    // overflow-y: auto;
 }
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
@@ -97,7 +104,7 @@ input[type='number'] {
     outline: none;
 }
 .btn.primary {
-    background: #be1204;
+    background: @primary-color;
     color: #fff;
 }
 
@@ -112,12 +119,12 @@ input[type='number'] {
     padding: 10px;
 } */
 .input-wrapper .btn {
-    border-color: #be1204;
+    border-color: @primary-color;
     padding: 9px 10px;
     cursor: pointer;
 }
 .input-wrapper .btn.primary {
-    background: #be1204;
+    background: @primary-color;
     color: #fff;
 }
 input::-webkit-input-safebox-button {
@@ -384,7 +391,7 @@ ul::-webkit-scrollbar-resizer,
 .i-small-box {
     width: 4px;
     height: 4px;
-    background: #be1204;
+    background: @primary-color;
 }
 .i-trophy {
     width: 25px;
@@ -569,7 +576,11 @@ ul::-webkit-scrollbar-resizer,
 .i-report-description,
 .i-report-description-active,
 .i-online-withdrawal,
-.i-online-withdrawal-active {
+.i-online-withdrawal-active,
+.i-agent-betting,
+.i-agent-betting-active,
+.i-agent-trade,
+.i-agent-trade-active {
     width: 19px;
     height: 17px;
     background: url('/configstatic/pc/images/icon.png') no-repeat;
@@ -651,6 +662,20 @@ ul::-webkit-scrollbar-resizer,
 .i-online-withdrawal-active {
     background-position: -394px -382px;
 }
+// 代理投注明细
+.i-agent-betting {
+    background-position: -417px -289px;
+}
+.i-agent-betting-active {
+    background-position: -417px -315px;
+}
+//代理交易明细
+.i-agent-trade {
+    background-position: -449px -290px;
+}
+.i-agent-trade-active {
+    background-position: -449px -316px;
+}
 /*分享图标*/
 /* .i-weibo,
 .i-renren,
@@ -709,6 +734,8 @@ ul::-webkit-scrollbar-resizer,
 #app .ivu-table-cell {
     padding-right: 0;
     padding-left: 13px;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 .v-transfer-dom .ivu-table-cell {
     padding-right: 0;
@@ -752,9 +779,15 @@ ul::-webkit-scrollbar-resizer,
 }
 .ivu-slider .ivu-slider-button:hover,
 .ivu-slider-button-dragging {
-    border-color: #ff7614;
+    border-color: @slider-color;
     -webkit-transform: scale(1.5);
     transform: scale(1.5);
+}
+.ivu-slider-button {
+    border: 2px solid @slider-color;
+}
+.ivu-slider-bar {
+    background: @slider-color;
 }
 .ivu-slider .ivu-tooltip-popper[x-placement='top'] .ivu-tooltip-arrow {
     left: 50%;
@@ -763,7 +796,7 @@ ul::-webkit-scrollbar-resizer,
 .ivu-slider .ivu-tooltip-popper[x-placement^='top'] .ivu-tooltip-arrow {
     bottom: 3px;
     border-width: 5px 5px 0;
-    border-top-color: #ffb848;
+    border-top-color: @tooltip-bg;
 }
 .ivu-slider .ivu-tooltip-inner {
     max-width: 100px;
@@ -775,7 +808,7 @@ ul::-webkit-scrollbar-resizer,
     font-size: 12px;
     text-align: center;
     text-decoration: none;
-    background-color: #ffb848;
+    background-color: @tooltip-bg;
     border-radius: 4px;
     -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);

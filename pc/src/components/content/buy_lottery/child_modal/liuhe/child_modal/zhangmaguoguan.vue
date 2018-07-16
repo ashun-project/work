@@ -7,7 +7,7 @@
                 <play-example :bettingExample="playTipInfo.bettingExample" :prizeDesc="playTipInfo.prizeDesc"></play-example>
             </div>
             <div class='tip-wrap'>
-                <play-tip :playDesc="playTipInfo.playDesc" :isLiuHe="true" :maxOdd="maxOdd" :hasLogin="!!user.userId"></play-tip>
+                <play-tip :playDesc="playTipInfo.playDesc" :tip="playTipInfo.layout.tips && playTipInfo.layout.tips" :isLiuHe="true" :maxOdd="maxOdd" :hasLogin="!!user.userId"></play-tip>
             </div>
         </div>
         <!--玩法中奖提示 -->
@@ -129,7 +129,8 @@ export default {
             odd: 1,                        //总的赔率
             maxOdd: null,                    //最大赔率
             checked: true,
-            direct: []
+            direct: [],
+            playCount: 0                //玩法数量
         }
     },
     computed: {
@@ -269,8 +270,10 @@ export default {
                     lotteryId: item.rates[0].lotteryId,
                     lotteryPlayId: item.rates[0].lotteryPlayId,
                     lotteryBettingId: item.rates[0].lotteryBettingId,
-                    odds: Math.floor(odds * 100) / 100,   // 保留两位小数 向下取整
-                    lotteryNumber: ball.join('|'),
+                    // odds: Math.floor(odds * 100) / 100,   // 保留两位小数 向下取整
+                    odds: odds.toFixed(2),
+                    // lotteryNumber: ball.join('|'),
+                    lotteryNumber: ball.join('|') + '|'.repeat(this.playCount - ball.length),//6.17
                     bettingMoney: vm.singleMoney / vm.companyValue,
                     singleMoney: vm.singleMoney,
                     bettingNum: 1,
@@ -293,6 +296,7 @@ export default {
             vm.positiveCode.push(JSON.parse(JSON.stringify(data)));
             vm.direct.push({ x: '', y: '' });
         }
+        this.playCount = vm.positiveCode.length;
         // 获取列头
         vm.positiveCode[0].children[0].layout.rates.forEach(item => {
             vm.column.push(item.ball);

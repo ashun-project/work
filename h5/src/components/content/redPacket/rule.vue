@@ -27,7 +27,12 @@
                     <td>{{item.effectiveBetting}}以上</td>
                     <td>{{item.prizeTime}}</td>
                     <template v-if="index === 0">
-                      <td :rowspan="rules.length">1倍流水</td>
+                      <td :rowspan="rules.length">
+                        <span v-if="flowingWater">
+                          {{flowingWater}}倍流水
+                        </span>
+                        <span v-else>无需流水</span>
+                      </td>
                       <td :rowspan="rules.length">抢到红包后 系统自动派 彩 秒到账</td>
                     </template>
 
@@ -39,8 +44,9 @@
           <div class="rule-box">
             <div class="box-hd xz"></div>
             <div class="box-bd">
-              <div class="rules">
-                1、每日北京时间凌晨{{robBeginTime}}点到次日凌晨{{robEndTime}}点计算一天;
+              <div class="rules" v-html="escapeHtml(activityRuleDetail)">
+
+                <!-- 1、每日北京时间凌晨{{robBeginTime}}点到次日凌晨{{robEndTime}}点计算一天;
                 <br> 2、每位会员每个IP当日累计抢红包次数最多为3次;
                 <br> 3、当天满足抽奖条件后即可在第二天参与红包活动
                 <br> 4、当日获得的抽奖次数需当日完成抽奖;
@@ -48,7 +54,7 @@
                 <br> 6、彩金自动添加到账户上一倍流水即可取款;
                 <br> 7、活动奖金逾期未领取，视为自动放弃活动资格;
                 <br> 8、为了避免文字理解差异造成的误解，{{$configText.main}}彩票享有最终解释权
-                <br>
+                <br> -->
               </div>
             </div>
           </div>
@@ -64,7 +70,9 @@ export default {
     return {
       robBeginTime: '',
       robEndTime: '',
-      rules: []
+      rules: [],
+      flowingWater: 0,
+      activityRuleDetail: ''
     };
   },
   methods: {
@@ -76,7 +84,17 @@ export default {
       vm.robBeginTime = systemConfig['robBeginTime']
       vm.robEndTime = systemConfig['robEndTime']
       vm.rules = JSON.parse(systemConfig['activityRule'])
+      vm.flowingWater = systemConfig['flowingWater'];
     })
+
+    this.$http.post('/api/v2/user/redpacketSetting/info', [], { loading: 2, noEncrypt: true }).then(response => { // 查询活动信息
+      if (response.data.code !== 0) return;
+      let data = response.data.data, vm = this;
+      this.activityRuleDetail = data.activityRuleDetail;
+    }).catch(() => {
+
+    });
+
   },
   mounted: function () {
     this.$nextTick(() => {

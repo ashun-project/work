@@ -15,9 +15,10 @@
                 <input id="start-time" v-model="startTime" type="text" name="" readonly @click="selectDate(0)" placeholder="开始时间">
                 <span>至</span>
                 <input id="end-time" v-model="endTime" type="text" name="" readonly @click="selectDate(1)" placeholder="结束时间">
-                <a @click="resetList">
+                <!--   <a @click="resetList">
                     <strong>
-                        <i class="iconfont icon-shuaxin"></i>&nbsp;</strong>重选</a>
+                        <i class="iconfont icon-shuaxin"></i>&nbsp;</strong>重选</a> -->
+                <history-select @get-history-select="getHistorySelect"></history-select>
 
             </div>
             <ul class="tab ">
@@ -48,13 +49,14 @@
 </template>
 
 <script>
-import dateUtil from '@/components/common/module_js/format_date.js'
+import dateUtil from '@/components/common/module_js/format_date.js';
+
 export default {
     data () {
         return {
             agentCode: '',
-            endTime: '',
-            startTime: '',
+            endTime: dateUtil.getFormatDate(new Date()),
+            startTime: dateUtil.getFormatDate(new Date()),
             swiperIndex: 0,
             tabList: [{ title: '所有类型', list: [], param: { current: 1, size: 10 } }, { title: '提现记录', list: [], param: { current: 1, size: 10 } }, { title: '充值记录', list: [], param: { current: 1, size: 10 } }],
             list: [],
@@ -71,6 +73,8 @@ export default {
         getHistorySelect (obj) {
             this.endTime = obj.endTime;
             this.startTime = obj.startTime;
+            this.resetData()
+            this.getRecordList(true);
         },
         downRefresh () {
             return new Promise((resolve, reject) => {
@@ -82,7 +86,6 @@ export default {
                 }, 1000);
             })
         },
-
         clkTab (idx) {
             this.swiperIndex = idx;
             this.tradeTypeArray = idx === 0 ? [] : idx === 1 ? ['00'] : ['04']
@@ -123,13 +126,13 @@ export default {
                 this.tabList[i].param.current = 1;
             }
         },
-        resetList () {
-            this.startTime = '';
-            this.endTime = '';
-            this.agentCode = '';
-            this.resetData()
-            this.getRecordList(true);
-        },
+        /*     resetList () {
+                this.startTime = '';
+                this.endTime = '';
+                this.agentCode = '';
+                this.resetData()
+                this.getRecordList(true);
+            }, */
         userCodeChange () {
             if (!this.agentCode) {
                 this.getRecordList(true);
@@ -148,7 +151,8 @@ export default {
                 startTime: vm.startTime,
                 endTime: vm.endTime
             }
-            vm.$http.post('/api/v2/agent/queryAgentBalanceDetailList', this.param, { userId: true }).then(res => {
+
+            vm.$http.post('/api/v2/agent/queryAgentBalanceDetailList', this.param, { userId: true, noEncrypt: true }).then(res => {
                 if (res.data.code !== 0) {
                     myScroll.onBottomLoaded(0);
                     return

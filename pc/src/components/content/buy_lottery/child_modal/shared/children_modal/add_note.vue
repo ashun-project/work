@@ -82,7 +82,10 @@ export default {
                 { value: 100, label: '分' }
             ],
             companyValue: 1,               // 当前选中的company
-            data: {},                      // 单注数据
+            data: {
+                odds: 0,
+                singleMoney: 0
+            },                      // 单注数据
             // playType: '',                  // 判断多赔率    5.5 
             rates: [],                     // 判断多赔率 5.5
             odds: [],                     // 多赔率数据 
@@ -99,9 +102,8 @@ export default {
             return JSON.parse(JSON.stringify(this.currentLottery));
         },
         singlePrizeMoney () { //单注最大中奖金额
-            // return Number(this.data.odds) * (this.data.singleMoney / this.companyValue);
-            // let maxOdds = this.rates.length > 1 ? this.maxOdds : this.data.odds;
-            return Number(this.rates.length > 1 ? this.maxOdds : this.data.odds) * (this.data.singleMoney / this.companyValue);
+            // return Number(this.rates.length > 1 ? this.maxOdds : this.data.odds) * (this.data.singleMoney / this.companyValue);
+            return Number(this.rates.length > 1 ? this.data.odds : this.maxOdds) * (this.data.singleMoney / this.companyValue);
         },
         user () {
             return this.$store.state.user;
@@ -118,6 +120,7 @@ export default {
         },
         balls: {
             handler (newValue, oldValue) {
+                // console.log(newValue);
                 this.getBalls(newValue)
             },
             deep: true
@@ -150,14 +153,16 @@ export default {
             }
             let odds = (layout.rates[0].maxOdds - layout.rates[0].minOdds) / 100;
             let rebate = 100 / layout.rates[0].rebate;
-            this.$set(this.data, 'odds', (layout.rates[0].maxOdds - (num * odds)).toFixed(2));
+            // this.$set(this.data, 'odds', (layout.rates[0].maxOdds - (num * odds)).toFixed(2));
+            this.maxOdds = (layout.rates[0].maxOdds - (num * odds)).toFixed(2);
             if (rates.length > 1) { //多赔率的最大赔率 6.5
-                let maxOdds = Math.max(...rates.map(item => item.maxOdds));
-                this.maxOdds = (maxOdds - (maxOdds - this.minOdds) * num / 100).toFixed(2);
+                // let maxOdds = Math.max(...rates.map(item => item.maxOdds)); //7.6
+                // this.maxOdds = (maxOdds - (maxOdds - this.minOdds) * num / 100).toFixed(2); //7.6
             }
             this.$set(this.data, 'rebate', (num / rebate * 100).toFixed(1));
 
             // 处理多赔率
+
             if (this.odds.length) {
                 let moreOdds = JSON.parse(JSON.stringify(this.odds));
                 let value = 0;
@@ -169,6 +174,8 @@ export default {
                     }
                 })
                 this.$set(this.data, 'odds', value);
+            } else {
+                this.$set(this.data, 'odds', this.maxOdds);
             }
             // 传递当前的状态
             this.$emit('get-status', this.data);
@@ -256,9 +263,13 @@ export default {
             let layout = JSON.parse(this.currentLotterys.layout);
             this.$set(this.data, 'bettingMoney', 0);
             this.$set(this.data, 'singleMoney', layout.costAmount);
+
             this.$set(this.data, 'bettingNum', 0);
             this.rates = layout.rates;
-            this.$set(this.data, 'odds', (layout.rates[0].maxOdds).toFixed(2)); //单赔率的赔率
+            if (this.rates.length === 1) { //7.6单赔率
+                // this.$set(this.data, 'odds', (layout.rates[0].maxOdds).toFixed(2)); //单赔率的赔率
+                this.maxOdds = (layout.rates[0].maxOdds).toFixed(2);
+            }
             this.$set(this.data, 'rebate', 0);
             this.$set(this.data, 'lotteryNumber', '');
             this.$set(this.data, 'company', 1);
@@ -267,12 +278,15 @@ export default {
             this.companyValue = 1;
             this.odds = [];
             if (this.rates.length > 1) { //多赔率的最大赔率 6.5
-                this.maxOdds = Math.max(...this.rates.map(item => item.maxOdds));
+                // this.maxOdds = Math.max(...this.rates.map(item => item.maxOdds));
+                this.data.odds = Math.max(...this.rates.map(item => item.maxOdds));
                 this.rates.forEach(item => {
-                    if (item.maxOdds === this.maxOdds) {
+                    if (item.maxOdds === this.data.odds) {
                         this.minOdds = item.minOdds;
                     }
                 })
+            } else {
+                this.data.odds = this.rates[0].maxOdds;
             }
         }
     },
@@ -411,10 +425,12 @@ export default {
 .picked-result .price-input .ivu-input-number-input-wrap {
     height: 100%;
 }
-.picked-result .ivu-input-number-input {
+</style>
+<style scoped>
+.picked-result .price-input >>> .ivu-input-number-input {
     border: 0;
     outline: none;
-    color: @balls-page-label-color;
+    /* color: @balls-page-label-color; */
     text-align: center;
     height: 34px;
     line-height: 34px;

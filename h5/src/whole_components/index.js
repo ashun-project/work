@@ -12,9 +12,12 @@ import Scroll from './module_vue/scroll'
 import Dialog from './module_vue/dialog'
 // slider滑动注册
 import Slider from './module_vue/slider'
+// historySelect滑动注册
+import historySelect from './module_vue/history_select'
 // import MintUI from 'mint-ui'
 import 'mint-ui/lib/style.css'
 import './module_js/refresh'
+import './module_js/touch'
 import {
 	Swipe,
 	SwipeItem,
@@ -58,6 +61,8 @@ Vue.component(Swipe.name, Swipe);
 Vue.component(SwipeItem.name, SwipeItem);
 Vue.use(InfiniteScroll);
 
+
+
 // Vue.use(MessageBox);
 Vue.prototype.$Indicator = Indicator;
 Vue.prototype.$Modal = MessageBox;
@@ -82,6 +87,8 @@ Vue.component('login-nav', loginNav);
 Vue.component('my-scroll', Scroll);
 Vue.component('my-dialog', Dialog);
 Vue.component('my-slider', Slider);
+Vue.component('historySelect', historySelect);
+
 
 // 添加配置信息
 Vue.prototype.$configText = window.configText;
@@ -99,6 +106,11 @@ Vue.prototype.escapeHtml = function (str) {
 		return arrEntities[t];
 	});
 }
+
+Vue.filter('keepDecimalOf2', function (val) {
+	return val ? Number(val).toFixed(2) : "0.00";
+})
+
 // 自定义console
 Vue.prototype.myConsole = function (params) {
 	//   console.log(params)

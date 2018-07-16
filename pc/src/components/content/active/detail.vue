@@ -25,7 +25,7 @@ export default {
     },
     created () {
         let vm = this;
-        this.$http.post('/api/v2/cms/queryDiscountActivityById', { resourceId: this.$route.params.id }).then(response => {
+        this.$http.post('/api/v2/cms/queryDiscountActivityById', { resourceId: this.$route.params.id }, { unenc: true }).then(response => {
             if (response.data.code !== 0) return;
             vm.txt = vm.escapeHtml(response.data.data.content);
             vm.data = response.data.data;

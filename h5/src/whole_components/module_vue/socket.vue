@@ -24,15 +24,18 @@ export default {
     },
     watch: {
         user (n, o) {
-            if (n.userCode && n.userCode != o.userCode) {
+            if (n.userCode) {
+                if (o.userCode && n.userCode === o.userCode) return;
+                if (RongIMClient && RongIMClient.disconnect) {
+                    RongIMClient.disconnect();
+                }
                 this.connectRongIM();
-            }
-            if (n || !n.userCode) {
+            } else {
                 if (RongIMClient && RongIMClient.disconnect) {
                     RongIMClient.disconnect();
                 }
             }
-        },
+        }
     },
     methods: {
         jumpNotice () {
@@ -164,15 +167,16 @@ export default {
                         data = JSON.parse(content.extra),
                         type = data.type;
                     switch (type) {
-                        case "01":  // 开奖公告
-                            vm.$store.commit("getNoticeModify", {
-                                path: "/prizeNotice",
-                                path2: "/buyLottery",
-                                path3: "/historyList",
-                                lotteryId: data.lotteryId,
-                                periodNo: data.periodNo
-                            });
+                        case "01":  // 开奖结果
+                            data = Object.assign(
+                                {
+                                    path: "/prizeNotice",
+                                    path2: "/buyLottery",
+                                    path3: "/historyList"
+                                },
+                                data);
 
+                            vm.$store.commit("getNoticeModify", data);
                             break;
                         case "02":   // 最新公告
                             noticePath = "/information/sys?type=02";
@@ -211,11 +215,15 @@ export default {
                             localStorage.setItem("user", JSON.stringify(user));
                             vm.$store.commit('getUser', user);
                             break;
-                        case "06":    //  token过期
-                            vm.clearLoginInfo();
-                            vm.$Modal.confirm("token已过期，请重新登录吗？", "温馨提示").then(() => {
-                                vm.$router.push("/login");
-                            }, () => { });
+                        case "06":    // 开奖结果出错
+                            data = Object.assign(
+                                {
+                                    path: "/prizeNotice",
+                                    path2: "/buyLottery",
+                                    path3: "/historyList"
+                                },
+                                data);
+                            vm.$store.commit("getNoticeModify", data);
                             break;
                     }
 

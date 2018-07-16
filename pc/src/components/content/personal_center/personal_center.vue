@@ -113,11 +113,13 @@ export default {
             }
             if (this.user.userType === '10' || this.user.userType === '08') {//会员与代理
                 this.agencyCenter.push(
-                    { name: '用户管理', label: 'userManage', 'bgClass': 'i-user-manager' },
+                    { name: '代理说明', label: 'description', 'bgClass': 'i-report-description' },
+                    { name: '会员管理', label: 'userManage', 'bgClass': 'i-user-manager' },
                     { name: '推广管理', label: 'expand', 'bgClass': 'i-promote-management' },
                     { name: '代理佣金', label: 'override', 'bgClass': 'i-acting-commission' },
-                    { name: '代理说明', label: 'description', 'bgClass': 'i-report-description' },
-                    { name: '报表统计', label: 'teamReport', 'bgClass': 'i-personal-report' }
+                    { name: '代理报表', label: 'agentReport', 'bgClass': 'i-personal-report' },
+                    { name: '代理投注明细', label: 'agentBetting', 'bgClass': 'i-agent-betting' },
+                    { name: '代理交易明细', label: 'agentTrade', 'bgClass': 'i-agent-trade' }
                 );
             }
         }
@@ -133,7 +135,7 @@ export default {
 }
 .personal-center .nav {
     width: 200px;
-    height: 655px;
+    height: 745px;
     border: 1px solid @common-border-color;
     border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -173,6 +175,8 @@ export default {
     font-size: 14px;
     cursor: pointer;
     border-radius: 3px;
+    padding-left: 60px;
+    text-align: left;
 }
 .personal-center .nav li.active span,
 .personal-center .nav li.active span:hover {
@@ -184,7 +188,7 @@ export default {
 }
 .personal-center .personal-content {
     width: 780px;
-    min-height: 655px;
+    min-height: 745px;
     border: 1px solid @common-border-color;
     padding: 10px 19px 10px;
     position: relative;

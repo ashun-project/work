@@ -186,7 +186,7 @@ export default {
 			this.$http.post(
 				"/api/v2/user/queryCustomerFeedbackList",
 				Object.assign({ current: this.current }, param),
-				{ userId: true, status: 1 }
+				{ userId: true, status: 1, noEncrypt: true }
 			).then(response => {
 				if (resolve) {
 					resolve()
@@ -259,13 +259,15 @@ export default {
             margin-left: 20 / @rem;
         }
     }
-    .select-type {
+    .ui-select-type {
         position: relative;
-        margin-right: 34 / @rem;
+        margin-right: 20 / @rem;
+        margin-left: 20 / @rem;
         .list {
             position: absolute;
             top: 58 / @rem;
-            right: -8 / @rem;
+            right: -14 / @rem;
+            left: inherit;
             display: none;
             line-height: 25px;
             z-index: 2;

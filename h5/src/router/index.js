@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import store from '../vuex'
 const notFound = resolve => require(['@/components/content/404/404'], resolve)
+const ipLimit = resolve => require(['@/components/content/ipLimit/ipLimit'], resolve)
 const layout = resolve => require(['@/components/layout/layout'], resolve)
 const home = resolve => require(['@/components/content/home/home'], resolve)
 const lottery = resolve => require(['@/components/content/lottery/lottery'], resolve)
@@ -18,6 +19,7 @@ const login = resolve => require(['@/components/content/login/login'], resolve)
 const register = resolve => require(['@/components/content/register/register'], resolve)
 const freePlay = resolve => require(['@/components/content/free_play/free_play'], resolve)
 const personalCenter = resolve => require(['@/components/content/personal_center/personal_center'], resolve)
+const userReport = resolve => require(['@/components/content/personal_center/child_modal/userReport/userReport'], resolve)
 const personalInfo = resolve => require(['@/components/content/personal_center/child_modal/personal_info/personal_info'], resolve)
 const bankList = resolve => require(['@/components/content/personal_center/child_modal/mysetting/bank/bank_list'], resolve)
 const bandingbank = resolve => require(['@/components/content/personal_center/child_modal/mysetting/bank/bandingbank'], resolve)
@@ -33,7 +35,6 @@ const rechargeList = resolve => require(['@/components/content/personal_center/c
 const takefee = resolve => require(['@/components/content/personal_center/child_modal/takefee_list/takefee'], resolve)
 const takefeeList = resolve => require(['@/components/content/personal_center/child_modal/takefee_list/takefee_list'], resolve)
 const agencyCenter = resolve => require(['@/components/content/personal_center/child_modal/agency_center/agency_center'], resolve)
-const teamReport = resolve => require(['@/components/content/personal_center/child_modal/agency_center/teamReport'], resolve)
 const agentReport = resolve => require(['@/components/content/personal_center/child_modal/agency_center/agentReport'], resolve)
 const agentDealList = resolve => require(['@/components/content/personal_center/child_modal/agency_center/agentDealList'], resolve)
 const tgMgr = resolve => require(['@/components/content/personal_center/child_modal/agency_center/tgMgr'], resolve)
@@ -140,15 +141,15 @@ let setRoute = new Router({
 					meta: {
 						keepAlive: true,
 						notFooter: true
-					}
-				},
-				{
-					path: '/bettingDetail/:id',
-					name: 'bettingDetail',
-					component: bettingDetail,
-					meta: {
-						notFooter: true
-					}
+					},
+					children: [{
+						path: '/bettingDetail/:id',
+						name: 'bettingDetail',
+						component: bettingDetail,
+						meta: {
+							notFooter: true
+						}
+					}]
 				},
 				{
 					path: '/login',
@@ -329,6 +330,15 @@ let setRoute = new Router({
 					}]
 				},
 				{
+					path: '/userReport',
+					name: 'userReport',
+					component: userReport,
+					meta: {
+						notFooter: true,
+						//	notHeader: true
+					},
+				},
+				{
 					path: '/agencyCenter',
 					name: 'agencyCenter',
 					component: agencyCenter,
@@ -337,15 +347,6 @@ let setRoute = new Router({
 						//	notHeader: true
 					},
 
-				},
-				{
-					path: '/agencyCenter/teamReport',
-					name: 'teamReport',
-					component: teamReport,
-					meta: {
-						notFooter: true,
-						//	notHeader: true
-					},
 				},
 				{
 					path: '/agencyCenter/agentReport',
@@ -530,6 +531,11 @@ let setRoute = new Router({
 			path: '*',
 			name: '404',
 			component: notFound
+		},
+		{
+			path: '/ipLimit',
+			name: 'ipLimit',
+			component: ipLimit
 		}
 	]
 })

@@ -262,7 +262,7 @@ export default {
         getPeriodInfo (start, end) {
             let vm = this;
             if (this.selectPeriodList.length < end) {
-                vm.$http.post('/api/v2/lottery/queryLotteryRecordList', { lotteryId: this.$route.params.id, num: end }).then(response => {
+                vm.$http.post('/api/v2/lottery/queryLotteryRecordList', { lotteryId: this.$route.params.id, num: end }, { unenc: true }).then(response => {
                     if (response.data.code !== 0) return;
                     this.selectPeriodList = response.data.data.recordList;
                     if (this.selectPeriodList.length < end) {

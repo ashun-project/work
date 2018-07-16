@@ -56,7 +56,7 @@ export default {
         }
     },
     created () {
-        this.$http.post('/api/v2/cms/headImg', { frontType: 'h5' }, { userId: true, loading: true }).then(response => {
+        this.$http.post('/api/v2/cms/headImg', { frontType: 'h5' }, { userId: true, loading: true, noEncrypt: true }).then(response => {
             if (response.data.code !== 0) return;
             this.list = response.data.data;
         })

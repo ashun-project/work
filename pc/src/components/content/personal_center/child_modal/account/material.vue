@@ -184,7 +184,7 @@ export default {
         },
         showStarImg () {
             //获取头像列表
-            this.$http.post('/api/v2/cms/headImg', '', { userId: true }).then(response => {
+            this.$http.post('/api/v2/cms/headImg', '', { userId: true, unenc: true }).then(response => {
                 if (response.data.code !== 0) return
                 this.starImages = response.data.data;
                 // console.log(this.starImages);
@@ -244,12 +244,12 @@ export default {
             let userType = this.user.userType;
             this.hasAuth = (userType === '00' || userType === '10') ? true : false;
         }
-        this.$http.post('/api/v2/user/balanceAdnSign', '', { userId: true }).then(response => {  //获取签到信息
+        this.$http.post('/api/v2/user/balanceAdnSign', '', { userId: true, unenc: true }).then(response => {  //获取签到信息
             if (response.data.code !== 0) return
             this.proxyInfo = response.data.data;
             // user.levelName
         })
-        this.$http.post('/api/v2/user/findUserLoginLog', '', { userId: true }).then(response => {
+        this.$http.post('/api/v2/user/findUserLoginLog', '', { userId: true, unenc: true }).then(response => {
             if (response.data.code !== 0) return;
             this.historyList = response.data.data.slice(0, 10);
             // console.log(this.historyList);
@@ -389,14 +389,6 @@ export default {
     color: #fff;
     padding: 5px 15px;
     margin-top: 8px;
-}
-.material .recharge {
-    // border-color: @personal-center-recharge-color;
-    // background-color: @personal-center-recharge-bg;
-}
-.material .recharge:hover {
-    // border-color: @personal-center-recharge-hover-border;
-    // background-color: @personal-center-recharge-hover-bg;
 }
 .material .balance .sign {
     float: right;

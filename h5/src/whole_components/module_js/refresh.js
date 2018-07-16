@@ -1,15 +1,19 @@
 import Vue from 'vue'
 import Util from '@/components/common/module_js/util.js';
-const topHeight = 40;
+const topHeight = 120;
 const top = '-2.7rem';
 let RefreshUtil = {
 	handleTouchStart(event) {
 		this.startY = event.touches[0].clientY;
 		this.translateY = 0;
+
 		Util.removeClass(this.option.scrollHtml, 'refreshing');
 	},
 	handleTouchMove(event) {
 		let me = this;
+		if (window.top.document !== document) {
+			return
+		}
 		let scrollTop = me.option.scrollDom.scrollTop || document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
 		if (scrollTop > 0) return;
 		me.currentY = event.touches[0].clientY;
@@ -25,7 +29,7 @@ let RefreshUtil = {
 		if (me.translateY < 0) {
 			me.translateY = top;
 		}
-		RefreshUtil.setTransform(me.option.scrollHtml, me.translateY + 'px');
+		RefreshUtil.setTransform(me.option.scrollHtml, me.translateY / 3 + 'px');
 	},
 	handleTouchEnd(event) {
 		document.body.removeEventListener('touchmove', RefreshUtil.preventDefault, {
@@ -69,6 +73,7 @@ Vue.directive('refresh', {
 			el,
 			expression: binding.value
 		}
+
 	},
 	inserted: function (el, binding, context) {
 		let pos = window.getComputedStyle(el, null).position,

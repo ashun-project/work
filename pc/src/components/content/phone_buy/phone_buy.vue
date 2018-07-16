@@ -53,10 +53,10 @@ export default {
     float: left;
 }
 .phone-buy .half-left {
-    background: url('/configstatic/pc/images/half_left.png') no-repeat right;
+    background: url('/static/images/half_left.png') no-repeat right;
 }
 .phone-buy .half-right {
-    background: url('/configstatic/pc/images/half_right.png') no-repeat left;
+    background: url('/static/images/half_right.png') no-repeat left;
 }
 .phone-buy .advantage {
     color: #6e6e6e;

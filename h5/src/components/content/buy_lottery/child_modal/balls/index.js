@@ -11,6 +11,7 @@ export default {
 	'b-pk10': share,
 	'b-ssc': share,
 	'b-qtcp': share,
+	'b-klsf': share,
 	'b-pcdd': pcdd,
 	'b-6hc': liuhe,
 	's-ksan': shareSimple,

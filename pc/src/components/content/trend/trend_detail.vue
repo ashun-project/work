@@ -1,5 +1,5 @@
 <template>
-    <div class="trend">
+    <div class="trend" v-loading="loadingfir||(loadingsec||loadingthi)">
         <div class="broad-list">
             <div class='lottery-list-wrapper'>
                 <ul>
@@ -39,22 +39,30 @@ export default {
             subList: [],
             lotteryType: '',
             lotteryId: '',
-            detailTitle: ''
+            detailTitle: '',
+            loadingfir: false,
+            loadingsec: false,
+            loadingthi: false
         }
     },
     methods: {
         lotteryResult (id) {
             let vm = this;
             this.$router.push({ params: { id: id } });
-            this.$http.post('/api/v2/trend/queryDisplays', { lotteryId: id }).then(response => {
+            this.loadingthi = true
+            this.$http.post('/api/v2/trend/queryDisplays', { lotteryId: id }, { unenc: true }).then(response => {
                 // 返回列表页
                 if (!response.data.data[0] || response.data.code !== 0) {
                     vm.$router.push('/trend')
+                    this.loadingthi = false
                     return;
                 };
                 vm.lotteryId = id;
                 vm.displayId = response.data.data[0].displayId;
                 vm.detailTitle = response.data.data[0].lotteryName;
+                setTimeout(() => {
+                    this.loadingthi = false
+                }, 1800)
             })
         },
         changeBroad (item) {
@@ -86,13 +94,17 @@ export default {
     created: function () {
         let vm = this;
         this.lotteryResult(this.$route.params.id)
-        this.$http.post("/api/v2/lottery/queryLotteryListGroupByType").then(response => {
+        this.loadingfir = true
+        this.$http.post("/api/v2/lottery/queryLotteryListGroupByType", '', { unenc: true }).then(response => {
+            this.loadingfir = false
             if (response.data.code !== 0) return;
             let data = response.data.data;
             vm.broadList = data.lotteryTypeList;
             vm.lotteryType = vm.broadList[0].lotteryType;
         });
-        this.$http.post("/api/v2/lottery/queryLotteryPrizeListByType", { lotteryType: "" }).then(response => {
+        this.loadingsec = true
+        this.$http.post("/api/v2/lottery/queryLotteryPrizeListByType", { lotteryType: "" }, { unenc: true }).then(response => {
+            this.loadingsec = false
             if (response.data.code !== 0) return;
             vm.resultList = response.data.data.lotteryPrizeList;
             vm.subList = vm.resultList;
@@ -109,10 +121,9 @@ export default {
     margin: 0 auto;
     font-size: 1rem;
     overflow: auto;
-    min-height: 200px;
+    min-height: 700px;
 }
 .trend .broad-list {
-    padding-top: 42px;
     font-size: 14px;
     margin-bottom: 30px;
     overflow: hidden;

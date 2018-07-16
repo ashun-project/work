@@ -2,6 +2,7 @@
     <div class="ranking">
         <h3>
             <!-- <Icon type="trophy"></Icon> -->
+            <i class="iconfont icon-jiangbei2"></i>
             <span>最新中奖榜</span>
         </h3>
         <div class="cont">
@@ -83,7 +84,7 @@ export default {
             let vm = this;
             if (this.listTimer) clearTimeout(this.listTimer);
             vm.listTimer = setTimeout(() => {
-                vm.$http.post('/api/v2/lottery/queryPrizeRankingList').then(response => {
+                vm.$http.post('/api/v2/lottery/queryPrizeRankingList', {}, { noEncrypt: true }).then(response => {
                     if (response.data.code !== 0) return;
                     vm.ranking = response.data.data.prizeRankingList;
                 });
@@ -114,14 +115,13 @@ export default {
 .ranking h3 {
     height: 2rem;
     line-height: 2rem;
-    color: #333;
-    border-bottom: 1px solid #eee;
     font-size: 0.8rem;
-    padding-left: 0.3rem;
-    color: #757575;
+    padding-left: 0.8rem;
+    border-bottom: 1px solid #eee;
+    color: #747474;
 }
 .ranking h3 i {
-    font-size: 0.8rem;
+    font-size: 1.2rem;
     color: #ec0022;
     float: left;
     display: block;

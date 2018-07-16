@@ -42,6 +42,7 @@ export default {
         changeTab (label) {
             this.$router.push({ 'params': { 'id': label } })
             this.view = label;
+            sessionStorage.setItem('newsView', "/newsList/" + this.view)
         },
         setView () {
             this.view = this.$route.params.id;

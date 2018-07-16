@@ -210,7 +210,9 @@ export default {
             vm.slider = this.$refs.slider;
             vm.progress = this.$refs.progress;
             vm.refresh();
-            vm.initEvents();
+            if (vm.min < vm.max) {
+                vm.initEvents();
+            }
         })
 
     }

@@ -15,17 +15,18 @@ axios.interceptors.request.use(function (config) {
 	if (config.loading) {
 		Indicator.open('加载中...')
 	}
-
 	//在发送请求之前做某事
 	let time = new Date().getTime();
 	let user = localStorage.getItem('user');
-	let userId = '';
-	let sign = encryption.encrypt.md5(time + '##Lottery2017$$');
+	let userId = '',
+		sign;
+
 	// 登入后更改userID
 	if (user) {
 		user = JSON.parse(user)
 		userId = user.userId;
 	};
+	sign = encryption.encrypt.md5(time + '##Lottery2017$$');
 	// 判断需要登入后才能操作的接口并更改sign
 	if (config.userId) {
 		if (user) {
@@ -39,27 +40,31 @@ axios.interceptors.request.use(function (config) {
 			return config;
 		}
 	}
-	// 参数加密
-	function RndNum(n) {
-		let rnd = "";
-		let x = "0123456789qwertyuioplkjhgfdsazxcvbnm";
-		for (let i = 0; i < n; i++) {
-			let num = Math.round(Math.random() * 36);
-			if (num === 36) num--;
-			rnd += x.substring(num, num + 1);
-		}
-		return rnd;
-	}
-	let key = RndNum(16);
 
-	config.headers.key = RSA(key);
-	config.data = {
-		body: AESEnc(key, JSON.stringify(config.data))
-	};
-	config.key = key;
-	config.headers.timestamp = time + '';
+	// 参数加密
+	if (!config.noEncrypt) {
+		function RndNum(n) {
+			let rnd = "";
+			let x = "0123456789qwertyuioplkjhgfdsazxcvbnm";
+			for (let i = 0; i < n; i++) {
+				let num = Math.round(Math.random() * 36);
+				if (num === 36) num--;
+				rnd += x.substring(num, num + 1);
+			}
+			return rnd;
+		}
+
+		let key = RndNum(16);
+		config.headers.key = RSA(key);
+		config.key = key;
+		config.data = {
+			body: AESEnc(key, JSON.stringify(config.data))
+		};
+	}
+
 	config.headers.sign = sign;
-	config.headers.userId = userId;
+	config.headers.timestamp = time + '';
+	config.headers.userId = userId || '';
 	config.headers.deviceId = 'aaaaaaaaaaaaaa';
 	if (config.tx) {
 		config.headers.tx = true;
@@ -81,14 +86,20 @@ axios.interceptors.response.use(function (response) {
 
 	//对响应数据做些事
 	if (!response.data.code) {
-		response.data = JSON.parse(AESDec(response.config.key, response.data.body)); // 解密
+		if (!response.config.noEncrypt) {
+			response.data = JSON.parse(AESDec(response.config.key, response.data.body)); // 解密
+		} else {
+			response.data = response.data
+		}
+
 	}
 	let code = response.data.code;
 	let clientType = localStorage.getItem('loginClientType'); //设备类型
 	clientType = clientType ? clientType : 'wap';
+	//code =303
 	if (code !== 0) {
 		let errText = response.data.msg || '服务异常'
-		if (code === 301 || code === 110 || code === 302 || code === 111 || code === 503) {
+		if (code === 301 || code === 110 || code === 302 || code === 111 || code === 503 || code === 170) {
 			if (clientType === 'android') { // 如果是原生android访问，直接调用原生的方法
 				if (window.AndroidLoginUtil) {
 					window.AndroidLoginUtil.jumpLogin(errText);
@@ -106,6 +117,9 @@ axios.interceptors.response.use(function (response) {
 				window.location.href = '/#/login';
 			}, () => {})
 
+		} else if (code === 303) { // 访问限制
+			window.location.href = '/#/ipLimit';
+			sessionStorage.setItem('ipLimitData', JSON.stringify(response));
 		} else {
 			if (!response.config.notTip) Toast(errText);
 		}

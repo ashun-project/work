@@ -127,24 +127,24 @@ function num5040102 (betballs) {
     })
     return results;
 }
-function num5050101 (betballs) {
-    return betballs.split(",").filter(item => item);
-}
-function num5050102 (betballs) {
-    return betballs.split(",").filter(item => item);
-}
-function num5050103 (betballs) {
-    return betballs.split(",").filter(item => item);
-}
-function num5060101 (betballs) {
-    return betballs.split(",").filter(item => item);
-}
-function num5060102 (betballs) {
-    return betballs.split(",").filter(item => item);
-}
-function num5060103 (betballs) {
-    return betballs.split(",").filter(item => item);
-}
+// function num5050101 (betballs) {
+//     return betballs.split(",").filter(item => item);
+// }
+// function num5050102 (betballs) {
+//     return betballs.split(",").filter(item => item);
+// }
+// function num5050103 (betballs) {
+//     return betballs.split(",").filter(item => item);
+// }
+// function num5060101 (betballs) {
+//     return betballs.split(",").filter(item => item);
+// }
+// function num5060102 (betballs) {
+//     return betballs.split(",").filter(item => item);
+// }
+// function num5060103 (betballs) {
+//     return betballs.split(",").filter(item => item);
+// }
 function num5070101 (betballs) {
     return betballs.split(",").filter(item => item);
 }
@@ -260,12 +260,12 @@ module.exports = {
     '5030102': num5030102,
     '5040101': num5040101,
     '5040102': num5040102,
-    '5050101': num5050101,
-    '5050102': num5050102,
-    '5050103': num5050103,
-    '5060101': num5060101,
-    '5060102': num5060102,
-    '5060103': num5060103,
+    '5050101': numMoreOdds,
+    '5050102': numMoreOdds,
+    '5050103': numMoreOdds,
+    '5060101': numMoreOdds,
+    '5060102': numMoreOdds,
+    '5060103': numMoreOdds,
     '5070101': num5070101,
     '5080101': num5080101,
     '5090101': num5090101,

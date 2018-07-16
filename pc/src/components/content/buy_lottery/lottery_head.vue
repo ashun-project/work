@@ -66,7 +66,7 @@ export default {
         queryBalance () {
             let vm = this;
             this.turnRound = true;
-            this.$http.post('/api/v2/user/queryBalance', '', { userId: true }).then(response => {
+            this.$http.post('/api/v2/user/queryBalance', '', { userId: true, unenc: true }).then(response => {
                 if (response.data.code !== 0) return;
                 this.turnRound = false;
                 vm.$set(vm.user, 'balance', response.data.data.balance);
@@ -80,7 +80,7 @@ export default {
 
     },
     created () {
-        this.$http.post('/api/v2/cms/queryQrcodesAndServicer').then(response => {
+        this.$http.post('/api/v2/cms/queryQrcodesAndServicer', '', { unenc: true }).then(response => {
             if (response.data.code !== 0) return;
             this.list[1].url = response.data.data.servicer.url;
             this.$store.commit('getServicer', response.data.data.servicer);
@@ -97,6 +97,7 @@ export default {
     color: #fff;
     margin-bottom: 15px;
     font-size: 14px;
+    min-width: 1360px;
 }
 .lottery-head .container {
     width: 1360px;

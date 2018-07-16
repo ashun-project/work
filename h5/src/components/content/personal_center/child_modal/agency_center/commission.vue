@@ -35,22 +35,16 @@
                             <table class="agency-tb">
                                 <thead>
                                     <tr>
-                                        <th class="cz2">彩种</th>
-                                        <th>期数</th>
+                                        <th>代理</th>
                                         <th>投注金额</th>
                                         <th>佣金</th>
-                                        <th>投注人数</th>
-                                        <th>状态</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(item, index) in rebateList" :key=index>
-                                        <td>{{item.lotteryName}}</td>
-                                        <td>{{item.periodNo}}</td>
+                                    <tr v-for="(item, index) in rebateList" :key="index">
+                                        <td>{{item.userCode}}</td>
                                         <td>{{item.buyMoney | keepDecimalOf2}}</td>
                                         <td>{{item.rebateSum | keepDecimalOf2}}</td>
-                                        <td>{{item.bettingUserCount}}</td>
-                                        <td>{{item.status}}</td>
                                     </tr>
                                     <!--     <tr v-if="rebateList.length <= 0">
                             <td colspan="6"  v-if="!loging" class="empty-data">
@@ -66,13 +60,11 @@
                 </div>
             </div>
             <mt-datetime-picker type="date" ref="picker" v-model="pickerCurrentTime" @confirm="confirm" year-format="{value} 年" month-format="{value} 月" date-format="{value} 日"></mt-datetime-picker>
-
         </div>
     </div>
 </template>
 <script>
 import dateUtil from "@/components/common/module_js/format_date.js";
-import historySelect from "./child_modal/history_select.vue";
 export default {
     data () {
         return {
@@ -89,24 +81,6 @@ export default {
             status: 0,
             pickerCurrentTime: '',
         };
-    },
-    components: {
-        historySelect
-    },
-    filters: {
-        keepDecimalOf2 (val) {
-            return val ? val.toFixed(2) : "0.00";
-        }
-    },
-    watch: {
-        startTime () {
-            this.resetSearch();
-            this.queryList();
-        },
-        endTime () {
-            this.resetSearch();
-            this.queryList();
-        }
     },
     methods: {
         downRefresh () {
@@ -126,43 +100,6 @@ export default {
             }
             this.$refs.picker.open();
         },
-        changCountTit () {
-            // let countTit = "",
-            //     endTime = dateUtil.getFormatDate(this.endTime),
-            //     nowTime = dateUtil.getFormatDate(new Date());
-
-            // if (nowTime === endTime) {
-            //     let days = new Date(this.endTime).getTime() - new Date(this.startTime).getTime();
-            //     let type = parseInt(days / (1000 * 60 * 60 * 24));
-            //     if (type === 0) {
-            //         countTit = "今天";
-            //     } else if (type === 1) {
-            //         countTit = "昨天";
-            //     } else if (type > 1 && type < 7) {
-            //         countTit = "本周";
-            //     } else if (type > 7 && type < 30)
-            //     switch (type) {
-            //         case 0:
-            //             countTit = "今天";
-            //             break;
-            //         case 1:
-            //             countTit = "昨天";
-            //             break;
-            //         case 7:
-            //             countTit = "本周";
-            //             break;
-            //         case 15:
-            //             countTit = "本月";
-            //             break;
-            //         default:
-            //             countTit = this.startTime + "至" + this.endTime;
-            //             break;
-            //     }
-            // } else {
-            //     countTit = this.startTime + "至" + this.endTime;
-            // }
-            // this.countTit = this.startTime + "至" + this.endTime;
-        },
         resetSearch () {
             this.noMore = false;
             this.current = 0;
@@ -175,11 +112,15 @@ export default {
             } else {
                 this.endTime = dateUtil.getFormatDate(val);
             }
+            this.resetSearch();
+            this.queryList();
             this.$refs.picker.close();
         },
         getHistorySelect (obj) {
             this.endTime = obj.endTime;
             this.startTime = obj.startTime;
+            this.resetSearch();
+            this.queryList();
         },
         queryList (resolve) {
             if (this.startTime && this.endTime) {
@@ -190,7 +131,6 @@ export default {
                     return false;
                 }
             }
-            // this.changCountTit();
             this.status = 1
             this.current++;
             if (resolve) {
@@ -201,7 +141,7 @@ export default {
                 ltBuyTime: this.endTime,
                 current: this.current,
                 size: this.size
-            }, { userId: true }).then(res => {
+            }, { userId: true, noEncrypt: true }).then(res => {
                 if (resolve) {
                     resolve();
                     this.rebateList = [];

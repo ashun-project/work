@@ -9,7 +9,8 @@
                         <label for="">
                             真实姓名
                         </label>
-                        <input type="text" placeholder="请输入真实姓名" v-model="bandingInfo.accountName">
+                        <span v-if="user.realName"></span>
+                        <input v-else type="text" placeholder="请输入真实姓名" v-model="bandingInfo.accountName">
                     </div>
                     <!-- <mt-field label="真实姓名" placeholder="请输入真实姓名" v-model="bandingInfo.accountName"></mt-field> -->
                 </div>
@@ -46,7 +47,7 @@
             </div>
         </section>
         <div class="ui-btn-wrap">
-            <a @click="doBanding" class="red-btn">确定绑卡</a>
+            <a @click="doBanding" class="red-btn" :class="{'disabled': !isSubmit}">确定绑卡</a>
         </div>
     </div>
 </template>
@@ -57,6 +58,7 @@ export default {
         return {
             goBk: '/bankList',
             agressBtn: 1,
+            isSubmit: true,
             bandingInfo: {
                 accountName: "",
                 bankNo: "",
@@ -66,6 +68,9 @@ export default {
         };
     },
     computed: {
+        user () {
+            return this.$store.state.user;
+        },
         // accountName () {
         //     return this.$store.state.user.realName;
         // }
@@ -89,7 +94,7 @@ export default {
                 this.$Message('请输入正确的银行卡号');
                 return;
             }
-            this.$http.post("/api/v2/user/queryBankFrom", { bankNo: this.bandingInfo.bankNo }, { userId: true, notTip: true }).then(response => {
+            this.$http.post("/api/v2/user/queryBankFrom", { bankNo: this.bandingInfo.bankNo }, { userId: true, notTip: true, noEncrypt: true }).then(response => {
                 if (response.data.code !== 0) return;
                 this.bandingInfo.bankName = response.data.data.bankName;
             });
@@ -133,9 +138,13 @@ export default {
                 this.$Message("银行卡号最少16位");
                 return;
             }
+            if (!this.isSubmit) {
+                return
+            }
+            this.isSubmit = false
             this.$http.post("/api/v2/user/bandingBankInfo", this.bandingInfo, { userId: true }).then(response => {
+                this.isSubmit = true;
                 if (response.data.code !== 0) return;
-
                 this.resetUser();
                 // 判断从提现页面进来
                 if (this.$route.params.tf) {
@@ -144,12 +153,26 @@ export default {
                     this.$router.push("/bankList");
                 }
             });
+        },
+        getRealName () {
+            if (!this.user.realName) return
+            let name = this.user.realName.split('');
+            let str = '';
+            for (let i = 0; i < name.length; i++) {
+                if (i !== name.length - 1) {
+                    str += '*'
+                } else {
+                    str += name[i]
+                }
+            }
+            this.realName = str;
         }
     },
     created () {
         if (this.$route.params.tf) {
             this.goBk = '/takefee';
         }
+        this.getRealName();
     }
 };
 </script>
@@ -189,12 +212,15 @@ export default {
 .bankingBank .red-btn {
     height: 2.2rem;
     line-height: 2.2rem;
-    background-image: -webkit-linear-gradient(-45deg, #ec0022, #ec0022);
-    background-image: linear-gradient(-45deg, #ec0022, #ec0022);
+    background: #ec0022;
     color: #fff;
     border-radius: 6px;
     display: block;
     text-align: center;
+}
+.bankingBank .red-btn.disabled {
+    color: #fff;
+    background-color: #999;
 }
 .bankingBank .block {
     display: block;

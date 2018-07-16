@@ -62,7 +62,7 @@ export default {
         },
     },
     created () {
-        this.$http.post('/api/v2/lottery/queryLotteryPlayList', {}).then(response => {
+        this.$http.post('/api/v2/lottery/queryLotteryPlayList', {}, { loading: true, noEncrypt: true }).then(response => {
             if (response.data.code !== 0) return;
             this.lotteryTypeList = response.data.data.lotteryTypeList;
             this.curLotteryType = this.lotteryTypeList[0].lotteryType;

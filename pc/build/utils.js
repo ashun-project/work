@@ -30,7 +30,7 @@ exports.cssLoaders = function (options) {
   }
 
   // generate loader string to be used with extract text plugin
-  function generateLoaders(loader, loaderOptions) {
+  function generateLoaders (loader, loaderOptions) {
     const loaders = options.usePostCSS ? [cssLoader, postcssLoader] : [cssLoader]
     if (loader) {
       loaders.push({
@@ -80,7 +80,7 @@ exports.cssLoaders = function (options) {
     css: generateLoaders(),
     postcss: generateLoaders(),
     less: generateLoaders('less', {
-      globalVars: getLessVariables('src/common.less')
+      globalVars: getLessVariables('src/commonLess/common.less')
     }),
     // less: lessResourceLoader(),//修改
     sass: generateLoaders('sass', {

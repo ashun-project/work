@@ -17,10 +17,10 @@
                         </Input>
                     </FormItem>
                     <FormItem prop="checkCode" class="valida">
-                        <Input type="text" v-model="formCustom.checkCode" placeholder="验证码" @on-enter="handleSubmit('formCustom')">
+                        <Input type="text" v-model="formCustom.checkCode" placeholder="验证码" @on-enter="handleSubmit('formCustom')" @on-focus='refreshCheckCode()'>
                         <Icon type="social-snapchat" slot="prepend"></Icon>
                         </Input>
-                        <img class="valida-code" :src="'/api/v2/user/captcha.jpg?d='+ timeInter" @click="timeInter = new Date().getTime()">
+                        <img class="valida-code" :src='imageCode' @click='getImageCode'>
                     </FormItem>
                     <div class="other-operation">
                         <a class="foget-password" @click="forgetPass()">忘记密码?</a>
@@ -50,6 +50,7 @@ export default {
                 password: '',
                 checkCode: ''
             },
+            imageCode: '/api/v2/user/captcha.jpg',  //图形验证码
             ruleInline: {
                 userCode: [
                     { required: true, message: '请输入用户名', trigger: 'blur' }
@@ -73,7 +74,18 @@ export default {
                 }
             });
         },
-        handleSubmit (name) {
+        refreshCheckCode () {
+            //获取焦点刷新验证码
+            if (this.hasRefreshChode) {
+                return
+            }
+            this.getImageCode()
+            this.hasRefreshChode = true
+        },
+        getImageCode () {
+            this.imageCode = `/api/v2/user/captcha.jpg?d=${new Date().getTime()}`;
+        },
+        goLogin (name) {
             let vm = this;
             this.$refs[name].validate((valid) => {
                 if (valid) {
@@ -102,6 +114,25 @@ export default {
                     });
                 }
             })
+        },
+        handleSubmit (name) {
+            let vm = this;
+            if (this.$store.state.user.userCode) {
+                this.$Modal.confirm({
+                    title: '温馨提示',
+                    content: '当前已登录，是否切换账号？',
+                    onOk: () => {
+                        vm.$http.post('/api/v2/user/loginOut', '', { userId: true }).then(response => {
+                            if (response.data.code !== 0) return;
+                            localStorage.setItem('user', '')
+                            vm.$store.commit('getUser', '')
+                            vm.goLogin(name)
+                        })
+                    }
+                });
+            } else {
+                this.goLogin(name);
+            }
         }
     }
 }
@@ -154,7 +185,7 @@ export default {
     height: 43px;
     width: auto;
     cursor: pointer;
-    z-index: 1000;
+    z-index: 2;
 }
 .login-page .cont .commit-register {
     height: 44px;

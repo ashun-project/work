@@ -1,5 +1,5 @@
 <template>
-    <div class="picked-result" ref="pickResult">
+    <div class="picked-result" ref="pickResult" @touchmove.stop>
         <mt-popup v-model="showModal" ref="modal" popup-transition="popup-fade" class="picked-modal">
             <div class="title">注单设定</div>
             <div class="lottery-value">
@@ -26,7 +26,7 @@
             <div class="current-info">
                 <span>单注金额&nbsp;</span>
                 <span>
-                    <input type="text" v-if="currentLottery" v-model="data.singleMoney" @blur="getSingleMoney(1)" @input="getSingleMoney()">
+                    <input type="text" ref="singleMoney" v-if="currentLottery" v-model="data.singleMoney" @blur="getSingleMoney(1)" @input="getSingleMoney()">
                 </span>
                 <span>
                     <i v-for="item in companyList" :key="item.value" :class="{active: item.value === data.company}" @click="changeCompany(item.value)">
@@ -87,6 +87,8 @@ export default {
     watch: {
         showModal (n, o) {
             if (!n) {
+
+
                 this.cancel();
             }
         }
@@ -94,6 +96,7 @@ export default {
     methods: {
         // 弹框取消按钮
         cancel () {
+            this.resetWinH();
             this.$emit('ball-rasult');
         },
         // 输入单注金额
@@ -207,6 +210,32 @@ export default {
             if (this.layout.rates.length > 1) {
                 this.oddStatus = true;
             }
+        },
+        resetWinH () {
+            // 修复ios fixed input 重新设置body
+            document.body.style.overflow = "auto";
+            document.body.style.height = "";
+            document.documentElement.style.overflow = "auto";
+            document.documentElement.style.height = "";
+            this.$refs.modal.$el.style.position = "fixed";
+        },
+        fixInput () {
+            // 修复ios fixed input
+            let UA = window.navigator.userAgent,
+                isIos = /iPad/i.test(UA) || /iPod|iPhone/i.test(UA);
+            if (!isIos) return;
+            let vm = this;
+            vm.$refs.singleMoney.addEventListener("touchstart", () => {
+                /*  this.$refs.shadom.style.display = "block"; */
+                vm.$refs.modal.$el.style.position = "absolute";
+                document.body.style.overflow = "hidden";
+                document.body.style.height = "100%";
+                document.documentElement.style.overflow = "hidden";
+                document.documentElement.style.height = "100%";
+            });
+            /*   this.$refs.shadom.addEventListener("touchstart", event => {
+                  this.resetWinH();
+              }); */
         }
     },
     mounted () {
@@ -215,10 +244,12 @@ export default {
             e.preventDefault();
         })
         this.$nextTick(() => {  /*  修改弹框输入无法聚焦 */
-            let top = window.innerHeight / 2 - this.$refs.modal.$el.clientHeight / 2 + (document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop) + 'px';
-            this.$refs.modal.$el.style.top = top;
+            this.fixInput();
         })
 
+    },
+    beforeDestroy () {
+        this.resetWinH();
     },
     created () {
         this.init();
@@ -229,13 +260,13 @@ export default {
 
 <style>
 /*  修改弹框输入无法聚焦 */
-.picked-modal {
+/* .picked-modal {
     position: absolute;
     -webkit-transform: translate3d(-50%, 0, 0);
     transform: translate3d(-50%, 0, 0);
     -webkit-transition: 0s ease-out;
     transition: 0s ease-out;
-}
+} */
 .picked-modal .red-font {
     color: #be1204;
 }

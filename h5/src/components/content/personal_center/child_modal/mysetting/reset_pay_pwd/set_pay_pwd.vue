@@ -9,7 +9,7 @@
                     <!-- <mt-field label="真实姓名" type="text" placeholder="请输入真实姓名"  v-model="realName"></mt-field> -->
                     <!-- <mt-field label="资金密码" type="password" placeholder="请输入资金密码"  autocomplete="new-password"  v-model="payPwd"></mt-field> -->
 
-                    <div class="my-mt-field">
+                    <div class="my-field-pwd">
                         <label for="">资金密码</label>
                         <input type="password" ref="payPwd" :class="{allfill: payPwd.length>= 4}" maxlength="4" v-model="payPwd" @click="lastRange('payPwd')" @input="setPayPwd('payPwd')" />
                         <div class="analog-input">
@@ -27,7 +27,7 @@
                             </span>
                         </div>
                     </div>
-                    <div class="my-mt-field">
+                    <div class="my-field-pwd">
                         <label for="">确认密码</label>
                         <input type="password" ref="confirmPwd" :class="{allfill: confirmPwd.length>= 4}" maxlength="4" v-model="confirmPwd" @click="lastRange('confirmPwd')" @input="setPayPwd('confirmPwd')" />
                         <div class="analog-input">
@@ -131,6 +131,10 @@ export default {
     }
 }
 </script>
+<style  lang="less">
+@import '../../../personal_center.less';
+</style>
+
 
 <style scoped>
 .resetLoginPwd input {
@@ -155,62 +159,5 @@ export default {
 .resetLoginPwd .margin-center {
     margin-left: auto;
     margin-right: auto;
-}
-.my-mt-field {
-    position: relative;
-    height: 48px;
-    line-height: 48px;
-    padding: 0 10px;
-}
-.my-mt-field label {
-    color: #999;
-    font-size: 16px;
-    width: 105px;
-}
-.my-mt-field input {
-    height: 100%;
-    position: absolute;
-    left: 115px;
-    right: 10px;
-    z-index: 30;
-    background: none;
-    letter-spacing: 28px;
-    padding-left: 18px;
-    /* opacity: 0; */
-    color: #ec0022;
-    width: 144px;
-    padding-right: 18px;
-    text-shadow: #fff;
-    -webkit-text-fill-color: transparent;
-    transition: all 0.1s;
-}
-.my-mt-field .allfill {
-    left: 100px;
-    padding-right: 0;
-    width: 160px;
-}
-.my-mt-field .analog-input {
-    height: 36px;
-    border-left: 1px solid #eee;
-    position: absolute;
-    top: 6px;
-    left: 115px;
-}
-.my-mt-field .analog-input span {
-    display: inline-block;
-    width: 36px;
-    height: 36px;
-    border: 1px solid #eee;
-    text-align: center;
-    line-height: 33px;
-    float: left;
-    border-left: 0;
-}
-.my-mt-field .analog-input span i {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background: #000;
-    border-radius: 100%;
 }
 </style>

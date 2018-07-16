@@ -50,15 +50,14 @@
                     </p>
                     <p v-if="user.userCode">
                         可用余额
-                        <span class="t-red">{{user.balance.toFixed(2)}}</span>元</p>
+                        <span class="t-red">{{user.balance | keepDecimalOf2}}</span>元</p>
 
                 </div>
                 <div class="item tz" :class="{'disabled': !recordId}" @click="saveBetting">投注</div>
             </div>
 
         </div>
-        <my-dialog v-model="isShowBettingInfo" class="listDlg" title="注单">
-            <i class="iconfont icon-close" @click="closeDlg"></i>
+        <my-dialog v-model="isShowBettingInfo" class="listDlg" title="注单" :showClose="true">
             <div slot="d-food" style="display:none"></div>
             <div ref="bettingList" class="scroll-wrap">
                 <ul class="betting-list" v-if="bettingInfoList.length">
@@ -86,7 +85,7 @@
                 <div class="btn clearCode" @click="clearDlgList">
                     <i class="iconfont icon-del"></i> 清空注单
                 </div>
-                <div class="btn tz" @click="submitBetting">确定投注</div>
+                <div class="btn tz" @click="submitBetting" :class="{'disabled':!isSubmit}">确定投注</div>
             </div>
 
         </my-dialog>
@@ -125,7 +124,8 @@ export default {
             periodList: [],
             singleOdds: 0,
             singleMoney: 0,
-            loading: false
+            loading: false,
+            isSubmit: true
         };
     },
     computed: {
@@ -253,7 +253,7 @@ export default {
                 .post("/api/v2/lottery/queryLotteryRecordList", {
                     lotteryId: this.$route.params.id,
                     num: num
-                })
+                }, { noEncrypt: true })
                 .then(response => {
                     if (response.data.code !== 0) return;
                     vm.periodList = response.data.data.recordList;
@@ -338,10 +338,6 @@ export default {
                 }, 500);
             }
             this.showChase = false;
-        },
-        closeDlg () {
-            // 关闭投注弹框
-            this.isShowBettingInfo = false;
         },
         clearDlgList () {
             // 清空投注单
@@ -465,6 +461,11 @@ export default {
                 vm.$router.push("/login");
                 return;
             }
+
+            if (!this.isSubmit) {
+                return
+            }
+            this.isSubmit = false
             // 处理特殊字段 -- 目前只有快三需要处理
             let deal = ["2020101", "2020201", "2040101", "2040202"]; // 需要处理的玩法
             let list = JSON.parse(JSON.stringify(this.bettingInfoList)).map(
@@ -521,6 +522,7 @@ export default {
                 loading: 1
             }).then(response => {
                 this.loading = false;
+                this.isSubmit = true;
                 if (response.data.code !== 0) return;
                 this.resetAllData(true);
                 this.$Message("下注成功");

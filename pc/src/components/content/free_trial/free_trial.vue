@@ -113,7 +113,7 @@ export default {
     },
     created () {
         let vm = this;
-        vm.$http.post('/api/v2/user/getPlayAccount').then(response => {
+        vm.$http.post('/api/v2/user/getPlayAccount', '', { unenc: true }).then(response => {
             if (response.data.code !== 0) return;
             vm.$set(vm.formCustom, 'userCode', response.data.data.playAccount);
         })

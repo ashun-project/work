@@ -86,7 +86,9 @@ export default {
     background-color: rgba(55, 55, 55, 0.6);
 }
 .v-transfer-dom >>> .ivu-modal {
-    top: 220px;
+    top: 50%;
+    transform: translateY(-50%);
+    transform-origin: center center;
 }
 .v-transfer-dom >>> .ivu-icon-close-round:hover {
     color: #444;
@@ -139,6 +141,27 @@ export default {
 .v-transfer-dom >>> .ivu-modal-footer .ivu-btn-text {
     background: #a9a9a9;
     color: #fff;
+}
+</style>
+<style>
+.ivu-modal-wrap {
+    height: 100%;
+}
+@keyframes ivuEaseIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+@keyframes ivuEaseOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
 }
 </style>
 

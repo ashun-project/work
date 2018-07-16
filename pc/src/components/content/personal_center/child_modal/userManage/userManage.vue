@@ -6,7 +6,7 @@
         <div class="search">
             <div class="addUser">
                 <Button type="warning" @click="addUser">
-                    <Icon type="plus"></Icon>创建新用户</Button>
+                    <Icon type="plus"></Icon>创建新会员</Button>
             </div>
             <div class="datetext">起始日期：</div>
             <div class="selectDate">
@@ -16,9 +16,8 @@
                     </Col>
                 </Row>
             </div>
-
             <div class="select-user">
-                <Input v-model.trim="userCode" placeholder="搜索用户名"></Input>
+                <Input v-model.trim="userCode" placeholder="搜索会员名"></Input>
             </div>
             <div class="button">
                 <Button type="primary" @click="changePageWithUserCode(1)">搜索</Button>
@@ -26,22 +25,22 @@
         </div>
 
         <!-- 未开奖弹窗 -->
-        <Spin fix v-if="leeWrapSpinShow">
+        <Spin fix v-show="leeWrapSpinShow">
             <Icon type="load-c" size=24 class="demo-spin-icon-load"></Icon>
             <div>Loading</div>
         </Spin>
         <modal :modalShow="detailFlag" :title="title" :width="440" :maskClosable="true" @btn-cancel="cancelAddUser" @btn-ok="saveUser('userInfo')">
             <div slot="content">
                 <Form ref="userInfo" :model="userInfo" :rules="ruleInline" style='margin-top:9px;'>
-                    <FormItem label="用户名 : " prop="userCode" :label-width="80" style='margin-left:24px;'>
-                        <Input type="text" :value="userInfo.userCode" @input="userInfo.userCode = arguments[0].replace(/\s+/g,'')" placeholder="用户名" style='width:258px;'></Input>
+                    <FormItem label="会员名 : " prop="userCode" :label-width="80" style='margin-left:24px;'>
+                        <Input type="text" :value="userInfo.userCode" @input="userInfo.userCode = arguments[0].replace(/\s+/g,'')" placeholder="会员名" style='width:258px;'></Input>
                         <p v-if='showUserCodeTip' style='height:24px;line-height:24px;position:absolute;color:#313131;font-size:12px;'>账号: 6-12个字符,字母与数字</p>
                     </FormItem>
                     <FormItem label="密码 : " prop="password" :label-width="80" style='margin-left:24px;'>
                         <Input type="password" :value='userInfo.password' @input="userInfo.password = arguments[0].replace(/\s+/g,'')" placeholder="密码" style='width:258px;'></Input>
                         <p v-if='showPasswordTip' style='height:24px;line-height:24px;position:absolute;color:#313131;'>密码规则: 6-14个字符,字母与数字组合</p>
                     </FormItem>
-                    <FormItem label="用户类型 : " prop="userType" :label-width="80" style='margin-left:24px;'>
+                    <FormItem label="会员类型 : " prop="userType" :label-width="80" style='margin-left:24px;'>
                         <RadioGroup v-model="userInfo.userType" style='position:relative;top:-2px;'>
                             <Radio label="00" style='margin-left:33px;margin-right:36px;'>会员</Radio>
                             <Radio label="10">代理</Radio>
@@ -51,14 +50,17 @@
                         <span style='color:#ff7614;text-align:left;'>{{'('+((userInfo.bonusGroupName-userInfo.minBonusGroupName)/20).toFixed(1)+'%) '+Number(userInfo.bonusGroupName).toFixed(0)}}</span>
                     </FormItem>
                     <FormItem :label-width="0">
-                        <div class="slider">
+                        <div class="slider" v-if="bonusGroup[0]!=bonusGroup[1]">
                             <!-- left -->
                             <span color="ff7614" style='margin-left:45px;'>{{bonusGroup[0]}} ({{((groupName.min-this.userInfo.minBonusGroupName)/20).toFixed(1)}}%)</span>
 
-                            <Slider :value="groupName.max" :min="groupName.min" :max="groupName.max" style='margin:0 3px;margin-left:7px;' @on-input="changeGroupName" :step="groupName.step" :tip-format="showProgress"></Slider>
+                            <Slider :value="userInfo.bonusGroupName" :min="groupName.min" :max="groupName.max" style='margin:0 3px;margin-left:7px;' @on-input="changeGroupName" :step="groupName.step" :tip-format="showProgress"></Slider>
                             <!-- right -->
                             <span color="ff7614" style='margin-left:0px;'>{{bonusGroup[1]}} ({{((groupName.max-this.userInfo.minBonusGroupName)/20).toFixed(1)}}%)</span>
                         </div>
+                        <!-- <div v-else>
+                            <span color="ff7614" style='margin-left:0px;'>{{bonusGroup[1]}} ({{((groupName.max-this.userInfo.minBonusGroupName)/20).toFixed(1)}}%)</span>
+                        </div> -->
                     </FormItem>
                 </Form>
             </div>
@@ -74,7 +76,7 @@
                     </div>
                     <div class="change-user-content-second">
                         <div class="userType">
-                            用户类别 :
+                            会员类别 :
                         </div>
                         <p>
                             &nbsp;{{userInfo.userType === '00'? '会员' : '代理'}}
@@ -104,7 +106,7 @@
                                     <!-- left -->
                                     <span color="ff7614">{{bonusGroup[0]}} ({{((groupName.min-this.userInfo.minBonusGroupName)/20).toFixed(1)}}%)</span>
 
-                                    <Slider :value="groupName.bonusGroupName" :min="groupName.min" :max="groupName.max" @on-input="changeGroupName" :step="groupName.step" :tip-format="showProgress"></Slider>
+                                    <Slider :value="userInfo.bonusGroupName" :min="groupName.min" :max="groupName.max" @on-input="changeGroupName" :step="groupName.step" :tip-format="showProgress"></Slider>
                                     <!-- right -->
                                     <span color="ff7614" style='margin-left:0px;'>
                                         {{bonusGroup[1]}} ( {{ ((groupName.max-this.userInfo.minBonusGroupName)/20).toFixed(1) }} )%
@@ -129,7 +131,7 @@
                         <DatePicker type="date" v-model="teamReportTime.endTime" placeholder="请选择查询时间" style="width: 180px" @on-change="reportTimeChange"></DatePicker>
                     </div>
                     <div class="lee-row lee-row2">
-                        <Button :class="{'lee-active-button' : leeActiveButton==1}" @click="changeActiveButton(1)">昨日</Button>
+                        <Button :class="{'lee-active-button' : leeActiveButton==1}" @click="changeActiveButton(1)">昨天</Button>
                         <Button :class="{'lee-active-button' : leeActiveButton==2}" @click="changeActiveButton(2)">本周</Button>
                         <Button :class="{'lee-active-button' : leeActiveButton==3}" @click="changeActiveButton(3)">上周</Button>
                         <Button :class="{'lee-active-button' : leeActiveButton==4}" @click="changeActiveButton(4)">本月</Button>
@@ -200,16 +202,17 @@ import formatDate from "@/components/common/module_js/format_date.js";
 import modal from "@/components/common/module_vue/modal.vue";
 import page from "@/components/common/module_vue/page.vue";
 import { ruleFn } from "@/components/common/module_js/rule";
+import { getConfigList } from '@/components/common/module_js/getConfig.js';
 // import Dialog from '@/components/common/module_vie/modal'
 //新分支
 export default {
     computed: {
-        configList () {
-            return this.$store.state.configList;
-        },
+        // configList () {
+        //     return this.$store.state.configList;
+        // },
         changeUserTitle () {
             try {
-                return "用户名 : " + this.changeUserInfo.row.userCode;
+                return "会员名 : " + this.changeUserInfo.row.userCode;
             } catch (error) {
                 return "";
             }
@@ -224,28 +227,51 @@ export default {
     },
     components: { modal, page },
     filters: {
-        doubleShow: function (Number) {
-            return (Number / 100).toFixed(2);
+        doubleShow: function (val) {
+            return val ? Number(val).toFixed(2) : '0.00';;
         }
     },
     data () {
         const validatePass = (rule, value, callback) => {
             //验证密码
-            let result = ruleFn.isPassWord(
-                value,
-                undefined,
-                undefined,
-                "",
-                callback
-            );
-            this.showPasswordTip = result;
+            // let result = ruleFn.isPassWord(
+            //     value,
+            //     undefined,
+            //     undefined,
+            //     "",
+            //     callback
+            // );
+            let flag = false;
+            if (!value) {
+                callback(new Error('请输入密码'));
+            } else if (/[^A-Za-z0-9]/g.test(value)) {
+                callback(new Error('请输入数字和字母'));
+            } else if (value.length < 6 || value.length > 14) {
+                callback(new Error('密码六至十四位'));
+            } else {
+                callback();
+                flag = true;
+            }
+            this.showPasswordTip = flag;
         };
         const validaName = (rule, value, callback) => {
-            //验证用户名
-            let result = ruleFn.isUserName(value, callback);
-            this.showUserCodeTip = result;
+            //验证会员名
+            // let result = ruleFn.isUserName(value, callback);
+            let flag = false;
+            if (!value) {
+                callback(new Error('请输入用户名'));
+            } else if (/[^A-Za-z0-9]/g.test(value)) {
+                callback(new Error('只能输入数字和字母'));
+            } else if (value.length < 6 || value.length > 12) {
+                callback(new Error('用户名六至十二位'));
+            } else {
+                callback();
+                flag = true;
+            }
+            this.showUserCodeTip = flag;
         };
         return {
+            loading: true,
             breadcrumblist: [],
             userCode: '',
             uploadUserCode: '',
@@ -268,7 +294,7 @@ export default {
             },
             showLevels: false,
             titleList: [
-                "用户名",
+                "会员名",
                 "最后登录日期",
                 "离线提醒",
                 "类型",
@@ -307,11 +333,11 @@ export default {
             bonusGroup: [], //添加的
             // dispGroupName:"",
             userInfo: { userType: "10", userCode: "", password: "" },
-            title: "创建新用户",
+            title: "创建新会员",
             listData: [],
             columns: [
                 {
-                    title: "用户名",
+                    title: "会员名",
                     key: "userCode",
                     width: 60,
                     render: (h, params) => {
@@ -590,20 +616,18 @@ export default {
         /**
          * @author Lee
          * @param Object
-         * 修改用户详情
+         * 修改会员详情
          *
          * ****/
         changeUser (params) {
             if (this.listData.length > 1) return
             this.changeUserShow = true;
             this.changeUserInfo = params;
-            var user = JSON.parse(localStorage.getItem("user"));
+            // var user = JSON.parse(localStorage.getItem("user"));
+            var user = this.$store.state.user
             this.$set(this.groupName, "min", Number(user.minBonusGroupName));
             this.$set(this.groupName, "max", Number(user.bonusGroupName));
-            this.$set(
-                this.groupName,
-                "bonusGroupName",
-                Number(params.row.bonusGroupName)
+            this.$set(this.groupName, "bonusGroupName", Number(params.row.bonusGroupName)
             );
             this.$set(
                 this.userInfo,
@@ -637,7 +661,7 @@ export default {
                 return;
             }
             if (row.userType === "00") {
-                this.$Message.info("该用户已没有下级代理");
+                this.$Message.info("该会员已没有下级代理");
                 return;
             }
             // let obj = Object.assign({}, this.paramData);
@@ -654,11 +678,12 @@ export default {
             this.leeWrapSpinShow = true
             this.currentUserId[this.currentUserId.length] = row.userId
             this.userInfoList.push(row)
-            this.$http.post("/api/v2/agent/subuser/list", obj, { userId: true }).then(({ data }) => {
+            this.$http.post("/api/v2/agent/subuser/list", obj, { userId: true, unenc: true }, { unenc: true }).then(({ data }) => {
+                this.currentUserId.pop()
                 this.leeWrapSpinShow = false
                 if (data.data.list.length == 0) {
                     this.requestContinues = false;
-                    this.$Message.info("该用户已没有下级代理");
+                    this.$Message.info("该会员已没有下级代理");
                     return;
                 }
                 // this.listData  = [data.data.list]
@@ -705,13 +730,15 @@ export default {
                 this.$set(this.paramData, "userCode", "");
                 this.getDataList();
                 this.getUserInfoFromLocal();
-                this.configList.forEach(item => {
-                    if (itm.key === "AGENT_LEVEL_SWITCH") {
-                        this.showLevels = itm.value === "0" ? false : true;
-                        return;
-                    }
-                });
-                // this.$http.post("/api/v2/sysDict/querySystemConfig").then(({ data }) => {
+                getConfigList().then(res => {
+                    res.forEach(itm => {
+                        if (itm.key === "AGENT_LEVEL_SWITCH") {
+                            this.showLevels = itm.value === "0" ? false : true;
+                            return;
+                        }
+                    });
+                })
+                // this.$http.post("").then(({ data }) => {
                 //     data.data.forEach(itm => {
                 //         if (itm.key === "AGENT_LEVEL_SWITCH") {
                 //             this.showLevels = itm.value === "0" ? false : true;
@@ -727,9 +754,8 @@ export default {
          *
          * 获取团队报表
          * ***/
-        getTeamReport () {
+        getTeamReport (id) {
             let userId = this.teamUserId;
-
             let obj = {};
             if (this.leeActiveButton == 0) {
                 setTimeout(() => {
@@ -738,7 +764,7 @@ export default {
                     if (!startTime || !endTime) return;
 
                     obj = {
-                        current: 1,
+                        userId,
                         gtBuyTime: startTime,
                         ltBuyTime: endTime
                     };
@@ -753,11 +779,12 @@ export default {
                 time2.setHours(0);
                 time2.setMinutes(0);
                 time2.setSeconds(0);
+                time.setDate(time.getDate() - 1)
                 time.setHours(0);
                 time.setMinutes(0);
                 time.setSeconds(0);
                 obj = {
-                    current: 1,
+                    userId,
                     gtBuyTime: time2,
                     ltBuyTime: time
                 };
@@ -771,7 +798,7 @@ export default {
                 time2.setSeconds(0);
 
                 obj = {
-                    current: 1,
+                    userId,
                     gtBuyTime: time2,
                     ltBuyTime: time
                 };
@@ -784,11 +811,12 @@ export default {
                 time2.setMinutes(0);
                 time2.setSeconds(0);
                 time.setDate(time.getDate() - time.getDay() + 1);
+                time.setDate(time.getDate() - 1)
                 time.setHours(0);
                 time.setMinutes(0);
                 time.setSeconds(0);
                 obj = {
-                    current: 1,
+                    userId,
                     gtBuyTime: time2,
                     ltBuyTime: time
                 };
@@ -802,7 +830,7 @@ export default {
                 time2.setSeconds(0);
 
                 obj = {
-                    current: 1,
+                    userId,
                     gtBuyTime: time2,
                     ltBuyTime: time
                 };
@@ -819,8 +847,9 @@ export default {
                 time.setHours(0);
                 time.setMinutes(0);
                 time.setSeconds(0);
+                time.setDate(time.getDate() - 1)
                 obj = {
-                    current: 1,
+                    userId,
                     gtBuyTime: time2,
                     ltBuyTime: time
                 };
@@ -833,31 +862,16 @@ export default {
          * 请求团队报表
          */
         requestTeamReport (obj) {
-            obj.size = 32;
             this.spinShow = true;
-            this.$http
-                .post("/api/v2/agent/subuser/pc/teamReport", obj, { userId: true })
+            // obj.gtBuyTime = '' + obj.gtBuyTime.getFullYear() + '-' + (obj.gtBuyTime.getMonth() + 1) + '-' + obj.gtBuyTime.getDate()
+            // obj.ltBuyTime = '' + obj.ltBuyTime.getFullYear() + (obj.ltBuyTime.getMonth() + 1) + obj.ltBuyTime.getDate()
+            obj.gtBuyTime = formatDate.getFormatDate(obj.gtBuyTime)
+            obj.ltBuyTime = formatDate.getFormatDate(obj.ltBuyTime)
+            this.$http.post("/api/v2/agent/subuser/teamReport", obj, { userId: true, unenc: true })
                 .then(({ data }) => {
                     this.spinShow = false;
-
                     if (data.code !== 0) return;
-                    let obj = {
-                        profitLossTotal: 0,
-                        buyTotal: 0,
-                        prizeTotal: 0,
-                        rebateTotal: 0,
-                        rechargeTotal: 0,
-                        takeFeeTotal: 0
-                    };
-                    data.data.reportList.forEach(itm => {
-                        obj.profitLossTotal += itm.profitLossTotal * 100;
-                        obj.buyTotal += itm.buyTotal * 100;
-                        obj.prizeTotal += itm.prizeTotal * 100;
-                        obj.rebateTotal += itm.rebateTotal * 100;
-                        obj.rechargeTotal += itm.rechargeTotal * 100;
-                        obj.takeFeeTotal += itm.takeFeeTotal * 100;
-                    });
-                    this.teamReportCount = obj;
+                    this.teamReportCount = data.data;
                 });
         },
         reportTimeChange () {
@@ -865,19 +879,24 @@ export default {
             this.getTeamReport();
         },
         changeActiveButton (num) {
-            this.leeActiveButton = num;
-            this.getTeamReport();
+            this.teamReportTime.startTime = ''
+            this.teamReportTime.endTime = ''
+            this.$nextTick(() => {
+                this.leeActiveButton = num;
+                this.getTeamReport();
+            })
         },
         addUser () {
             this.detailFlag = true;
             if (this.$refs.userInfo) {
                 this.$refs.userInfo.resetFields()
             }
-            this.$set(this, "title", "创建新用户");
+            this.$set(this, "title", "创建新会员");
             this.getUserInfoFromLocal()
         },
         getUserInfoFromLocal () {
-            var user = JSON.parse(localStorage.getItem("user"));
+            // var user = JSON.parse(localStorage.getItem("user"));
+            var user = this.$store.state.user
             this.$set(this.groupName, "min", Number(user.minBonusGroupName));
             this.$set(this.groupName, "max", Number(user.bonusGroupName));
             this.$set(
@@ -894,7 +913,7 @@ export default {
             this.bonusGroup.splice(1, 0, Number(user.bonusGroupName));
         },
         cancelAddUser () {
-            //取消创建用户
+            //取消创建会员
             this.$refs.userInfo.resetFields();
             this.detailFlag = false;
             this.showUserCodeTip = true;
@@ -934,6 +953,8 @@ export default {
                 ltTime = formatDate.getFormatDate(this.manageTime[0]);
                 gtTime = formatDate.getFormatDate(this.manageTime[1]);
             }
+            if (ltTime == "1970-01-01") ltTime = ''
+            if (gtTime == "1970-01-01") gtTime = ''
             this.$set(vm.paramData, "ltTime", ltTime);
             this.$set(vm.paramData, "gtTime", gtTime);
             this.leeWrapSpinShow = true
@@ -941,7 +962,7 @@ export default {
                 this.paramData.userCode = this.uploadUserCode
             }
             this.paramData.userId = this.currentUserId[this.currentUserId.length - 1]
-            this.$http.post("/api/v2/agent/subuser/list", vm.paramData, { userId: true }).then(response => {
+            this.$http.post("/api/v2/agent/subuser/list", vm.paramData, { userId: true, unenc: true }).then(response => {
                 // this.breadcrumbClick(0)
                 this.paramData.userCode = ''
                 this.uploadUserCode = ''
@@ -990,16 +1011,22 @@ export default {
         }
     },
     created () {
+        setTimeout(() => {
+            this.loading = false
+        }, 5000)
         let vm = this;
         vm.$set(vm.paramData, "userCode", "");
         vm.getDataList();
         this.getUserInfoFromLocal();
-        this.configList.forEach(itm => {
-            if (itm.key === "AGENT_LEVEL_SWITCH") {
-                this.showLevels = itm.value === "0" ? false : true;
-                return;
-            }
-        });
+        getConfigList().then(res => {
+            res.forEach(itm => {
+                if (itm.key === "AGENT_LEVEL_SWITCH") {
+                    vm.showLevels = itm.value === "0" ? false : true;
+                    return;
+                }
+            });
+        })
+
         // this.$http.post("/api/v2/sysDict/querySystemConfig").then(({ data }) => {
         //     data.data.forEach(itm => {
         //         if (itm.key === "AGENT_LEVEL_SWITCH") {
@@ -1012,6 +1039,9 @@ export default {
 };
 </script>
 <style lang='less'>
+.user-manage {
+    min-height: 740px;
+}
 .user-manage .lee-opera-div-inside .un-click-color {
     color: #999;
 }
@@ -1056,9 +1086,10 @@ export default {
         background-color: white;
     }
     span {
-        color: #cbcdd3;
+        color: #be1204;
     }
     .lee-active-button {
+        border-color: #ff8234;
         background-color: #ff8234;
         color: white;
         box-shadow: none;

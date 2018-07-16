@@ -43,6 +43,11 @@
                 <div class="withdrawform">
                     <span>提现金额：</span>
                     <InputNumber v-model="takeFee.totalFee" :min="10" :max="500000" placeholder="请输入提现金额" style="width: 180px"></InputNumber>
+
+                    <span class="poundage" v-show="isPoundage&&poundage>0">手续费: {{poundage}}
+
+                        <span>({{(poundagePercent*100).toFixed(2)}}%)</span>
+                    </span>
                     <!-- 元 -->
                 </div>
                 <div>
@@ -81,7 +86,7 @@
         <div v-if="!stepOne" class="confirm">
             <div class="confirmicon"></div>
             <div class="confirm1">
-                <span>订单已提交</span>
+                <span>提现申请成功</span>
                 <p>
                     <span>一般到账时间在5分钟左右，最快2分钟内到账。</span>
                 </p>
@@ -134,8 +139,24 @@ export default {
             playCodeQuantity: 0, //有效打码量
             diffQuantity: 0, //打码量之差
             codeQuantityFlag: false,//
-            specialCase: false
+            specialCase: false,
+            hasMoreClick: false, //阻止多次点击
+            poundageMax: 0,
+            poundagePercent: 0,
+            isPoundage: false
         };
+    },
+    computed: {
+        poundage () {
+            let po = (this.poundagePercent * this.takeFee.totalFee).toFixed(2)
+            // console.log(po > this.poundageMax, po, this.poundageMax)
+            if (Number(po) > Number(this.poundageMax)) {
+                // console.log(this.poundageMax)
+                return (Number(this.poundageMax).toFixed(2))
+            } else {
+                return po
+            }
+        }
     },
     components: {
         ModifyFundPwd,
@@ -162,7 +183,11 @@ export default {
             //取消设置资金密码
             this.showModal2 = !val;
         },
-        withdraw () {
+        withdraw () { //提现
+            if (this.hasMoreClick) { //阻止连续点击
+                return
+            }
+            this.hasMoreClick = true;
             if (
                 this.lotUserBankList == null ||
                 this.lotUserBankList.length <= 0
@@ -171,12 +196,11 @@ export default {
                 return;
             }
             this.takeFee.payPwd = encryption.encrypt.md5(this.payWadNo);
-            this.$http
-                .post("/api/v2/user/takeFee", this.takeFee, { userId: true })
-                .then(response => {
-                    if (response.data.code !== 0) return;
-                    this.stepOne = false;
-                });
+            this.$http.post("/api/v2/user/takeFee", this.takeFee, { userId: true }).then(response => {
+                this.hasMoreClick = false;
+                if (response.data.code !== 0) return;
+                this.stepOne = false;
+            });
         },
         toAddBank () {
             this.bandBankFlag = false;
@@ -188,7 +212,7 @@ export default {
         toQueryTakeFee () {
             this.$router.push({
                 name: "personalCenter",
-                params: { id: "trade", label: "trade_withdraw" }
+                params: { id: "trade", label: "trade_recharge" }
             });
         },
         resetFormStatus () {
@@ -198,21 +222,28 @@ export default {
         },
         init () {
             this.hadPayPwd = true;
-            this.$http
-                .post("/api/v2/user/queryLotUserBankInfo", '', { userId: true })
-                .then(response => {
-                    if (response.data.code !== 0) return;
-                    let data = response.data.data;
-                    this.lotUserBankList = data.lotUserBankList;
-                    if (
-                        this.lotUserBankList == null ||
-                        this.lotUserBankList.length <= 0
-                    ) {
-                        this.bandBankFlag = true;
-                    }
-                });
+            this.isPoundage = false
+            this.$http.post("/api/v2/user/queryLotUserBankInfo", '', { userId: true, unenc: true }).then(response => {
+                if (response.data.code !== 0) return;
+                let data = response.data.data;
+                this.lotUserBankList = data.lotUserBankList;
+                if (
+                    this.lotUserBankList == null ||
+                    this.lotUserBankList.length <= 0
+                ) {
+                    this.bandBankFlag = true;
+                }
+                if (data.isPoundage == '1') {
+                    this.isPoundage = true;
+                    this.poundageMax = data.poundageMax;
+                    this.poundagePercent = data.poundagePercent;
+                } else {
+                    this.isPoundage = false;
 
-            this.$http.post("/api/v2/user/queryBalance", '', { userId: true }).then(response => {
+                }
+            });
+
+            this.$http.post("/api/v2/user/queryBalance", '', { userId: true, unenc: true }).then(response => {
                 if (response.data.code !== 0) return;
                 let data = response.data.data;
                 this.balance = data.balance;
@@ -220,7 +251,7 @@ export default {
         }
     },
     created () {
-        this.$http.post("/api/v2/user/getUserPayPwd", '', { userId: true }).then(response => {
+        this.$http.post("/api/v2/user/getUserPayPwd", '', { userId: true, unenc: true }).then(response => {
             if (response.data.code !== 0) return;
             if (response.data.data.payPwdFlag != "1") {
                 // 没有设置资金密码
@@ -230,7 +261,8 @@ export default {
                 this.init();
             }
         });
-        this.$http.post("/api/v2/user/queryLotUserBankInfo", '', { userId: true }).then(response => {
+        this.isPoundage = false
+        this.$http.post("/api/v2/user/queryLotUserBankInfo", '', { userId: true, unenc: true }).then(response => {
             //判断能否提现
             if (response.data.code !== 0) return;
             let data = response.data.data;
@@ -245,6 +277,15 @@ export default {
             if (this.rechargeCodeQuantity == 0 && this.playCodeQuantity == 0) {
                 this.specialCase = true
             }
+
+            if (data.isPoundage == '1') {
+                this.isPoundage = true
+                this.poundageMax = data.poundageMax
+                this.poundagePercent = data.poundagePercent
+            } else {
+                this.isPoundage = false
+
+            }
         });
     }
 };
@@ -255,6 +296,10 @@ export default {
         color: @common-color;
         font-size: 12px;
         padding-bottom: 12px;
+    }
+    .withdrawform .poundage {
+        width: 160px;
+        margin-left: 40px;
     }
 }
 </style>

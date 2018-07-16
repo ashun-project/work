@@ -64,7 +64,7 @@ export default {
             if (resolve) {
                 this.paramData.current = 1
             }
-            this.$http.post('/api/v2/user/queryUserMessage', vm.paramData, { userId: true }).then(response => {
+            this.$http.post('/api/v2/user/queryUserMessage', vm.paramData, { userId: true, noEncrypt: true }).then(response => {
                 if (resolve) {
                     resolve()
                 }

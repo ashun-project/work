@@ -45,11 +45,6 @@ export default {
     components: {
 
     },
-    filters: {
-        keepDecimalOf2 (val) {
-            return val ? val.toFixed(2) : "0.00";
-        }
-    },
     mounted: function () {
         this.$nextTick(() => {
             this.$refs.scrollObj.style.height = document.documentElement.clientHeight - this.$refs.scrollObj.getBoundingClientRect().top + "px";
@@ -61,7 +56,7 @@ export default {
         },
     },
     created: function () {
-        this.$http.post('/api/v2/user/redpacket/pattern', '', { loading: 2 }).then(response => {
+        this.$http.post('/api/v2/user/redpacket/pattern', '', { loading: 2, noEncrypt: true }).then(response => {
             if (response.data.code !== 0) return;
             this.orderList = response.data.data
 

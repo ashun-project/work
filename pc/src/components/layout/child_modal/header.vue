@@ -1,18 +1,20 @@
 <template>
-    <div>
-        <div class="notice">
+    <div class="home-header">
+        <div class="notice-wrap">
             <div class="content">
+                <!-- 公告 -->
                 <div class="txt">
-                    <span class="txt-icon">
+                    <div class="txt-icon">
                         <i class="i-icon i-notice"></i>
-                    </span>&nbsp;
-                    <div v-if="notice">
+                    </div>&nbsp;
+                    <div v-if="notice" class="margquee">
                         <marquee scrolldelay=100 scrollAmount=6>
                             <span class="notice-cont" v-html="notice" @click="$router.push({path:'/newsList/announce'})"></span>
                         </marquee>
                     </div>
-
                 </div>
+                <!-- 公告结束 -->
+                <!-- 菜单 -->
                 <ul>
                     <li v-if="userInfo.userCode">
                         <router-link to="/personalCenter/account">会员中心</router-link>
@@ -33,48 +35,52 @@
                         <a :href="serverUrl.url" target="_blank">在线客服</a>
                     </li>
                 </ul>
+                <!-- 菜单结束 -->
             </div>
         </div>
+        <!-- logo登录区-->
         <div class="head-info">
             <div class="content">
-                <div class="logo">
-                    <router-link to="/"><img src="/configstatic/pc/images/logo.gif"></router-link>
+                <!-- logo -->
+                <div class="logo-wrap">
+                    <div class="logo">
+                        <h1>
+                            <router-link to="/"><img src="/configstatic/pc/images/logo.gif" :title="$configText.main+'彩票'"></router-link>
+                        </h1>
+                    </div>
+                    <div class="logo-side"></div>
                 </div>
-                <div class="logo-side"></div>
+                <!--logo结束-->
+                <!--登录注册-->
                 <div class="account-info" v-if="(!userInfo.userCode)&&($route.name!='login')" id="loginInfo">
-                    <div class="input-wrapper user-name input-line">
-                        <!-- <Icon type="ios-person-outline" size="24"></Icon>
-                        <input type="text" v-model="userCode" placeholder="用户名" @focus='isActive=1' @blur='isActive=null' :class="[isActive === 1 ? 'active' : '']"> -->
-                        <Input type="text" v-model="userCode" size="large" icon="ios-person-outline" placeholder="用户名"></Input>
+                    <div class="input-wrapper ">
+                        <Input type="text" v-model="userCode" size="large" icon="ios-person-outline" placeholder="用户名" @on-enter="doLogin()"></Input>
                     </div>
-                    <div class="input-wrapper pass-word input-line">
-                        <!-- <Icon type="ios-locked-outline" size="20"></Icon> -->
-                        <!-- <input type="password" v-model="password" placeholder="密码" @focus='isActive=2' @blur='isActive=null' :class="[isActive === 2 ? 'active' : '']"> -->
-                        <Input type="password" v-model="password" size="large" icon="ios-locked-outline" placeholder="密码"></Input>
+                    <div class="input-wrapper same">
+                        <Input type="password" v-model="password" size="large" icon="ios-locked-outline" placeholder="密码" @on-enter="doLogin()"></Input>
                     </div>
-                    <div class="input-wrapper input-line validate">
+                    <div class="input-wrapper same validate">
                         <Input type="text" v-model="checkCode" size="large" placeholder="验证码" @on-enter="doLogin()" @on-focus='refreshCheckCode()'></Input>
                         <img :src="captcha" @click="changeCaptcha()" style='cursor:pointer'>
-                        <!-- <input type="text" v-model="checkCode" placeholder="验证码" @keyup.enter="doLogin()" @focus='refreshCheckCode' @blur='isActive=null' :class="[isActive === 3 ? 'active' : '']"> -->
                     </div>
-                    <div class="input-wrapper input-line userlogo">
-                        <!-- <a class="btn login" @click="doLogin()">用户登录</a> -->
+                    <div class="input-wrapper login">
                         <Button type="primary" size="large" @click="doLogin()">用户登录</Button>
                     </div>
-                    <div class="input-wrapper input-line userregister">
-                        <!-- <router-link to="/register" class="btn register">免费注册</router-link> -->
+                    <div class="input-wrapper register">
                         <Button type="warning" size="large" @click="goRegister()">免费注册</Button>
                     </div>
                 </div>
+                <!--  登录注册结束-->
+                <!-- 用户信息结束-->
                 <div class="logined" v-if="!!userInfo.userCode">
                     <ul>
                         <li class="account">
                             <div class="account-logo" @mouseenter="showPopup = true" @mouseleave="showPopup = false">
                                 <template v-if="userInfo&&userInfo.imgUrl">
-                                    <img :src='userInfo&&userInfo.imgUrl' class="img" style="height:100%;" @click="$router.push('/personalCenter/account')">
+                                    <img :src='userInfo&&userInfo.imgUrl' @click="$router.push('/personalCenter/account')">
                                 </template>
                                 <template v-else-if="userInfo&&!userInfo.imgUrl">
-                                    <img src="/static/images/account.png" style="height:100%;" @click="$router.push('/personalCenter/account')">
+                                    <img src="/static/images/account.png" @click="$router.push('/personalCenter/account')">
                                 </template>
                                 <div class="account-popup" v-show="showPopup">
                                     <p>
@@ -91,7 +97,7 @@
                             <div class="account-detail">
                                 <p>
                                     <span class="lab">账号&nbsp;:</span>
-                                    <span class="font-red user-name">{{userInfo.userCode}}&nbsp;&nbsp;</span><img :src="userInfo.userLevelIcon">
+                                    <span class="user-name">{{userInfo.userCode}}&nbsp;&nbsp;</span><img :src="userInfo.userLevelIcon">
                                 </p>
                                 <p class='balance'>
                                     <span class="lab">余额&nbsp;:&nbsp;</span>
@@ -101,39 +107,31 @@
                             </div>
                         </li>
                         <li class="ordinary deposit" v-if="userInfo.userType !== '09' && userInfo.userType !=='08'">
-                            <!-- <button type='primary' class='ivu-btn ivu-btn-primary' @click="$router.push({path:'/personalCenter/recharge'})">
-                                <i></i>
-                                <span>存款</span>
-                            </button> -->
                             <Button type="default" @click="$router.push({path:'/personalCenter/recharge'})">
                                 <i></i>存款</Button>
                         </li>
                         <li class="ordinary withdrawal" v-if="userInfo.userType !== '09' && userInfo.userType !=='08'">
-                            <!-- <button type='primary' class='ivu-btn ivu-btn-primary' @click="$router.push({path:'/personalCenter/withdraw'})">
-                                <i></i>
-                                <span>提现</span>
-                            </button> -->
                             <Button type="default" @click="$router.push({path:'/personalCenter/withdraw'})">
                                 <i></i>提现</Button>
                         </li>
                         <li class="login-out" @click="signOut()">
-                            <Button type='primary' icon='power' style='width:97px;height:38px;line-height:38px;padding:0'>退出登录</Button>
+                            <Button type='primary' icon='power'>退出登录</Button>
                         </li>
                     </ul>
                 </div>
+                <!-- 登录注册结束 -->
             </div>
         </div>
+        <!-- logo区域结束 -->
         <div class="head-menu">
             <div class="content">
-                <!-- @mouseover="showAsideMenu = true" @mouseleave="showAsideMenu = false " -->
                 <div class="lottery-title" @mouseover="showAsideMenu" @mouseleave="hideAsideMenu">
                     <span>
                         <i class="i-icon i-three"></i>&nbsp;</span>
                     <span>热门彩种</span>
-                    <!-- :data="lotteryHotList" -->
                     <lottery v-show="currentMenu === '/home' || hasAsideMenu"></lottery>
                 </div>
-                <ul>
+                <ul class="nav-menu">
                     <li v-for="(item, idx) in menu" :key="idx" :style="{width: 100 / menu.length + '%'}" :class="{active: currentMenu === item.url}">
                         <router-link :to="item.url" :target='idx===1? "_blank" : "" '>{{item.label}}</router-link>
                     </li>
@@ -158,7 +156,6 @@ import encryption from '@/components/common/module_js/md5'
 import iView from 'iview'
 import modal from './try_play.vue'
 import ConfirmFree from '@/components/common/module_vue/modal'
-// import ConfirmFree from './components/ConfirmFree'
 export default {
     components: {
         lottery,
@@ -192,8 +189,6 @@ export default {
     watch: {
         $route (n, o) {
             this.currentMenu = n.path
-            // 防止从别的页面操作登入或退出功能，更改登录状态
-            // this.getUser();
         }
     },
     computed: {
@@ -220,7 +215,6 @@ export default {
         },
         refreshCheckCode () {
             //获取焦点刷新验证码
-            // this.isActive = 3
             if (this.hasRefreshChode) {
                 return
             }
@@ -244,7 +238,7 @@ export default {
         refreshBalance () {
             //刷新资金
             this.turnRound = true
-            this.$http.post('/api/v2/user/queryBalance', {}, { userId: true }).then(response => {
+            this.$http.post('/api/v2/user/queryBalance', {}, { userId: true, unenc: true }).then(response => {
                 if (response.data.code !== 0) return
                 this.userInfo.balance = response.data.data.balance
                 localStorage.setItem('user', JSON.stringify(this.userInfo))
@@ -348,34 +342,23 @@ export default {
         },
         getNotice () {
             let vm = this
-            this.$http
-                .post('/api/v2/cms/queryAnnounceEssayList', {
-                    current: 1,
-                    size: 100,
-                    type: '02'
+            this.$http.post('/api/v2/cms/queryAnnounceEssayList', {
+                current: 1,
+                size: 100,
+                type: '02'
+            }, { unenc: true }).then(response => {
+                if (response.data.code !== 0) return
+                let n = response.data.data.list
+                let txt = ''
+                n.forEach(item => {
+                    txt +=
+                        vm.escapeHtml(item.content) + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
                 })
-                .then(response => {
-                    if (response.data.code !== 0) return
-                    let n = response.data.data.list
-                    let txt = ''
-                    n.forEach(item => {
-                        txt +=
-                            vm.escapeHtml(item.content) + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-                    })
-                    this.notice = txt
-                })
+                this.notice = txt
+            })
         }
-        // getUser (balance) {
-        //     let user = localStorage.getItem('user');
-        //     if (user) {
-        //         this.userInfo = JSON.parse(user);
-        //     } else {
-        //         this.userInfo = '';
-        //     }
-        // }
     },
     created () {
-        // this.getUser(true);
         this.getNotice()
     }
 }
@@ -387,307 +370,427 @@ export default {
     font-size: 14px;
 }
 </style>
-
-<style lang="less" scoped>
-.notice {
-    height: 35px;
-    line-height: 35px;
-    background: @head-notice-bg;
-    font-size: 12px;
-}
-.notice .content {
-    margin: 0 auto;
-}
-.notice div.txt {
-    float: left;
-    color: @common-color;
-    width: 560px;
-}
-.notice div.txt span {
-    float: left;
-    height: 40px;
-    margin-top: 5px;
-}
-.notice div.txt > div {
-    float: left;
-    width: 510px;
-}
-.notice div.txt > div span {
-    margin: 0;
-}
-.notice marquee {
-    overflow: hidden;
-}
-
-.notice ul {
-    float: right;
-}
-.notice ul li {
-    float: left;
-    padding: 0 10px;
-    border-right: 1px solid #7f7f7f;
-    height: 14px;
-    line-height: 14px;
-    margin-top: 11px;
-}
-.notice ul li:last-child {
-    border: 0;
-}
-.notice ul li a {
-    color: #7f7f7f;
-}
-.notice ul li a:hover {
-    color: @common-active-color;
-}
-.head-info {
-    height: 90px;
-    position: relative;
-    padding: 26px 0;
-}
-.head-info .content {
-    position: relative;
-    height: 100%;
-    margin: 0 auto;
-}
-.head-info .logo {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    transform: translate(0, -50%);
-    width: 180px;
-    margin-top: 3px;
-}
-.head-info .logo-side {
-    width: 200px;
-    height: 55px;
-    position: absolute;
-    bottom: -27px;
-    left: 190px;
-    background: url(/configstatic/pc/images/icon.png) no-repeat;
-    background-position: -9px -445px;
-}
-.account-info {
-    float: right;
-}
-.account-info .input-wrapper {
-    position: relative;
-}
-.account-info .input-wrapper.input-line {
-    width: 132px;
-    height: 38px;
-    vertical-align: top;
-    border-radius: 4px;
-    -webkit-border-radius: 4px;
-    -ms-border-radius: 4px;
-    -moz-border-radius: 4px;
-    margin-right: 7px;
-}
-
-.input-wrapper.input-line.userlogo,
-.input-wrapper.input-line.userregister {
-    width: 84px;
-    height: 38px;
-}
-.input-wrapper.input-line.userregister {
-    margin-right: 0;
-}
-.input-wrapper.input-line.userregister a {
-    display: inline-block;
-    height: 40px;
-}
-.input-wrapper.input-line.userlogo {
-    margin: 0 2px 0 12px;
-}
-.input-wrapper button {
-    width: 100%;
-    height: 40px;
-    line-height: 40px;
-    padding: 0;
-}
-.account-info .input-wrapper img {
-    position: absolute;
-    left: 8px;
-    top: 6px;
-}
-.account-info .validate img {
-    width: 67px;
-    left: auto;
-    right: 1px;
-    top: 3px;
-    height: 90%;
-}
-// .account-info .input-wrapper .btn {
-//     float: left;
-//     color: #be1204;
-//     height: 39px;
-//     font-size: 14px;
-// }
-.head-menu {
-    height: 44px;
-    line-height: 44px;
-    color: #fff;
-    font-size: 14px;
-    background: @common-bg;
-}
-.head-menu .content {
-    margin: 0 auto;
-}
-.head-menu .lottery-title {
-    float: left;
-    width: 220px;
-    position: relative;
-    border-right: none;
-}
-.head-menu .lottery-title span {
-    float: left;
-    display: block;
-    height: 44px;
-    overflow: hidden;
-}
-.head-menu .lottery-title span i {
-    margin-top: 13px;
-}
-.head-menu ul {
-    width: 780px;
-    float: right;
-}
-.head-menu ul li {
-    float: left;
-    text-align: center;
-}
-.head-menu ul li a {
-    display: block;
-    color: #fff;
-    width: 100%;
-    transition: background 0.2s ease-in;
-}
-.head-menu ul li a:hover {
-    background: @common-active-bg;
-}
-.head-menu ul li.active a {
-    background: @common-active-bg;
-}
-.logined {
-    float: right;
-}
-.logined li {
-    position: relative;
-    float: left;
-    color: @common-color;
-    font-size: 14px;
-    margin-left: 15px;
-}
-.logined .ordinary,
-.logined .deposit {
-    font-size: 0;
-}
-.logined .ordinary button,
-.logined .ordinary .deposit button {
-    display: inline-block;
-    width: 97px;
-    height: 38px;
-    padding: 0;
-    line-height: 38px;
-    text-align: center;
-    color: @common-color;
-    // background: #fff;
-    border-color: @common-color;
-}
-.logined .withdrawal {
-    margin-left: 20px;
-}
-.logined .withdrawal:hover button,
-.logined .deposit:hover button {
-    background: @common-bg;
-    color: #fff;
-}
-.logined .withdrawal i,
-.logined .deposit i {
-    display: inline-block;
-    vertical-align: -7px;
-    margin-right: 7px;
-    width: 22px;
-    height: 23px;
-    background: url('/configstatic/pc/images/icon.png') no-repeat -241px -548px;
-}
-.logined .withdrawal i {
-    margin-right: 8px;
-}
-.logined .deposit i {
-    background: url('/configstatic/pc/images/icon.png') no-repeat -209px -548px;
-}
-.logined .deposit:hover i {
-    background: url('/configstatic/pc/images/icon.png') no-repeat -206px -512px;
-}
-.logined .withdrawal:hover i {
-    background: url('/configstatic/pc/images/icon.png') no-repeat -240px -512px;
-}
-.logined .login-out {
-    color: #fff;
-    margin-left: 20px;
-    font-size: 14px;
-}
-.logined .login-out .ivu-icon.ivu-icon-power {
-    font-size: 20px;
-}
-.logined .account {
-    margin-top: -12px;
-}
-.logined .account > div {
-    height: 60px;
-    float: left;
-}
-.logined .account .account-logo {
-    width: 60px;
-    height: 60px;
-}
-.logined .account .account-logo .img {
-    height: 100%;
-    border-radius: 50%;
-    -webkit-border-radius: 50%;
-    -moz-border-radius: 50%;
-    -ms-border-radius: 50%;
-    -o-border-radius: 50%;
-    cursor: pointer;
-}
-.logined .account .account-detail {
-    padding-top: 8px;
-    margin-left: 10px;
-    position: relative;
-}
-.logined .account .account-detail .lab {
-    display: inline-block;
-    vertical-align: top;
-    color: #7f7f7f;
-}
-.logined .account .account-detail .label,
-.logined .account .account-detail .font-red,
-.logined .account .account-detail .label {
-    display: inline-block;
-    vertical-align: top;
-}
-.logined .account .account-detail .user-name {
-    max-width: 178px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-.logined .account .account-detail img {
-    display: inline-block;
-    width: 70px;
-    float: inherit;
-    vertical-align: middle;
+<style lang="less">
+.home-header {
+    .notice-wrap {
+        height: 35px;
+        background: @head-notice-bg;
+        font-size: 12px;
+        min-width: 1000px;
+        overflow: hidden;
+        .content {
+            margin: 0 auto;
+            .txt {
+                float: left;
+                color: @common-color;
+                width: 560px;
+                .txt-icon {
+                    float: left;
+                    margin-top: 7px;
+                }
+                .margquee {
+                    float: left;
+                    width: 510px;
+                    line-height: 35px;
+                    &:hover {
+                        span {
+                            cursor: pointer;
+                        }
+                    }
+                    span {
+                        margin: 0;
+                        span {
+                            display: inline;
+                            font-size: 12px !important;
+                            color: #be1204 !important;
+                            background: none !important;
+                        }
+                    }
+                }
+            }
+            ul {
+                float: right;
+                li {
+                    float: left;
+                    padding: 0 10px;
+                    border-right: 1px solid #7f7f7f;
+                    height: 14px;
+                    line-height: 14px;
+                    margin-top: 11px;
+                    &:last-child {
+                        border-right: 0;
+                    }
+                    a {
+                        color: #7f7f7f;
+                        &:hover {
+                            color: @common-active-color;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .head-info {
+        background: url(/configstatic/pc/images/header_bg.png) no-repeat center;
+        .content {
+            position: relative;
+            height: 90px;
+            width: 1000px;
+            margin: 0 auto;
+            .logo-wrap {
+                float: left;
+                height: 100%;
+                overflow: hidden;
+                .logo {
+                    position: absolute;
+                    left: 0;
+                    top: 11px;
+                    width: 180px;
+                    height: 74px;
+                }
+                .logo-side {
+                    position: absolute;
+                    top: 35px;
+                    left: 180px;
+                    width: 200px;
+                    height: 55px;
+                    background: url(/configstatic/pc/images/icon.png) no-repeat;
+                    background-position: -9px -444px;
+                }
+            }
+            .account-info {
+                float: right;
+                margin-top: 26px;
+                font-size: 0;
+                .input-wrapper {
+                    position: relative;
+                    display: inline-block;
+                    .ivu-input {
+                        height: 38px;
+                        padding-left: 30px;
+                        padding-right: 10px;
+                    }
+                    .ivu-btn {
+                        width: 84px;
+                        height: 38px;
+                    }
+                    .ivu-input-wrapper {
+                        width: 132px;
+                        height: 38px;
+                        .ivu-input-icon {
+                            left: 0;
+                            font-size: 20px;
+                            &.ivu-icon-ios-person-outline {
+                                font-size: 20px;
+                            }
+                        }
+                    }
+                    &.login {
+                        margin-left: 19px;
+                    }
+                    &.register {
+                        margin-left: 14px;
+                    }
+                    &.same {
+                        margin-left: 7px;
+                    }
+                    .ivu-btn-warning {
+                        background-color: @warning-btn-bg;
+                        color: @warning-btn-color;
+                        &:hover {
+                            background-color: @warning-btn-bg*0.95;
+                            border-color: @warning-btn-bg*0.95;
+                        }
+                    }
+                    &.validate {
+                        img {
+                            position: absolute;
+                            width: 67px;
+                            left: auto;
+                            right: 1px;
+                            top: 2px;
+                            height: 90%;
+                        }
+                        .ivu-input {
+                            padding-left: 5px;
+                        }
+                    }
+                }
+            }
+            .logined {
+                float: right;
+                margin-top: 26px;
+                li {
+                    position: relative;
+                    float: left;
+                    color: @common-color;
+                    font-size: 14px;
+                    margin-left: 15px;
+                    &:first-child {
+                        margin-left: 0;
+                    }
+                    &.withdrawal {
+                        margin-left: 19px;
+                        i {
+                            width: 22px;
+                            height: 23px;
+                            margin-right: 8px;
+                        }
+                        &:hover {
+                            i {
+                                background: url('/configstatic/pc/images/icon.png')
+                                    no-repeat -240px -512px;
+                            }
+                            .ivu-btn {
+                                background: @common-bg;
+                                color: #fff;
+                            }
+                        }
+                    }
+                    &.deposit {
+                        background: url('/configstatic/pc/images/icon.png')
+                            no-repeat -209px -548px;
+                        i {
+                            background: url('/configstatic/pc/images/icon.png')
+                                no-repeat -209px -548px;
+                            width: 22px;
+                            height: 23px;
+                        }
+                        &:hover {
+                            .ivu-btn {
+                                &:extend(.home-header
+                                        .head-info
+                                        .content
+                                        .logined
+                                        li.withdrawal:hover
+                                        .ivu-btn);
+                            }
+                            i {
+                                background: url('/configstatic/pc/images/icon.png')
+                                    no-repeat -206px -512px;
+                            }
+                        }
+                    }
+                    &.login-out {
+                        color: #fff;
+                        margin-left: 19px;
+                        font-size: 14px;
+                        .ivu-btn-primary {
+                            color: #fff;
+                            i {
+                                vertical-align: 0;
+                            }
+                        }
+                        span {
+                            margin-left: -2px;
+                        }
+                    }
+                    i {
+                        display: inline-block;
+                        vertical-align: middle;
+                        margin: 0 4px;
+                        background: url('/configstatic/pc/images/icon.png')
+                            no-repeat -241px -548px;
+                    }
+                    .ivu-btn {
+                        display: inline-block;
+                        vertical-align: middle;
+                        width: 97px;
+                        height: 38px;
+                        padding: 0;
+                        line-height: 38px;
+                        text-align: center;
+                        color: @common-color;
+                    }
+                    .account-logo {
+                        height: 100%;
+                        float: left;
+                        margin-top: -12px;
+                        img {
+                            width: 60px;
+                            height: 60px;
+                            cursor: pointer;
+                        }
+                        .account-popup {
+                            position: absolute;
+                            top: 58px;
+                            left: 30px;
+                            background: #fff;
+                            border: 1px solid #ebebeb;
+                            transform: translate(-50%, 0);
+                            z-index: 1000;
+                            padding: 0 15px;
+                            font-size: 12px;
+                            color: #7f7f7f;
+                            z-index: 100000;
+                            animation: fade-in;
+                            /*动画名称*/
+                            animation-duration: 0.6s;
+                            /*动画持续时间*/
+                            -webkit-animation: fade-in 0.6s;
+                            /*针对webkit内核*/
+                            &:before {
+                                content: '';
+                                width: 0;
+                                height: 0;
+                                border-left: 10px solid transparent;
+                                border-right: 10px solid transparent;
+                                border-bottom: 12px solid #ebebeb;
+                                position: absolute;
+                                left: 50%;
+                                top: -11px;
+                                transform: translate(-50%, 0);
+                            }
+                            &:after {
+                                &:extend(.home-header
+                                        .head-info
+                                        .content
+                                        .logined
+                                        li
+                                        .account-logo
+                                        .account-popup:before);
+                                border-bottom: 12px solid #fff;
+                                top: -10px;
+                            }
+                            p {
+                                height: 30px;
+                                line-height: 30px;
+                                border-bottom: 1px solid #ebebeb;
+                                padding: 0 5px;
+                                &:last-child {
+                                    border-bottom: 0;
+                                }
+                                a {
+                                    color: #7f7f7f;
+                                    &:hover {
+                                        color: @common-active-color;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .account-detail {
+                        &:extend(.home-header
+                                .head-info
+                                .content
+                                .logined
+                                li
+                                .account-logo);
+                        height: 60px;
+                        padding-top: 4px;
+                        margin-left: 10px;
+                        p {
+                            white-space: nowrap;
+                            line-height: 26px;
+                            &.balance {
+                                font-size: 0;
+                            }
+                            span {
+                                font-size: 14px;
+                                &.user-name {
+                                    display: inline-block;
+                                    vertical-align: top;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                    white-space: nowrap;
+                                }
+                                &.refresh {
+                                    display: inline-block;
+                                    width: 13px;
+                                    height: 13px;
+                                    margin-left: 7px;
+                                    background: url('/configstatic/pc/images/icon.png')
+                                        no-repeat -278px -518px;
+                                    cursor: pointer;
+                                    &.turn-round {
+                                        animation: rotating 5s infinite linear;
+                                        -webkit-animation: rotating 5s infinite
+                                            linear;
+                                        -ms-animation: rotating 5s infinite
+                                            linear;
+                                        -moz-animation: rotating 5s infinite
+                                            linear;
+                                        -o-animation: rotating 5s infinite
+                                            linear;
+                                    }
+                                }
+                            }
+                            img {
+                                float: inherit;
+                                vertical-align: middle;
+                                width: 70px;
+                            }
+                        }
+                        .lab {
+                            color: #7f7f7f;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .head-menu {
+        min-width: 1000px;
+        height: 44px;
+        line-height: 44px;
+        color: #fff;
+        background: @common-bg;
+        .content {
+            width: 1000px;
+            margin: 0 auto;
+            .lottery-title {
+                float: left;
+                width: 220px;
+                position: relative;
+                border-right: none;
+                span {
+                    float: left;
+                    display: block;
+                    height: 44px;
+                    overflow: hidden;
+                    i {
+                        margin-top: 13px;
+                    }
+                }
+            }
+            .nav-menu {
+                width: 780px;
+                float: right;
+                li {
+                    float: left;
+                    text-align: center;
+                    &.active {
+                        a {
+                            background: @common-active-bg;
+                        }
+                    }
+                    a {
+                        display: block;
+                        color: #fff;
+                        width: 100%;
+                        transition: background 0.2s ease-in;
+                        &:hover {
+                            background: @common-active-bg;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 @keyframes fade-in {
     0% {
         opacity: 0;
-    } /*初始状态 透明度为0*/
+    }
+    /*初始状态 透明度为0*/
     40% {
         opacity: 0;
-    } /*过渡状态 透明度为0*/
+    }
+    /*过渡状态 透明度为0*/
     100% {
         opacity: 1;
-    } /*结束状态 透明度为1*/
+    }
+    /*结束状态 透明度为1*/
 }
 @-webkit-keyframes fade-in {
     /*针对webkit内核*/
@@ -700,90 +803,6 @@ export default {
     100% {
         opacity: 1;
     }
-}
-.logined .account .account-popup {
-    animation: fade-in; /*动画名称*/
-    animation-duration: 0.6s; /*动画持续时间*/
-    -webkit-animation: fade-in 0.6s; /*针对webkit内核*/
-}
-.logined .account .account-popup {
-    position: absolute;
-    top: 70px;
-    left: 30px;
-    background: #fff;
-    border: 1px solid #ebebeb;
-    transform: translate(-50%, 0);
-    z-index: 1000;
-    padding: 0 15px;
-    font-size: 12px;
-    color: #7f7f7f;
-    z-index: 100000;
-}
-.logined .account .account-popup a {
-    color: #7f7f7f;
-}
-.logined .account .account-popup a:hover {
-    color: @common-active-color;
-}
-.logined .account .account-popup::before {
-    content: '';
-    width: 0;
-    height: 0;
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
-    border-bottom: 12px solid #ebebeb;
-    position: absolute;
-    left: 50%;
-    top: -11px;
-    transform: translate(-50%, 0);
-}
-.logined .account .account-popup::after {
-    content: '';
-    width: 0;
-    height: 0;
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
-    border-bottom: 12px solid #fff;
-    position: absolute;
-    left: 50%;
-    top: -10px;
-    transform: translate(-50%, 0);
-}
-.logined .account .account-popup p {
-    height: 30px;
-    line-height: 30px;
-    border-bottom: 1px solid #ebebeb;
-    padding: 0 5px;
-}
-.logined .account .account-popup p:hover {
-    color: @common-active-color;
-}
-.logined .account .account-popup p:last-child {
-    border-bottom: 0;
-}
-.logined .account div p {
-    white-space: nowrap;
-    height: 20px;
-    line-height: 20px;
-    margin-top: 2px;
-}
-.logined .account div .balance {
-    font-size: 0;
-}
-.logined .account div p:first-child {
-    margin-bottom: 5px;
-}
-.logined .account div p span {
-    font-size: 14px;
-}
-.logined .account div p .refresh {
-    display: inline-block;
-    vertical-align: -6px;
-    width: 12px;
-    height: 13px;
-    margin-left: 6px;
-    background: url('/configstatic/pc/images/icon.png') no-repeat -278px -518px;
-    cursor: pointer;
 }
 @keyframes rotating {
     0% {
@@ -825,37 +844,5 @@ export default {
         -o-transform: rotate(360deg);
     }
 }
-.logined .account div p .turn-round {
-    animation: rotating 5s infinite linear;
-    -webkit-animation: rotating 5s infinite linear;
-    -ms-animation: rotating 5s infinite linear;
-    -moz-animation: rotating 5s infinite linear;
-    -o-animation: rotating 5s infinite linear;
-}
-.logined .ordinary {
-    position: relative;
-}
 </style>
-<style scoped>
-.notice marquee:hover >>> span {
-    color: #be1204 !important;
-    cursor: pointer;
-}
-.notice >>> .notice-cont * {
-    display: inline;
-}
-.account-info .input-wrapper .ivu-input-wrapper >>> .ivu-input {
-    height: 40px;
-    padding-left: 30px;
-}
-.account-info .input-wrapper.validate .ivu-input-wrapper >>> .ivu-input {
-    padding-left: 5px;
-}
-.account-info .ivu-input-wrapper >>> .ivu-input-icon {
-    left: 0;
-    font-size: 20px;
-}
-.account-info .user-name .ivu-input-wrapper >>> .ivu-input-icon {
-    font-size: 24px;
-}
-</style>
+

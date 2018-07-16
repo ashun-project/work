@@ -124,7 +124,7 @@
 				</li>
 				<li>
 					<div class="lb">代理返点：
-						<span>{{+(((userInfo.bonusGroupName - 1800)/2000 * 100).toFixed(1)) +'%'+'('+ Number(userInfo.bonusGroupName)+')'}}</span>
+						<span>{{+(((userInfo.bonusGroupName - MIN_BONUS)/MAX_BONUS * 100).toFixed(1)) +'%'+'('+ Number(userInfo.bonusGroupName)+')'}}</span>
 					</div>
 				</li>
 				<li>
@@ -132,11 +132,11 @@
 						<my-slider :isOdd="true" v-model="userInfo.bonusGroupName" @input="changeGroupName" :min="groupName.min" :max="groupName.max" :bar-height="4">
 							<div class="txt start" slot="start" style='display:inline-block;color:rgb(40,40,40);font-size:14px;'>
 								<span>{{bonusGroup[0]}}</span><br>
-								<span>({{((groupName.min - 1800)/2000 * 100).toFixed(1)}}%)</span>
+								<span>({{((groupName.min - MIN_BONUS)/MAX_BONUS * 100).toFixed(1)}}%)</span>
 							</div>
 							<div class="txt end" slot="end" style='display:inline-block;color:rgb(40,40,40);font-size:14px;'>
 								<span>{{bonusGroup[1]}}</span><br>
-								<span>({{((groupName.max - 1800)/2000* 100).toFixed(1)}}%)</span>
+								<span>({{((groupName.max - MIN_BONUS)/MAX_BONUS* 100).toFixed(1)}}%)</span>
 							</div>
 						</my-slider>
 
@@ -168,7 +168,7 @@
 							代理返点:
 						</label>
 						<div class="cont">
-							<span>{{((Number(userDetal.bonusGroupName) - 1800) / 20).toFixed(1)}}%
+							<span>{{((Number(userDetal.bonusGroupName) - MIN_BONUS) / 20).toFixed(1)}}%
 								<span class="gray">( {{userDetal.bonusGroupName}} )</span>
 							</span>
 						</div>
@@ -271,6 +271,8 @@ export default {
 		},
 	},
 	created () {
+		this.MIN_BONUS = 1800;
+		this.MAX_BONUS = 2000;
 		this.$systemConfig().then((systemConfig) => {
 			this.showLevels = systemConfig['AGENT_LEVEL_SWITCH'] === "0" ? false : true;
 		})
@@ -293,7 +295,7 @@ export default {
 			})
 		},
 		setBonusGroupName (val) {
-			return ((Number(val) - 1800) / 20).toFixed(1) + '%(' + val + ')'
+			return ((Number(val) - this.MIN_BONUS) / 20).toFixed(1) + '%(' + val + ')'
 		},
 		showProgress (val) {
 			//显示赔率
@@ -417,7 +419,7 @@ export default {
 
 			}
 			this.$http
-				.post("/api/v2/agent/subuser/list", vm.paramData, { userId: true })
+				.post("/api/v2/agent/subuser/list", vm.paramData, { userId: true, noEncrypt: true })
 				.then(response => {
 					if (resolve) {
 						resolve();

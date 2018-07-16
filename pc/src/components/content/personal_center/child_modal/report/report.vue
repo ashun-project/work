@@ -110,7 +110,7 @@ export default {
                     endTime = dateUtil.getFormatDate(this.data.reportTime[1]);
                 }
             }
-            this.$http.post('/api/v2/agent/subuser/pc/oneReport', { current: page, gtBuyTime: startTime, ltBuyTime: endTime }, { userId: true }).then(response => {
+            this.$http.post('/api/v2/agent/subuser/pc/oneReport', { current: page, gtBuyTime: startTime, ltBuyTime: endTime }, { userId: true, unenc: true }).then(response => {
                 if (response.data.code !== 0) return;
                 this.pageParams.currentPage = page;
                 this.reportList = response.data.data.reportList;

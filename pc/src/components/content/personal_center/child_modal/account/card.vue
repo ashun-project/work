@@ -83,32 +83,37 @@ export default {
     data () {
         //姓名验证规则
         const addChineseCheck = (rule, value, callback) => {
-            ruleFn.isRealName(value, callback);
+            if (!value) {
+                callback(new Error('请输入姓名'));
+            } else if (!/^[\u4e00-\u9fa5]+((·|•)?[\u4e00-\u9fa5]+)$/.test(value)) {
+                callback(new Error("请输入2-12位的中文字符"));
+            } else if (value.length < 2 || value.length > 12) {
+                callback(new Error("请输入2-12位的中文字符"));
+            } else {
+                callback();
+            }
         }
-        //姓名验证规则
+        //银行名称、开户行验证规则
         const addOPenNameCheck = (rule, value, callback) => {
-            let str = /^[^\u0000-\u00FF]*$/;
-            if (!str.test(value)) {
-                callback(new Error('只能输入中文'));
+            if (!/^[^\u0000-\u00FF]*$/.test(value)) {
+                callback(new Error('请输入中文'));
             } else {
                 callback();
             }
         }
         const bankNum = (rule, value, callback) => {
-            // let role = bank.luhnCheck(value);
             let vm = this;
             let role = /^[0-9]*$/;
             if (!role.test(value)) {
                 callback(new Error('只能输入数字'));
             } else {
-                this.$http.post('/api/v2/user/queryBankFrom', { bankNo: value }, { userId: true, stopDialog: true }).then(response => {
+                this.$http.post('/api/v2/user/queryBankFrom', { bankNo: value }, { userId: true, stopDialog: true, unenc: true }).then(response => {
                     if (response.data.code !== 0) {
                         callback();
                         return
                     }
                     let data = response.data.data;
                     vm.card.bankName = data.bankName;
-                    // vm.card.openBankName = data.openBankName ? data.openBankName : '';
                     callback();
                 })
             }
@@ -123,17 +128,12 @@ export default {
             list: [],
             //卡号验证
             addCardRule: {
-                // certNo:[
-                //     {required: true, message: '身份证号码是必须的', trigger: 'blur'},
-                //     { validator: cardNum, trigger: 'blur' }
-                // ],
                 accountName: [
                     { required: true, validator: addChineseCheck, trigger: 'blur' },
                 ],
                 bankNo: [
                     { required: true, message: '银行卡号不能为空', trigger: 'blur' },
                     { type: 'string', min: 16, message: '请输入正确的银行卡号', trigger: 'blur' },
-                    // { type: 'string', max: 19, message: '请输入正确的银行卡号', trigger: 'blur' },
                     { validator: bankNum, trigger: 'blur' }
                 ],
                 bankName: [
@@ -162,7 +162,7 @@ export default {
         },
         getBankList () {
             let vm = this;
-            vm.$http.post('/api/v2/user/queryLotUserBankInfo', '', { userId: true }).then(response => {
+            vm.$http.post('/api/v2/user/queryLotUserBankInfo', '', { userId: true, unenc: true }).then(response => {
                 let data = response.data.data;
                 vm.showList = true;
                 vm.list = data.lotUserBankList;

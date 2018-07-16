@@ -20,8 +20,11 @@ export default {
                                 checkList()
                             }
                         } else {
-                            domList[idx].src = imgSrc.data
-                            arrReady[idx] = true
+                            if (domList[idx]) {
+
+                                domList[idx].src = imgSrc.data
+                                arrReady[idx] = true
+                            }
                         }
                     })
                 })

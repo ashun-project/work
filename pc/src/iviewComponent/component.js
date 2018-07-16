@@ -1,5 +1,39 @@
 import Vue from 'vue';
-import { Carousel, CarouselItem, Panel, Spin, Steps, Button, Icon, Input, RadioGroup, Radio, CheckboxGroup, Checkbox, Switch, Table, Select, Option, Slider, DatePicker, TimePicker, InputNumber, Form, FormItem, Alert, Message, Notice, Modal, Progress, Collapse, Page, Row, Col } from 'iview';
+import {
+    Carousel,
+    CarouselItem,
+    Panel,
+    Spin,
+    Poptip,
+    Steps,
+    Button,
+    Icon,
+    Input,
+    RadioGroup,
+    Radio,
+    CheckboxGroup,
+    Checkbox,
+    Switch,
+    Table,
+    Select,
+    Option,
+    Slider,
+    DatePicker,
+    TimePicker,
+    InputNumber,
+    Form,
+    FormItem,
+    Alert,
+    Message,
+    Notice,
+    Modal,
+    Progress,
+    Collapse,
+    Page,
+    Row,
+    Col
+} from 'iview';
+Vue.component('Poptip', Poptip);
 Vue.component('Button', Button);
 Vue.component('Icon', Icon);
 Vue.component('Input', Input);

@@ -9,6 +9,7 @@ export default Object.assign({}, {
     '11x5': shared,
     'qtcp': shared,
     'fc3d': shared,
+    'klsf': shared,
     'pcdd': pcEgg,
     '6hc': liuhe
     // '17': liuhe,

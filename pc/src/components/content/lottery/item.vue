@@ -2,7 +2,7 @@
     <div class="lobby-item">
         <div class="detal">
             <div class="info">
-                <img :src="data.lotteryIcon" alt="logo">
+                <img :src="data.lotteryIcon" alt="logo" :class="{'disabled' : data.status === '0'}">
                 <div class="ct">
                     <div class="lottery-name">{{data.lotteryName}}</div>
                     <div class="issue-cd">
@@ -13,7 +13,8 @@
             </div>
             <div class="results">
                 <span>上期开奖</span>
-                <div class="sBall" v-for="(item, idx) in balls" :key="idx">{{item}}</div>
+                <div v-if="!balls" style="color:#be1204;font-size:0.75rem">正在开奖...</div>
+                <div class="sBall" v-if='balls' v-for="(item, idx) in balls" :key="idx">{{item}}</div>
                 <!-- <div class="sBall">09</div>
                 <div class="sBall">45</div>
                 <div class="sBall">01</div>
@@ -61,6 +62,21 @@ export default {
             downNum: 0
         }
     },
+    computed: {
+        updatePrizeHistory () {
+            if (this.$store.state.updateNotice) {
+                return this.$store.state.updateNotice
+            }
+        }
+    },
+    watch: {
+        updatePrizeHistory (newResult) {
+            let result = JSON.parse(newResult);
+            if (this.data.lotteryId === result.lotteryId) {
+                this.balls = result.lotteryNumber.split(',');
+            }
+        }
+    },
     methods: {
         goBetting () {
             // let user = localStorage.getItem('user');
@@ -77,7 +93,7 @@ export default {
                     return;
                 }
             }
-            vm.$http.post('/api/v2/lottery/queryLotteryRecordList', { lotteryId: this.data.lotteryId, num: 1 }).then(response => {
+            vm.$http.post('/api/v2/lottery/queryLotteryRecordList', { lotteryId: this.data.lotteryId, num: 1 }, { unenc: true }).then(response => {
                 if (response.data.code !== 0) {
                     vm.getData();
                     return;
@@ -138,6 +154,7 @@ export default {
         },
         getBalls (ball) {
             if (!ball) {
+                this.balls = '';
                 return
             }
             ball = ball.split(',');
@@ -194,6 +211,15 @@ export default {
     width: 57px;
     height: 57px;
 }
+.lobby-item .detal .info > .disabled {
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    filter: grayscale(100%);
+    -webkit-filter: gray;
+    filter: gray;
+}
 .lobby-item .detal .info .ct {
     display: flex;
     flex: 1;
@@ -205,6 +231,10 @@ export default {
     font-size: 1.2rem;
     color: #333;
     font-weight: bold;
+}
+.lobby-item .detal .info > .disabled + .ct .lottery-name,
+.lobby-item .detal .info > .disabled + .ct .issue-cd div:last-child {
+    color: gray;
 }
 .lobby-item .detal .info .ct .issue-cd {
     display: flex;
@@ -226,9 +256,12 @@ export default {
     padding-left: 5px;
 }
 .lobby-item .detal .results span {
+    display: inline-block;
+    width: 63px;
     font-size: 0.75rem;
     color: #000000;
-    padding-right: 7px;
+    // padding-right: 7px;
+    padding-right: 5px;
 }
 .lobby-item .detal .results .sBall {
     width: 18px;
@@ -240,7 +273,7 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-left: 5px;
+    margin-right: 5px;
 }
 .lobby-item .bottom {
     height: 40px;
@@ -284,5 +317,8 @@ export default {
 }
 .lobby-item .bottom span:hover {
     color: @common-active-color;
+}
+.lobby-item .detal .results .wating-result {
+    color: #666;
 }
 </style>

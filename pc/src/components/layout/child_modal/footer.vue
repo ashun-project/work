@@ -116,7 +116,7 @@ export default {
     },
     methods: {
         getData (params, idx, name) {
-            this.$http.post('/api/v2/cms/queryHelpCenterByNameGuideList', params).then(response => {
+            this.$http.post('/api/v2/cms/queryHelpCenterByNameGuideList', params, { unenc: true }).then(response => {
                 if (response.data.data === 1) return
                 response.data.data.slice(0, 4).forEach((item, index) => {
                     this.list[idx].value.push({ txt: item.title, url: `/helpcenter/${name}?index=${index}` });

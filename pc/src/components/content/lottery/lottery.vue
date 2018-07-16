@@ -14,10 +14,9 @@
                         </div>
                         <div class="child">
                             <p v-for="value in item.lotteryList" :key="value.lotteryId">
-                                <i><img :src="value.lotteryIcon" alt="" :class="[value.status === '0' ? 'disabled' :'']"></i>
-                                <!-- <router-link :to="'/buyLottery/'+value.lotteryId">{{value.lotteryName}}</router-link> -->
-                                <!-- <a @click.prevent = "getLotteryStatus(value)">{{value.lotteryName}}</a> -->
-                                <Button type="primary" :class="[value.status === '0' ? 'disabled' :'']" @click="goBetting(value)" :disabled="value.status === '0'">{{value.lotteryName}}</Button>
+                                <Button type="primary" :class="[value.status === '0' ? 'disabled' :'']" @click="goBetting(value)" :disabled="value.status === '0'">
+                                    <i><img :src="value.lotteryIcon" alt="" :class="[value.status === '0' ? 'disabled' :'']"></i>{{value.lotteryName}}
+                                </Button>
                             </p>
                         </div>
                     </li>
@@ -99,7 +98,7 @@ export default {
     created () {
         var vm = this;
         // lotteryType: null
-        this.$http.post('/api/v2/lottery/queryLotteryList', {}).then(response => {
+        this.$http.post('/api/v2/lottery/queryLotteryList', {}, { unenc: true }).then(response => {
             if (response.data.code !== 0) return;
             vm.lotteryTypeList = response.data.data.lotteryTypeList;
             vm.lotteryTypeList.forEach(item => {
@@ -223,13 +222,6 @@ export default {
     height: 38px;
     line-height: 38px;
 }
-.lottery-list .list li .child p i {
-    width: 28px;
-    height: 28px;
-    position: absolute;
-    top: 5px;
-    left: 15px;
-}
 .lottery-list .list li .child img.disabled {
     -webkit-filter: grayscale(100%);
     -moz-filter: grayscale(100%);
@@ -245,7 +237,7 @@ export default {
     width: 100%;
     padding-right: 10px;
     border: 1px solid #fff;
-    padding-left: 56px;
+    padding-left: 15px;
     background: none;
     border-radius: 0;
     text-align: left;
@@ -275,7 +267,6 @@ export default {
     margin-left: 210px;
     height: 38px;
     line-height: 38px;
-    /* line-height: 49px; */
     font-size: 16px;
     padding-left: 20px;
     background-color: @lottery-streamer-bg;
@@ -347,5 +338,24 @@ export default {
     display: flex;
     flex-shrink: 0;
     margin: 15px 5px 0px 5px;
+}
+</style>
+<style scoped>
+.lottery-list .list li .child p >>> .ivu-btn {
+    padding-top: 4px;
+    padding-bottom: 4px;
+    transition: color 0.2s linear, background-color 0.2s linear,
+        border 0.2s linear, box-shadow 0.2s linear, padding-left 0.2s linear;
+}
+.lottery-list .list li .child p >>> .ivu-btn:hover {
+    padding-left: 29px;
+}
+.lottery-list .list li .child p >>> .ivu-btn i img {
+    width: 28px;
+    height: 28px;
+    margin-right: 13px;
+}
+.lottery-list .list li .child p >>> .ivu-btn span {
+    line-height: 29px;
 }
 </style>

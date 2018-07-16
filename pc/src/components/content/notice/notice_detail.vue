@@ -296,7 +296,7 @@ export default {
             });
         },
         initData (id) {
-            this.$http.post("/api/v2/lottery/queryLotteryNearPrizeInfo", { lotteryId: id }).then(response => {
+            this.$http.post("/api/v2/lottery/queryLotteryNearPrizeInfo", { lotteryId: id }, { unenc: true }).then(response => {
                 if (response.data.code !== 0) return;
                 let data = response.data.data;
                 // console.log('!!!!!!!!!!',data.lotteryNearPrizeList);
@@ -345,7 +345,7 @@ export default {
         //  this.subListOrigin = sessionStorage.getItem("broadList") != null ? JSON.parse(sessionStorage.getItem("subList")).list : [];
         //  this.subList = sessionStorage.getItem("broadList") != null ? JSON.parse(sessionStorage.getItem("subList")).list : [];
         // let vm = this;
-        this.$http.post("/api/v2/lottery/queryLotteryListGroupByType").then(response => { //一级菜单
+        this.$http.post("/api/v2/lottery/queryLotteryListGroupByType", '', { unenc: true }).then(response => { //一级菜单
             if (response.data.code !== 0) return;
             this.broadList = response.data.data.lotteryTypeList;
             // console.log(this.broadList);
@@ -564,11 +564,17 @@ export default {
     vertical-align: top;
     color: #ff7614;
 }
+.notice-detail .detail-info .title a:hover {
+    color: rgba(255, 118, 20, 0.9);
+}
 .notice-detail .detail-info .title li:last-child i {
     background-position: -363px -346px;
 }
 .notice-detail .detail-info .title li:last-child a {
     color: #32bc27;
+}
+.notice-detail .detail-info .title li:last-child a:hover {
+    color: rgba(50, 188, 39, 0.9);
 }
 .notice-detail .detail-info .period {
     margin-top: 10px;

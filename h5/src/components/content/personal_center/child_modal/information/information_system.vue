@@ -79,7 +79,7 @@ export default {
             if (resolve) {
                 vm.paramData.current = 1;
             }
-            this.$http.post('/api/v2/cms/queryAnnounceEssayList', vm.paramData).then(response => {
+            this.$http.post('/api/v2/cms/queryAnnounceEssayList', vm.paramData, { noEncrypt: true }).then(response => {
                 if (resolve && typeof resolve === 'function') {
                     resolve()
                 }

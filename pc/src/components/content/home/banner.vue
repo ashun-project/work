@@ -47,6 +47,7 @@ export default {
         },
         goPage (url, resourceId) {
             if (url) {
+                url = url.trim()
                 if (url.indexOf('http') !== -1) {
                     window.open(url)
                 } else {
@@ -57,7 +58,7 @@ export default {
         }
     },
     created () {
-        this.$http.post('/api/v2/cms/queryBanners', { frontType: 'pc' }).then(response => {
+        this.$http.post('/api/v2/cms/queryBanners', { frontType: 'pc' }, { unenc: true }).then(response => {
             if (response.data.code !== 0) return;
             this.list = response.data.data;
             // console.log(this.list.map(item => item.resourceId

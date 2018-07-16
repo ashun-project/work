@@ -26,7 +26,7 @@
         <li>
           <label class="lb">代理返点：</label>
           <div class="cont" @click.stop="isShowRebates = true">
-            <span>{{+((userInfo.bonusGroupName-1800)/2000 * 100).toFixed(1) + '%('+Number(userInfo.bonusGroupName).toFixed(0)+')'}}</span>
+            <span>{{+((userInfo.bonusGroupName-MIN_BONUS)/MAX_BONUS * 100).toFixed(1) + '%('+Number(userInfo.bonusGroupName).toFixed(0)+')'}}</span>
           </div>
         </li>
         <li>
@@ -34,11 +34,11 @@
             <my-slider v-model="rangeValue" :isOdd="true" @input="changeGroupName" :min='groupName.min' :max='groupName.max' :bar-height="4">
               <div class="txt start" slot="start" style='display:inline-block;color:rgb(40,40,40);font-size:14px;'>
                 <span>{{bonusGroup[0]}}</span><br>
-                <span>({{((groupName.min-1800)/2000 * 100).toFixed(1)}}%)</span>
+                <span>({{((groupName.min-MIN_BONUS)/MAX_BONUS * 100).toFixed(1)}}%)</span>
               </div>
               <div class="txt end" slot="end" style='display:inline-block;color:rgb(40,40,40);font-size:14px;'>
                 <span>{{bonusGroup[1]}}</span><br>
-                <span>({{((groupName.max - 1800) /2000 * 100).toFixed(1)}}%)</span>
+                <span>({{((groupName.max - MIN_BONUS) /MAX_BONUS * 100).toFixed(1)}}%)</span>
               </div>
             </my-slider>
           </div>
@@ -92,6 +92,11 @@ export default {
       }
     }
   },
+  computed: {
+    user () {
+      return this.$store.state.user;
+    }
+  },
   methods: {
     validateName () {  //检查用户名
       if (this.userCode && this.userCode.length >= 6 && this.userCode.length <= 16 && !(/^\d/).test(this.userCode) && this.password && this.password.length >= 6 && this.password.length <= 16) {
@@ -120,7 +125,7 @@ export default {
       }
       this.userInfo.userCode = this.userCode;
       this.userInfo.password = encryption.encrypt.md5(this.password);
-      this.$http.post("/api/v2/agent/addSubuser", this.userInfo, { userId: true }).then(response => {
+      this.$http.post("/api/v2/agent/addSubuser", this.userInfo, { userId: true, loading: true }).then(response => {
         if (response.data.code !== 0) return;
         this.$Message("操作成功");
         this.$router.push({ path: '/agencyCenter/userMgr' });
@@ -163,7 +168,9 @@ export default {
     }
   },
   created () {
-    var user = JSON.parse(localStorage.getItem("user"));
+    var user = this.user;
+    this.MIN_BONUS = 1800;
+    this.MAX_BONUS = 2000;
     this.rangeValue = Number(user.bonusGroupName);
     this.$set(this.groupName, "min", Number(user.minBonusGroupName));
     this.$set(this.groupName, "max", Number(user.bonusGroupName));
@@ -176,7 +183,7 @@ export default {
       if (this.rangeValue === i) {
         this.slotOption[0].defaultIndex = j;
       }
-      this.slotOption[0].values.push(((i - 1800) / 20).toFixed(1) + '%(' + i + ')')
+      this.slotOption[0].values.push(((i - this.MIN_BONUS) / 20).toFixed(1) + '%(' + i + ')')
     }
   },
   mounted () {

@@ -4,11 +4,16 @@
         <div id="ios" style="display:none"></div>
         <div id="android" style="display:none"></div>
         <!-- 悬浮窗 -->
-        <div class="suspend-right suspend-container" v-if="qrcodes.length && rightUrl.length && showSuspend">
-            <suspend :txt="iosTxt" :qrcode="qrcodes[0]" :url="rightUrl" :icon="iosIcon"></suspend>
+        <div class="suspend-right suspend-container">
+            <div v-if="qrcodes.length && rightUrl.length && showSuspend">
+                <suspend :txt="iosTxt" :qrcode="qrcodes[0]" :url="rightUrl" :icon="iosIcon"></suspend>
+
+            </div>
         </div>
-        <div class="suspend-left suspend-container" v-if="qrcodes.length && leftUrl.length && showSuspend">
-            <suspend :txt="androidTxt" :qrcode="qrcodes[1]" :url="leftUrl" :icon="androidIcon"></suspend>
+        <div class="suspend-left suspend-container">
+            <div v-if="qrcodes.length && leftUrl.length && showSuspend">
+                <suspend :txt="androidTxt" :qrcode="qrcodes[1]" :url="leftUrl" :icon="androidIcon"></suspend>
+            </div>
         </div>
         <!-- 悬浮窗结束 -->
 
@@ -32,8 +37,8 @@
             <foot-content></foot-content>
         </div>
         <!-- 红包 -->
-        <div @click="goRedPacket()" :data="activityUrl" class="red-packet" v-if="showRedPacket">
-            <img :src="activityImg" alt="">
+        <div @click="goRedPacket()" :data="activityUrl" class="red-packet" v-show="showRedPacket">
+            <img :src="activityImg">
         </div>
         <!-- 即时通信 -->
         <socket></socket>
@@ -46,22 +51,6 @@
                 </div>
             </div>
         </modal>
-        <!-- <Modal v-model="showLoginDialog" :mask-closable="false" class="loging-dlg" title="登录" width="380">
-             <loginDlg></loginDlg>
-        </Modal>
-        -->
-        <!-- 登录才能进入buyLottery -->
-        <!-- <modal :modalShow = "showLoginDialog" :title = "'投注提示'" :width = "440" @btn-cancel = "cancelBetting" @btn-ok = "okBetting">
-            <div slot = "content">
-                该操作需要登录，是否登录？
-            </div>
-        </modal> -->
-        <!--彩种是否维护中-->
-        <!-- <modal :modalShow = "isUsedLottery" :title = "'投注提示'" :width = "440" @btn-cancel = "isBetting" :noText = "'返回'" :hasOkBtn = "false">
-            <div slot = "content">
-                该彩种正在维护...
-            </div>
-        </modal> -->
     </div>
 </template>
 
@@ -72,6 +61,7 @@ import suspend from './child_modal/suspend'
 import socket from './child_modal/socket.vue'
 import QRCode from 'qrcodejs2'
 import modal from '@/components/common/module_vue/modal'
+import { getConfigList } from '@/components/common/module_js/getConfig.js';
 export default {
     components: {
         headContent,
@@ -182,6 +172,7 @@ export default {
             }
         },
         goRedPacket (event) {
+            if (!this.showRedPacket) return
             if (!this.user.userId) {
                 // this.$router.push('/login')
                 let vm = this;
@@ -224,24 +215,29 @@ export default {
     },
     created () {
         this.routeStatus(this.$route.name)
-        this.$http.post('/api/v2/cms/queryQrcodesAndServicer').then(response => {
-            if (response.data.code !== 0) return;
+        this.$http.post('/api/v2/cms/queryQrcodesAndServicer', '', { unenc: true }).then(response => {
+            if (response.data.code !== 0) {
+                Array.prototype.slice.call($('.suspend-container')).forEach(itm => {
+                    itm.style.opacity = 0
+                })
+                return
+            };
+            Array.prototype.slice.call($('.suspend-container')).forEach(itm => {
+                itm.style.opacity = 1
+            })
             let data = response.data.data;
             this.calcuService(data.servicer);
             this.$store.commit('getServicer', data.servicer);
             this.getQrCode(data.qrcodes);
             document.title = data.servicer.name;
         })
-        this.$http.post("/api/v2/sysDict/querySystemConfig").then(response => {
-            if (response.data.code !== 0) return;
-            let data = response.data.data;
-            this.$store.commit('getConfigList', data);
-            data.forEach(itm => {
+        getConfigList().then(res => {
+            res.forEach(itm => {
                 if (itm.key == "TEST_PLAY_MONEY") {
                     this.$store.commit('freePlay', itm.value)
                 }
             })
-            data.forEach(item => {
+            res.forEach(item => {
                 if (item.key === 'pcRelativeUrl') {
                     this.activityUrl = '/#' + item.value;
                 }
@@ -254,6 +250,11 @@ export default {
                 }
             });
         });
+    },
+    mounted () {
+        setTimeout(() => {
+            $('.red-packet')[0].style.opacity = 1
+        }, 300)
     }
 }
 </script>
@@ -268,11 +269,14 @@ export default {
     .loging-dlg .seft-close{
         display: block;
     } */
+
 .suspend-container {
     position: fixed;
     top: 50%;
     transform: translate(0, -50%);
     z-index: 100000;
+    opacity: 0;
+    transition: 1.2s;
 }
 .suspend-right {
     right: 15px;
@@ -297,6 +301,8 @@ export default {
     bottom: 20px;
     right: 20px;
     cursor: pointer;
+    opacity: 0;
+    transition: 1.2s;
 }
 .red-packet img {
     max-height: 150px;

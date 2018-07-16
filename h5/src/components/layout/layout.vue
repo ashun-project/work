@@ -2,7 +2,7 @@
     <div class="layout" :class="{'not-header': closeHeader, 'not-footer': closeFooter}">
         <div class="content">
             <transition :name="'vux-pop-' + this.direction">
-                <keep-alive :include="['home', 'lottery','prizeNotice','personalCenter','active', 'trend','bettingList']">
+                <keep-alive :include="['home', 'lottery','prizeNotice','personalCenter','active', 'trend']">
                     <router-view></router-view>
                 </keep-alive>
             </transition>
@@ -21,6 +21,7 @@
             </div>
         </div>
         <socket-msg></socket-msg>
+        <sys-notice v-if="showNotice"></sys-notice>
     </div>
 </template>
 
@@ -28,7 +29,7 @@
 //   const needLoginPath = ['/bettingList']; //需要登录的路由
 import socketMsg from '@/whole_components/module_vue/socket'
 import nativeAppUtil from '@/components/common/module_js/nativeAppUtil'
-
+import sysNotice from '@/components/content/home/sys_notice.vue'
 export default {
     data () {
         return {
@@ -41,7 +42,8 @@ export default {
             ],
             pathLabel: 'home',
             closeFooter: false,
-            closeHeader: false
+            closeHeader: false,
+            showNotice: true
         }
     },
     computed: {
@@ -71,10 +73,13 @@ export default {
             this.pathLabel = route.name;
             this.closeHeader = route.meta ? route.meta.notHeader : '';     // 判断去除页头
             this.closeFooter = route.meta ? route.meta.notFooter : '';     // 判断去除页脚
+
+            this.showNotice = route.path.indexOf('redPacket') < 0;
         }
     },
     components: {
-        socketMsg
+        socketMsg,
+        sysNotice
     },
     mounted () {
         let vm = this;
@@ -92,7 +97,7 @@ export default {
         /* 获取在线客服地址 */
         this.$http.post('/api/v2/cms/queryQrcodesAndServicer', {
             frontType: 'h5'
-        }).then((response) => {
+        }, { noEncrypt: true }).then((response) => {
             if (response.data.code !== 0) return;
             let data = response.data.data;
             this.$store.commit('getOnLineServicer', data.servicer);

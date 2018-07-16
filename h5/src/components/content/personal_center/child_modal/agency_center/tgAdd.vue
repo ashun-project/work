@@ -13,7 +13,8 @@
                 <li>
                     <label class="lb">用户类别：</label>
                     <div class="cont">
-                        <mt-radio v-model="type" :options="[{label: '代理',value: '10'},{label: '会员',value: '00' }]"></mt-radio>
+                        <mt-radio v-model="type" :options="[{label: '代理',value: '10'},{label: '会员',value: '00'}]"></mt-radio>
+                        <!--    <mt-radio v-model="type" :options="[{label: '代理',value: '10', disabled: $route.params.id!=='0'},{label: '会员',value: '00',disabled: $route.params.id!=='0' }]"></mt-radio> -->
                     </div>
                 </li>
                 <li>
@@ -29,7 +30,7 @@
                     <label class="lb">代理返点：</label>
                     <div class="cont" @click.stop="isShowRebates = true">
                         <span class="rebate">
-                            {{((bonusGroupName - 1800)/20).toFixed(1)+'%('+Number(bonusGroupName).toFixed(0)+')'}}
+                            {{((bonusGroupName - MIN_BONUS)/20).toFixed(1)+'%('+Number(bonusGroupName).toFixed(0)+')'}}
                         </span>
                     </div>
                 </li>
@@ -38,11 +39,11 @@
                         <my-slider v-model="groupSlider.currentValue" :isOdd="true" @input="changeGroupName" :min='groupSlider.min' :max='groupSlider.max' :bar-height="4">
                             <div class="txt start" slot="start">
                                 <p>{{groupSlider.min}}</p>
-                                <p>{{((groupSlider.min - 1800)/20).toFixed(1)}}%</p>
+                                <p>{{((groupSlider.min - MIN_BONUS)/20).toFixed(1)}}%</p>
                             </div>
                             <div class="txt end" slot="end">
                                 <p>{{groupSlider.max}}</p>
-                                <p>{{((groupSlider.max - 1800)/20).toFixed(1)}}%</p>
+                                <p>{{((groupSlider.max - MIN_BONUS)/20).toFixed(1)}}%</p>
                             </div>
                         </my-slider>
                     </div>
@@ -58,7 +59,7 @@
             <div class="explain">
                 <p class="tit">尊敬的{{user.userCode}}用户：</p>
                 <p class="tit">您当前的返点等级为：
-                    <span class="t-red">{{((groupSlider.max-1800)/20).toFixed(1)}}%({{groupSlider.max}}奖金组)</span> <br/></p>
+                    <span class="t-red">{{((groupSlider.max-MIN_BONUS)/20).toFixed(1)}}%({{groupSlider.max}}奖金组)</span> <br/></p>
                 <div class="bd">
                     <p>
                         <span class="num">1.</span>返点佣金比例=您的返点等级-下级返点等级；(可赚佣金比例 = 所有下级代理和会员的投注总额 X 返点佣金比例)；</p>
@@ -74,7 +75,7 @@
         <my-dialog ref="dialog2" v-model="showDialog" title="创建成功" :closeOnClickModal="false" @on-end="copyLink" btnSure="复制链接" btnCancle="">
             <div class="tg-link">
                 <div class="link-wrap">
-                    <span>推广链接 </span>
+                    <span>邀请链接 </span>
                     <span class="txt">{{expandQrCode}}</span>
                 </div>
             </div>
@@ -166,7 +167,7 @@ export default {
         },
         getCode () {
             this.loading = true;
-            this.$http.post('/api/v2/user/randomExpand', {}, { userId: true }).then(response => {
+            this.$http.post('/api/v2/user/randomExpand', {}, { userId: true, noEncrypt: true }).then(response => {
                 this.loading = false;
                 if (response.data.code !== 0) return;
                 this.expandCode = response.data.data.expand;
@@ -230,6 +231,7 @@ export default {
         this.$refs.scrollObj.style.height = document.documentElement.clientHeight - this.$refs.scrollObj.getBoundingClientRect().top + "px";
     },
     created () {
+        this.MIN_BONUS = 1800;
         if (!this.user.userCode) {
             this.$Message('你还没有登入哦')
             return;
@@ -264,7 +266,7 @@ export default {
             if (this.groupSlider.currentValue === i) {
                 this.slotOption[0].defaultIndex = j;
             }
-            this.slotOption[0].values.push(((i - 1800) / 20).toFixed(1) + '%(' + i + ')')
+            this.slotOption[0].values.push(((i - this.MIN_BONUS) / 20).toFixed(1) + '%(' + i + ')')
         }
     },
     destroyed () {

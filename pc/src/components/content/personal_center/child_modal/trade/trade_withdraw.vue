@@ -99,7 +99,7 @@ export default {
                     endTime = dateUtil.getFormatDate(this.data.takeFeeTime[1]);
                 }
             }
-            this.$http.post('/api/v2/user/queryTakeFeeList', { current: page, startTime: startTime, endTime: endTime, statusArray: this.data.rechargeType === '' ? [] : [this.data.rechargeType] }, { userId: true }).then(response => {
+            this.$http.post('/api/v2/user/queryTakeFeeList', { current: page, startTime: startTime, endTime: endTime, statusArray: this.data.rechargeType === '' ? [] : [this.data.rechargeType] }, { userId: true, unenc: true }).then(response => {
                 if (response.data.code !== 0) return;
                 this.pageParams.currentPage = page;
                 this.takeFeeList = response.data.data.takeFeeList;

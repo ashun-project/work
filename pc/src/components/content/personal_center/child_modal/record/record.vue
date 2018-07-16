@@ -5,7 +5,7 @@
             <div class="selectDate">
                 <Row>
                     <Col span="12">
-                    <DatePicker type="daterange" placement="bottom-end" v-model="paramData.selectTime" placeholder="请选择查询时间" style="width: 135px"></DatePicker>
+                    <DatePicker type="daterange" placement="bottom-end" v-model="paramData.selectTime" placeholder="请选择查询时间" style="width: 187px"></DatePicker>
                     </Col>
                 </Row>
             </div>
@@ -28,7 +28,7 @@
                 <Button type="primary" class="wxbutton" @click="resetData('')" icon="ios-loop">重置</Button>
             </div>
         </div>
-        <modal :modalShow='detailFlag' :title="detail.lotteryName+'第'+detail.periodNo+'期'" :width="963" :hasFooter="false" :maskClosable="true" @btn-cancel="detailFlag = false" :hasOkBtn="false">
+        <modal :modalShow='detailFlag' :title="(detail.lotteryName || '') +'第'+(detail.periodNo || '') +'期'" :width="1024" :hasFooter="false" :maskClosable="true" @btn-cancel="detailFlag = false" :hasOkBtn="false">
             <div slot="content">
                 <div class="modal1">
                     <div class="modal1img">
@@ -88,6 +88,7 @@ export default {
     components: { page, modal },
     data () {
         return {
+            hasMoreClick: false,
             lotteryStatusList: [
                 { name: '全部', status: '' },
                 { name: '未开奖', status: '00' },
@@ -122,17 +123,22 @@ export default {
             detailColumns: [
                 {
                     title: '游戏玩法',
-                    width: 200,
+                    // width: 150,
+                    width: 120,
                     key: 'playName'
                 },
                 {
                     title: '下注号码',
-                    width: 167,
-                    key: 'buyLotteryNumber'
+                    width: 524,
+                    key: 'buyLotteryNumber',
+                    render: (h, params) => {
+                        return h('span', params.row.buyLotteryNumber);
+                    }
                 },
                 {
                     title: '赔率',
-                    width: 111,
+                    // width: 80,
+                    width: 58,
                     key: 'odds',
                     render: (h, params) => {
                         return h('div', (params.row.odds * 1).toFixed(2) || '');
@@ -140,17 +146,23 @@ export default {
                 },
                 {
                     title: '投注金额',
-                    width: 147,
+                    // width: 147,
+                    width: 85,
                     key: 'buyMoney'
+                    // render: (h, params) => {
+                    //     return h('div', (params.row.odds * 1).toFixed(2) || '');
+                    // }
                 },
                 {
                     title: '注数',
-                    width: 76,
-                    key: 'buyNum'
+                    // width: 76,
+                    width: 60,
+                    key: 'buyNum',
                 },
                 {
                     title: '返利',
-                    width: 89,
+                    // width: 89,
+                    width: 60,
                     key: 'rebate',
                     render: (h, params) => {
                         return h('span', (params.row.rebate * 100).toFixed(2) + '%');
@@ -158,7 +170,8 @@ export default {
                 },
                 {
                     title: '中奖金额',
-                    width: 140,
+                    // width: 140,
+                    width: 85,
                     key: 'prize',
                     render: (h, params) => {
                         var text = null;
@@ -181,11 +194,32 @@ export default {
                     key: 'lotteryNumber',
                     width: 99,
                     render: (h, params) => {
+                        let lotteryNumber = params.row.lotteryNumber;
+                        if (lotteryNumber.length > 99) {
+                            lotteryNumber = `${lotteryNumber.slice(0, 100)}......`;
+                        }
                         return h('span', {
                             style: {
                                 color: '#be1204'
                             }
-                        }, params.row.lotteryNumber)
+                        }, lotteryNumber);
+                        // return h('div', [
+                        //     h('span', [
+                        //         h('poptip', {
+                        //             props: {
+                        //                 content: lotteryNumber,
+                        //                 trigger: 'hover',
+                        //                 type: 'error',
+                        //                 size: 'small'
+                        //             },
+                        //             class: "lotteryNumber-tip"
+                        //         },
+                        //             [
+                        //                 h('span', { class: 'lotteryNumber' }, lotteryNumber)
+                        //             ])
+                        //     ])
+
+                        // ])
                     }
                 },
                 { title: '金额', key: 'buyMoney', width: 73 },
@@ -309,10 +343,10 @@ export default {
             }
             // this.lotteryStatus === '' ? '' : ;
             vm.$set(vm.paramData, 'status', this.lotteryStatus);
-            vm.$set(vm.paramData, 'lotteryId', this.lotteryCategory)
+            vm.$set(vm.paramData, 'lotteryId', this.lotteryCategory);
             // this.lotteryCategory === '' ? '' : ;
             this.paramData.current = page;
-            this.$http.post('/api/v2/betting/queryBettingInfoList', vm.paramData, { userId: true }).then(response => {
+            this.$http.post('/api/v2/betting/queryBettingInfoList', vm.paramData, { userId: true, unenc: true }).then(response => {
                 if (response.data.code !== 0) return;
                 let data = response.data.data;
                 vm.bettingInfoListData = data.bettingInfoList;
@@ -324,19 +358,30 @@ export default {
                 vm.$set(vm.paramData, 'total', data.total);
                 // console.log(vm.bettingInfoListData, '===========')
                 // 推送消息进来
-                if (detail) {
-                    // console.log( detail, '----------------------')
-                    this.$route.params.detail = '';   // 清空detail
-                    let currentData = vm.bettingInfoListData.filter(item => item.userBettingRecordId === detail);
-                    this.show(currentData[0])
-                }
+
             })
+            if (detail) {
+                this.$route.params.detail = '';   // 清空detail
+                this.show({ userBettingRecordId: detail })
+            }
+        },
+        queryBettingInfo (id) {
+            let vm = this;
+            vm.$http
+                .post(
+                    '/api/v2/betting/queryBettingInfoById',
+                    { userBettingRecordId: id },
+                    { userId: true, unenc: true, loading: true }
+                )
+                .then(response => {
+                    if (response.data.code !== 0) return;
+                    vm.show(response.data.data.bettingInfo);
+                })
         },
         show (row) {
-            // console.log(row);
             let vm = this;
             this.detailFlag = true;
-            this.$http.post('/api/v2/betting/queryBettingInfoById', { userBettingRecordId: row.userBettingRecordId }, { userId: true }).then(response => {
+            this.$http.post('/api/v2/betting/queryBettingInfoById', { userBettingRecordId: row.userBettingRecordId }, { userId: true, unenc: true }).then(response => {
                 if (response.data.code !== 0) return;
                 let data = response.data.data;
                 if (data.bettingInfo) {
@@ -346,7 +391,7 @@ export default {
                 }
                 // console.log(vm.detail);
                 // vm.detail.statusTxt=status[vm.detail.status];
-                vm.detail.lotteryIcon = row.lotteryIcon;
+                // vm.detail.lotteryIcon = row.lotteryIcon;
                 // vm.detail.status = row.status;
                 // vm.detail.lotteryNumber = data.lotteryNumber;
                 // if (vm.detail.lotteryNumber.includes(',')) {
@@ -378,7 +423,12 @@ export default {
                 title: '取消订单',
                 content: '<p>确定要取消订单吗？</p>',
                 onOk: () => {
+                    if (this.hasMoreClick) {//阻止连续点击
+                        return
+                    }
+                    this.hasMoreClick = true;
                     this.$http.post('/api/v2/betting/cancleBettingRecord', { userBettingRecordId: row.userBettingRecordId }, { userId: true }).then(response => {
+                        this.hasMoreClick = false;
                         if (response.data.code !== 0) return
                         this.$Message.info("操作成功");
                         this.getPageData(1);
@@ -394,7 +444,7 @@ export default {
         let vm = this;
         // vm.paramData.current=1;
         vm.getPageData(1, this.$route.params.detail);
-        this.$http.post('/api/v2/lottery/queryLottery', {}).then(response => {
+        this.$http.post('/api/v2/lottery/queryLottery', {}, { unenc: true }).then(response => {
             if (response.data.code !== 0) return
             this.lotteryCategoryList = response.data.data;
             this.lotteryCategoryList.unshift({ lotteryName: '全部' });
@@ -413,7 +463,8 @@ export default {
 .record .search {
     height: 30px;
     line-height: 30px;
-    text-align: right;
+    text-align: left;
+    white-space: nowrap;
 }
 .record .selectWay {
     width: 100px;
@@ -527,12 +578,17 @@ export default {
     margin: 0 5px;
 }
 .record .table .ivu-table-wrapper >>> .ivu-table tbody td .ivu-table-cell {
+    background-color: inherit;
     font-size: 12px;
 }
 .v-transfer-dom >>> .modal1detail {
+    width: 990px;
     line-height: 38px;
-    margin-left: -40px;
+    /* margin-left: -40px; */
     font-size: 0;
+}
+.v-transfer-dom >>> .modal1detail :first-child {
+    margin-bottom: 16px;
 }
 .v-transfer-dom >>> .modal1detail:last-child {
     margin: 14px 0;
@@ -542,10 +598,11 @@ export default {
 }
 .v-transfer-dom >>> .modal1detail .detailcss {
     display: inline-block;
-    margin-left: 40px;
+    margin-left: 41px;
     color: #a9a9a9;
     height: 30px;
     line-height: 30px;
+    font-size: 14px;
 }
 .v-transfer-dom >>> .modal1detail .detailcss input {
     font-size: 14px;
@@ -557,9 +614,11 @@ export default {
 }
 .v-transfer-dom >>> .price-detail .ivu-table-body {
     overflow-x: hidden;
+    max-height: 220px;
 }
 .v-transfer-dom >>> .price-detail .ivu-table td {
-    height: 36px;
+    min-height: 36px;
+    padding: 10px 0;
 }
 .ivu-table-wrapper >>> .ivu-table tbody td:nth-child(9) .ivu-table-cell span {
     padding-left: 20px;
@@ -592,5 +651,22 @@ export default {
 }
 .v-transfer-dom >>> .ivu-modal-footer {
     padding-top: 0;
+}
+
+.record >>> .lotteryNumber {
+    background-color: inherit;
+    position: relative;
+    max-height: 40px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    color: #be1204;
+    cursor: pointer;
+}
+
+.record >>> .lotteryNumber-tip .ivu-poptip-body-content-inner {
+    max-width: 200px;
+    white-space: normal;
 }
 </style>

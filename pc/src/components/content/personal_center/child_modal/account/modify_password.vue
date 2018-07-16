@@ -63,19 +63,63 @@ export default {
     data () {
         // 修改密码的规则方法
         const validaOldPassword = (rule, value, callback) => { //登录旧密码(登录密码和资金密码)
-            ruleFn.isOldPassWord(value, callback);
+            if (!value) {
+                callback(new Error('请输入旧密码'));
+            } else {
+                callback();
+            }
         }
         const validatePass = (rule, value, callback) => { //登录新密码
-            ruleFn.isPassWord(value, this.modifyObj.passwdCheck, this.$refs.formCustom.validateField, 'passwdCheck', callback);
+            // ruleFn.isPassWord(value, this.modifyObj.passwdCheck, this.$refs.formCustom.validateField, 'passwdCheck', callback);
+            if (!value) {
+                callback(new Error('请输入新密码'));
+            } else if (/[^A-Za-z0-9]/g.test(value)) {
+                callback(new Error('请输入数字和字母'));
+            } else if (value.length < 6 || value.length > 14) {
+                callback(new Error('密码六至十四位'));
+            } else if (this.modifyObj.passwdCheck) {
+                this.$refs.formCustom.validateField('passwdCheck');
+                callback();
+            } else {
+                callback();
+            }
         };
         const validatePass2 = (rule, value, callback) => { //新的资金密码验证规则
-            ruleFn.isFundPassWord(value, this.modifyObj.passwdCheck, this.$refs.formCustom.validateField, 'passwdCheck', callback);
+            // ruleFn.isFundPassWord(value, this.modifyObj.passwdCheck, this.$refs.formCustom.validateField, 'passwdCheck', callback);
+            if (!value) {
+                callback(new Error('请输入新密码'));
+            } else if (!/^\d*$/.test(value)) {
+                callback(new Error('请输入数字'));
+            } else if (this.modifyObj.passwdCheck) {
+                this.$refs.formCustom.validateField('passwdCheck');
+                callback();
+            } else {
+                callback();
+            }
         };
-        const validatePassCheck = (rule, value, callback) => { //确认资金密码
-            ruleFn.checkFundPassWord(value, this.modifyObj.newPassword, callback);
+        const validatePassCheck = (rule, value, callback) => { //确认密码
+            // ruleFn.checkFundPassWord(value, this.modifyObj.newPassword, callback);
+            if (!value) {
+                callback(new Error('请再次输入密码'));
+            } else if (!/^\d*$/.test(value)) {
+                callback(new Error('请输入数字'));
+            } else if (value !== this.modifyObj.newPassword) {
+                callback(new Error('两次输入密码不一致'));
+            } else {
+                callback();
+            }
         };
         const realNameCheck = (rule, value, callback) => {
-            ruleFn.isRealName(value, callback);
+            // ruleFn.isRealName(value, callback);
+            if (!value) {
+                callback(new Error('请输入姓名'));
+            } else if (!/^[\u4e00-\u9fa5]+((·|•)?[\u4e00-\u9fa5]+)$/.test(value)) {
+                callback(new Error("请输入2-12位的中文字符"));
+            } else if (value.length < 2 || value.length > 12) {
+                callback(new Error("请输入2-12位的中文字符"));
+            } else {
+                callback();
+            }
         }
         return {
             type: '1',
@@ -97,8 +141,6 @@ export default {
                 ],
                 newPassword: [
                     { validator: validatePass, trigger: 'blur' },
-                    // { type: 'string', min: 6, message: '密码至少六位', trigger: 'blur' },
-                    // { type: 'string', max: 14, message: '密码最多十四位', trigger: 'blur' }
                 ],
                 passwdCheck: [
                     { validator: validatePassCheck, trigger: 'blur' }
@@ -141,7 +183,12 @@ export default {
         },
         changeType (type) {
             this.type = type;
-            this.$refs.formCustom.resetFields();
+            try {
+                this.$refs.formCustom.resetFields();
+                this.$refs.realNameRef.resetFields();
+            } catch (error) {
+            }
+
         },
         handleSubmit () {
             let vm = this;
@@ -193,7 +240,7 @@ export default {
                 this.setOldName();
             }
         }
-        this.$http.post('/api/v2/user/getUserPayPwd', '', { userId: true }).then(response => {
+        this.$http.post('/api/v2/user/getUserPayPwd', '', { userId: true, unenc: true }).then(response => {
             if (response.data.code !== 0) return;
             this.payPwdFlag = response.data.data.payPwdFlag;
         })

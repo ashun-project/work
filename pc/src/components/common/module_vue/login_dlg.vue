@@ -19,11 +19,11 @@
                                 </Input>
                             </FormItem>
                             <FormItem prop="checkCode" class="valida">
-                                <Input type="text" v-model="formCustom.checkCode" placeholder="验证码" @on-enter="handleSubmit('formCustom')">
+                                <Input type="text" v-model="formCustom.checkCode" placeholder="验证码" @on-enter="handleSubmit('formCustom')" @on-focus='refreshCheckCode()'>
                                 <Icon type="social-snapchat" slot="prepend"></Icon>
                                 </Input>
-                                <img class="valida-code" :src="'/api/v2/user/captcha.jpg?d='+ timeInter" @click="timeInter = new Date().getTime()">
-                                <div class="refresh-code" @click="refreshCode">
+                                <img class="valida-code" :src='imageCode' @click='getImageCode'>
+                                <div class="refresh-code" @click="getImageCode">
                                     <Icon type="refresh"></Icon>
                                 </div>
                             </FormItem>
@@ -61,6 +61,7 @@ export default {
                 password: '',
                 checkCode: ''
             },
+            imageCode: '/api/v2/user/captcha.jpg',  //图形验证码
             ruleInline: {
                 userCode: [
                     { required: true, message: '请输入用户名', trigger: 'blur' }
@@ -94,8 +95,17 @@ export default {
             this.$router.push('/register');
             return;
         },
-        refreshCode () {
-            this.timeInter = new Date().getTime()
+        refreshCheckCode () {
+            //获取焦点刷新验证码
+            // this.isActive = 3
+            if (this.hasRefreshChode) {
+                return
+            }
+            this.getImageCode()
+            this.hasRefreshChode = true
+        },
+        getImageCode () {
+            this.imageCode = `/api/v2/user/captcha.jpg?d=${new Date().getTime()}`;
         },
         handleSubmit (name) {
             let vm = this;

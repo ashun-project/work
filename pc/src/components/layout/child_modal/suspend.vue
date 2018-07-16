@@ -1,5 +1,5 @@
 <template>
-    <div class="suspend" v-show="showSuspend">
+    <div class="suspend" :style="{'opacity':show?1:0}" v-show="showSuspend">
         <div class="suspend-head i-icon i-suspend-head">
             <i class="i-icon i-logo"></i>
         </div>
@@ -13,15 +13,17 @@
             </span>
         </p>
         <div class="rq">
-            <img :src="qrcode.img" alt="">
-            <i><img :src="'/static/images/'+qrcode.icon + '.png'" alt=""></i>
+            <img :src="qrcode.img" alt="" :onload="imgLoadf()">
+            <i><img :src="'/static/images/'+qrcode.icon + '.png'" :onload="imgLoads()"></i>
         </div>
         <div>
-            <!-- <router-link :to="url[0]" v-if="url[0].indexOf('http') === -1 || url[0].indexOf('tencent') === -1" class="service i-icon i-suspend-bt">
-                <span><i class="i-icon" :class="icon.icon2"></i></span>
+            <!-- <a :href="(url[0]==0)?'javascript:;':url[0]" class="service i-icon i-suspend-bt" :target="url[0].slice(0, 2) === '#/' ? '' : '_blank'">
+                <span>
+                    <i class="i-icon" :class="icon.icon2"></i>
+                </span>
                 <span>&nbsp;{{txt.txt2}}</span>
-            </router-link> -->
-            <a :href="(url[0]==0)?'javascript:;':url[0]" class="service i-icon i-suspend-bt" :target="url[0].slice(0, 2) === '#/' ? '' : '_blank'">
+            </a> -->
+            <a class="service i-icon i-suspend-bt" @click.prevent="freePlay">
                 <span>
                     <i class="i-icon" :class="icon.icon2"></i>
                 </span>
@@ -29,10 +31,6 @@
             </a>
         </div>
         <div>
-            <!-- <router-link :to="url[1]" v-if="url[1].indexOf('http') === -1 || url[1].indexOf('tencent') === -1" class="service i-icon last i-suspend-bt">
-                <span><i class="i-icon" :class="icon.icon3"></i></span>
-                <span>&nbsp;{{txt.txt3}}</span>
-            </router-link> -->
             <a :href="url[1]" class="service i-icon last i-suspend-bt" :target="url[1].slice(0, 2) === '#/' ? '' : '_blank'">
                 <span>
                     <i class="i-icon" :class="icon.icon3"></i>
@@ -44,11 +42,19 @@
         <div class="close" @click="close()">
             <Icon type="android-close"></Icon>
         </div>
+        <!-- 试玩弹框结束 -->
+        <confirm-free :modalShow='confirmDialog' title="温馨提示" @btn-ok="handConfirm" :maskClosable="true" @btn-cancel="confirmDialog=false;">
+            <div slot="content">
+                <p class="confirm-free-modal-p">当前使用的是正式账号，确定要切换到试玩模式吗</p>
+            </div>
+        </confirm-free>
     </div>
 </template>
 
 <script>
+import ConfirmFree from '@/components/common/module_vue/modal'
 export default {
+    components: { ConfirmFree },
     props: {
         txt: {
             type: Object,
@@ -68,19 +74,92 @@ export default {
     },
     data () {
         return {
+            confirmDialog: false,
             showSuspend: true,
+            show: false,
+            img: [false, false]
         };
     },
+    watch: {
+        url () {
+
+        }
+    },
     methods: {
+        freePlay () {
+            if (this.url[0].slice(0, 2) !== '#/') {
+                window.open(this.url[0], '_blank');
+                return
+            }
+            //打开免费试玩窗口
+            let userInfo = localStorage.getItem('user')
+            if (!!userInfo) {
+                userInfo = JSON.parse(userInfo)
+                if (userInfo.userType == '09') {
+                    this.$Message.info('正在使用试玩账号')
+                } else {
+                    this.confirmDialog = true
+                }
+            } else {
+                if (this.url[0].slice(0, 2) === '#/') {
+                    this.$router.push({ 'name': 'free_trial' });
+                    return
+                }
+                let routeData = this.$router.resolve({ 'name': 'free_trial' });
+                window.open(routeData.href, '_blank');
+            }
+        },
+        handConfirm () {
+            this.confirmDialog = false;
+            this.signOut();
+            if (this.url[0].slice(0, 2) === '#/') {
+                this.$router.push({ 'name': 'free_trial' });
+                return
+            }
+            let routeData = this.$router.resolve({ 'name': 'free_trial' });
+            window.open(routeData.href, '_blank');
+        },
         close () {
             this.showSuspend = false;
-        }
+        },
+        imgLoadf () {
+            this.img[0] = true
+            this.imgLoad()
+        },
+        imgLoads () {
+            this.img[1] = true
+            this.imgLoad()
+        },
+        imgLoad () {
+            if (this.img[0] && this.img[1]) {
+                setTimeout(() => {
+                    this.show = true
+                }, 500)
+            } else {
+                this.show = false
+            }
+        },
+        signOut () {
+            let vm = this
+            this.$http
+                .post('/api/v2/user/loginOut', '', { userId: true })
+                .then(response => {
+                    if (response.data.code !== 0) return
+                    vm.$store.commit('getUser', '')
+                    localStorage.setItem('user', '')
+                    if (this.$route.name === 'personalCenter')
+                        this.$router.push('/')
+                })
+        },
     }
+
 };
 </script>
 
 <style lang="less" >
 .suspend {
+    opacity: 0;
+    transition: 1.2s;
     width: 135px;
     height: 309px;
     color: #fff;

@@ -60,7 +60,7 @@ export default {
                     className: "num",
                     render: (h, params) => {
                         if (!params.row.lotteryNumber) {
-                            return (h('span'), '正在开奖中');
+                            return (h('span'), '正在开奖...');
                         }
                         let str = params.row.lotteryNumber.replace(/\+/g, ",");
                         let listArray = str.split(",");
@@ -369,7 +369,7 @@ export default {
     created () {
         let vm = this;
         this.$http
-            .post("/api/v2/lottery/queryLotteryListGroupByType")
+            .post("/api/v2/lottery/queryLotteryListGroupByType", '', { unenc: true })
             .then(response => {
                 if (response.data.code !== 0) return;
                 vm.broadList = response.data.data.lotteryTypeList;
@@ -377,7 +377,7 @@ export default {
         this.$http
             .post("/api/v2/lottery/queryLotteryPrizeListByType", {
                 lotteryType: ""
-            })
+            }, { unenc: true })
             .then(response => {
                 if (response.data.code !== 0) return;
                 vm.resultList = response.data.data.lotteryPrizeList;

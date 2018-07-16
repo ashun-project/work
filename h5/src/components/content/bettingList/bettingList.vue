@@ -1,73 +1,81 @@
 <template>
     <div class="betting-list" ref="viewBox" @click="showPopup = false">
-        <my-header title="投注明细" bkUrl="/personalCenter">
-            <!-- <span slot="h-left">
+        <div v-show="showPage">
+            <my-header title="投注明细" :bkUrl="goBk">
+                <!-- <span slot="h-left">
               <i @click="$router.go(-1)" class="iconfont icon-arrowLeft"></i>
            </span> -->
-            <div slot="h-right" @click.stop="showPopup = !showPopup">
-                {{lotteryName}}
-                <i class="iconfont icon-arrowDown"></i>
-            </div>
-        </my-header>
-        <div class="popup" z :class="{'show-popup': showPopup}">
-            <div class="cont" @click.stop="showPopup = true">
-                <ul>
-                    <li v-for="(item, idx) in allLottery" :key="idx" :class="{active: item.lotteryId === lotteryId}" @click.stop="changeParent(item)">
-                        <!-- @click.stop=""  -->
-                        {{item.lotteryName}}
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <div v-refresh="downRefresh" scrollDom="#myScroll">
-            <p class="ui-split"></p>
-            <div class="agent-search" v-if="agentRouter">
-                <input v-model="agentCode" placeholder="输入下级代理用户名" @input="userCodeChange" type="text" class="ui-input">
-                <span class="search" @click="agentSearch">
-                    <i class="iconfont icon-search"></i> 搜索
-                </span>
-            </div>
-            <div class="ui-search-from-to">
-                <input id="start-time" class="ui-input" v-model="gtTime" type="text" name="" readonly @click="selectDate(0)" placeholder="开始时间">
-                <span>至</span>
-                <input id="end-time" class="ui-input" v-model="ltTime" type="text" name="" readonly @click="selectDate(1)" placeholder="结束时间">
-                <a @click="refresh">
-                    <strong>
-                        <i class="iconfont icon-shuaxin"></i>&nbsp;</strong>重选</a>
-            </div>
-            <div class="tab">
-                <ul>
-                    <li v-for="(item, idx) in tabList" :key="idx" @click="changeTab(item, idx)" :class="{active: idx === current}">
-                        <span>{{item.name}}</span>
-                    </li>
-                </ul>
-            </div>
-            <my-scroll ref="myScroll" :fetchData="getRecordList" id="myScroll">
-                <div class="list" v-for="(item, idx) in tabList" :key="idx" v-show="idx === current" :class="{flexList: showPopup}">
+                <div slot="h-right" @click.stop="showPopup = !showPopup">
+                    {{lotteryName}}
+                    <i class="iconfont icon-arrowDown"></i>
+                </div>
+            </my-header>
+            <div class="popup" z :class="{'show-popup': showPopup}">
+                <div class="cont" @click.stop="showPopup = true">
                     <ul>
-                        <li v-for="(item,index) in item.list" :key="index" @click="clickItem(item.userBettingRecordId)">
-                            <div class="info">
-                                <span class="title lf" v-if="agentRouter">{{item.userCode}}</span>
-                                <span class="title lf" v-else>{{item.lotteryName}}</span>
-                                <span class="period lf">第{{item.periodNo}}期</span>
-                                <span class="money lf">{{item.buyMoney.toFixed(2)}}元</span>
-                            </div>
-                            <div class="info-bottom">
-                                <span class="">{{item.playName}}</span>
-                                <span class="rf zj" v-if="item.status==='02'">
-                                    <i class="iconfont icon-jiangbei2"></i>{{item.statusDesc}}{{item.prize}}元</span>
-                                <span class="rf" v-else>
-                                    {{item.statusDesc}}
-                                </span>
-                            </div>
+                        <li v-for="(item, idx) in allLottery" :key="idx" :class="{active: item.lotteryId === lotteryId}" @click.stop="changeParent(item)">
+                            <!-- @click.stop=""  -->
+                            {{item.lotteryName}}
                         </li>
                     </ul>
                 </div>
-            </my-scroll>
+            </div>
+
+            <div v-refresh="downRefresh" scrollDom="#myScroll">
+                <p class="ui-split"></p>
+                <div class="agent-search" v-if="agentRouter">
+                    <input v-model="agentCode" placeholder="输入下级代理用户名" @input="userCodeChange" type="text" class="ui-input">
+                    <span class="search" @click="agentSearch">
+                        <i class="iconfont icon-search"></i> 搜索
+                    </span>
+                </div>
+                <div class="ui-search-from-to">
+                    <input id="start-time" class="ui-input" v-model="gtTime" type="text" name="" readonly @click="selectDate(0)" placeholder="开始时间">
+                    <span>至</span>
+                    <input id="end-time" class="ui-input" v-model="ltTime" type="text" name="" readonly @click="selectDate(1)" placeholder="结束时间">
+                    <!-- <a @click="refresh">
+                    <strong>
+                        <i class="iconfont icon-shuaxin"></i>&nbsp;</strong>重选</a> -->
+                    <history-select @get-history-select="getHistorySelect" v-if="agentRouter"></history-select>
+                    <a @click="refresh" v-else>
+                        <strong>
+                            <i class="iconfont icon-shuaxin"></i>&nbsp;</strong>重选</a>
+                </div>
+                <div class="tab">
+                    <ul>
+                        <li v-for="(item, idx) in tabList" :key="idx" @click="changeTab(item, idx)" :class="{active: idx === current}">
+                            <span>{{item.name}}</span>
+                        </li>
+                    </ul>
+                </div>
+                <my-scroll ref="myScroll" :fetchData="getRecordList" id="myScroll">
+                    <div class="list" v-for="(item, idx) in tabList" :key="idx" v-show="idx === current" :class="{flexList: showPopup}">
+                        <ul>
+                            <li v-for="(item,index) in item.list" :key="index" @click="clickItem(item.userBettingRecordId)">
+                                <div class="info">
+                                    <span class="title lf" v-if="agentRouter">{{item.userCode}}</span>
+                                    <span class="title lf" v-else>{{item.lotteryName}}</span>
+                                    <span class="period lf">第{{item.periodNo}}期</span>
+                                    <span class="money lf">{{item.buyMoney.toFixed(2)}}元</span>
+                                </div>
+                                <div class="info-bottom">
+                                    <span class="">{{item.playName}}</span>
+                                    <span class="rf zj" v-if="item.status==='02'">
+                                        <i class="iconfont icon-jiangbei2"></i>{{item.statusDesc}}{{item.prize}}元</span>
+                                    <span class="rf" v-else>
+                                        {{item.statusDesc}}
+                                    </span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </my-scroll>
+            </div>
+            <mt-datetime-picker type="date" ref="picker" v-model="pickerCurrentTime" @confirm="handleConfirm" :startDate="new Date('2017/01/01')" :endDate="new Date()" year-format="{value} 年" month-format="{value} 月" date-format="{value} 日">
+            </mt-datetime-picker>
         </div>
-        <mt-datetime-picker type="date" ref="picker" v-model="pickerCurrentTime" @confirm="handleConfirm" :startDate="new Date('2017/01/01')" :endDate="new Date()" year-format="{value} 年" month-format="{value} 月" date-format="{value} 日">
-        </mt-datetime-picker>
+
+        <router-view></router-view>
     </div>
 </template>
 
@@ -88,13 +96,15 @@ export default {
             lotteryId: '',
             agentRouter: false, // 下级投注记录
             agentCode: '',
+            showPage: true,
             tabList: [
                 { name: '全部', status: '', current: 1, size: 10, list: [] },
                 { name: '已中奖', status: '02', current: 1, size: 10, list: [] },
                 { name: '未开奖', status: '00', current: 1, size: 10, list: [] },
                 { name: '已撤单', status: '05', current: 1, size: 10, list: [] }
             ],
-            lotteryName: '全部彩种'
+            lotteryName: '全部彩种',
+            goBk: "/personalCenter"
 
         }
     },
@@ -107,11 +117,19 @@ export default {
         }
     },
     watch: {
-        '$route' (n) {
-            // this.getRecordList(true);
+        '$route' (n, o) {
+            this.showPageFn();
         }
+
     },
     methods: {
+        showPageFn () {
+            if (this.$route.path.indexOf('/bettingList') > -1) {
+                this.showPage = true
+            } else {
+                this.showPage = false
+            }
+        },
         changeTab (item, idx) {
             let vm = this;
             this.current = idx;
@@ -192,6 +210,12 @@ export default {
                 this.getRecordList(true);
             }
         },
+        getHistorySelect (obj) {
+            this.ltTime = obj.endTime;
+            this.gtTime = obj.startTime;
+            this.clearkList();
+            this.getRecordList(true);
+        },
         getRecordList (isRefresh) {
             let vm = this, url = '/api/v2/betting/queryBettingInfoList', currentTab = vm.tabList[vm.current];
             if (isRefresh) {
@@ -210,7 +234,7 @@ export default {
             }
             vm.$refs.myScroll.onBottomLoding();
 
-            vm.$http.post(this.queryUrl, param, { userId: true }).then(response => {
+            vm.$http.post(this.queryUrl, param, { userId: true, noEncrypt: true }).then(response => {
                 if (response.data.code !== 0) {
                     this.$refs.myScroll.onBottomLoaded(0);
                     return
@@ -229,25 +253,39 @@ export default {
         }
     },
     activated () {
-        let agentRouter2 = this.$route.query.type === 'agent' ? true : false;
-        this.queryUrl = agentRouter2 ? '/api/v2/agent/queryAgentBettingList' : '/api/v2/betting/queryBettingInfoList';
-        if (this.agentRouter != agentRouter2) {
+        // let agentRouter2 = this.$route.query.type === 'agent' ? true : false;
+        // this.queryUrl = agentRouter2 ? '/api/v2/agent/queryAgentBettingList' : '/api/v2/betting/queryBettingInfoList';
 
-            this.clearkList();
-            this.$refs.myScroll.resetScrollHeight()
-            this.getRecordList(true);
-        }
-        this.agentRouter = agentRouter2;
+        // if (this.agentRouter != agentRouter2) {
+        //     this.$refs.myScroll.resetScrollHeight()
+        //     if (agentRouter2) {
+        //         this.ltTime = dateUtil.getFormatDate(new Date());
+        //         this.gtTime = dateUtil.getFormatDate(new Date());
+        //     } else {
+        //         this.ltTime = "";
+        //         this.gtTime = "";
+        //     }
+        //     this.lotteryId = '';
+        //     this.agentCode = '';
+        //     this.lotteryName = "全部彩种";
+        //     this.clearkList();
+        //     this.getRecordList();
+        // }
+
+        // this.agentRouter = agentRouter2;
+        // this.goBk = this.agentRouter ? "/agencyCenter" : "/personalCenter";
     },
     mounted () {
         // this.getRecordList();
     },
     created () {
-
-        this.$http.post('/api/v2/lottery/queryLotteryList', { lotteryType: null }).then(response => {
+        this.agentRouter = this.$route.query.type === 'agent' ? true : false;
+        this.queryUrl = this.agentRouter ? '/api/v2/agent/queryAgentBettingList' : '/api/v2/betting/queryBettingInfoList';
+        this.goBk = this.agentRouter ? "/agencyCenter" : "/personalCenter";
+        this.$http.post('/api/v2/lottery/queryLotteryList', { lotteryType: null }, { noEncrypt: true }).then(response => {
             this.allLottery = response.data.data.lotteryTypeList.filter(item => item.lotteryType === '-2')[0].lotteryList;
         });
-
+        this.showPageFn();
     }
 }   
 </script>

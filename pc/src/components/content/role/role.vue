@@ -69,7 +69,7 @@ export default {
             }
         },
         getData () {
-            this.$http.post('/api/v2/lottery/lotteryPlayRulesForPC').then(response => {
+            this.$http.post('/api/v2/lottery/lotteryPlayRulesForPC', '', { unenc: true }).then(response => {
                 if (response.data.code !== 0) return
                 this.lotteryTypeList = response.data.data.lotteryTypeList;
                 this.searchPlay();
@@ -150,12 +150,21 @@ export default {
 .personal-center .nav .inner-wrap li {
     height: 30px;
     line-height: 30px;
+    padding-left: 15px;
     cursor: pointer;
+    transition: padding-left 0.1s linear;
+    -webkit-transition: padding-left 0.1s linear;
+    -moz-transition: padding-left 0.1s linear;
+    -ms-transition: padding-left 0.1s linear;
+    -o-transition: padding-left 0.1s linear;
+}
+.personal-center .nav .inner-wrap li:hover {
+    padding-left: 25px;
 }
 .personal-center .nav .inner-wrap li img {
     width: 22px;
     height: 22px;
-    margin: 4px 14px 0 15px;
+    margin: 4px 14px 0 0;
 }
 .personal-center .nav .inner-wrap li.isActive {
     color: @common-active-color;

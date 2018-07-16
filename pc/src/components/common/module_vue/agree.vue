@@ -1,5 +1,5 @@
 <template>
-    <modal :modalShow="modal1" title="开户协议" @btn-cancel="$emit('back')" :hasFooter='true' :hasOkBtn='false' noText="返回" claName="agree-wrap">
+    <modal :modalShow="modal1" title="开户协议" @btn-cancel="$emit('back')" width="1100" :hasFooter='true' :hasOkBtn='false' noText="返回" claName="agree-wrap">
         <div slot="content">
             <p class='title'>一. 服务协议的接纳</p>
             <p class='content'>合法购彩年龄的用户在注册过程中勾选"同意"《{{$configText.main}}开户协议》即表示用户完全接受本协议项下的全部条款。在任何情况下，用户使用{{$configText.main}}彩票的任何服务，即视为用户完全同意并接受本服务协议，受到本服务协议的指引和约束。</p>
@@ -53,7 +53,7 @@ export default {
         }
         .server {
             &:extend(.v-transfer-dom .agree-wrap .title);
-            margin-top: 10px;
+            margin-top: 8px;
         }
         .case {
             text-indent: 20px;

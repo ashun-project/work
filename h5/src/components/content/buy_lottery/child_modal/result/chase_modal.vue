@@ -227,7 +227,7 @@ export default {
             let vm = this;
             let num = parseInt(this.basic.periodNum);
             if (!num) num = 1;
-            this.$http.post('/api/v2/lottery/queryLotteryRecordList', { lotteryId: this.$route.params.id, num: num }).then(response => {
+            this.$http.post('/api/v2/lottery/queryLotteryRecordList', { lotteryId: this.$route.params.id, num: num }, { noEncrypt: true }).then(response => {
                 if (response.data.code !== 0) return;
                 vm.periodList = response.data.data.recordList;
                 if (vm.periodList.length < num) {

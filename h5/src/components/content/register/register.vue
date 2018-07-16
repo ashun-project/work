@@ -19,6 +19,7 @@
                 <li v-if="otherData.realName.show"><input v-model="regInfo.realName" :placeholder="otherData.realName.need? '请输入真实姓名（必填）' : '请输入真实姓名（选填）'" type="text" /> </li>
                 <li v-if="otherData.idCard.show"><input v-model="regInfo.idCard" :placeholder="otherData.idCard.need? '请输入身份证号码（必填）' : '请输入身份证号码（选填）'" type="text" /> </li>
                 <li v-if="otherData.phone.show"><input v-model="regInfo.phone" :placeholder="otherData.phone.need? '请输入手机号码（必填）' : '请输入手机号码（选填）'" type="text" /> </li>
+                <li v-if="otherData.wechat.show"><input v-model="regInfo.wechat" :placeholder="otherData.wechat.need? '请输入微信号码（必填）' : '请输入微信号码（选填）'" type="text" /> </li>
                 <li v-if="otherData.email.show"><input v-model="regInfo.email" :placeholder="otherData.email.need? '请输入邮箱（必填）' : '请输入邮箱（选填）'" type="text" /> </li>
                 <li v-if="otherData.qq.show"><input v-model="regInfo.qq" :placeholder="otherData.qq.need? '请输入QQ号码（必填）' : '请输入QQ号码（选填）'" type="text" /> </li>
                 <!-- 新增结束 -->
@@ -63,7 +64,8 @@ export default {
                 idCard: '',
                 phone: '',
                 email: '',
-                qq: ''
+                qq: '',
+                wechat: '',
             },
             password2: '',
             password: "",
@@ -76,7 +78,8 @@ export default {
                 idCard: '',
                 phone: '',
                 email: '',
-                qq: ''
+                qq: '',
+                wechat: '',
             }
         }
     },
@@ -142,10 +145,12 @@ export default {
                 idCard: '请填写身份证号码',
                 phone: '请填写手机号码',
                 email: '请填写邮箱',
-                qq: '请填写QQ号码'
+                qq: '请填写QQ号码',
+                wechat: '请填写微信号码',
             }
             for (let key in obj) {
                 if (!vm.regInfo[key]) {
+
                     if (obj[key]['show'] && obj[key]['need']) {
                         vm.$Message(tipTxt[key]);
                         result = false;
@@ -167,6 +172,7 @@ export default {
                                 result = false;
                             }
                             break;
+
                         case 'phone':
                             let regNum = /^1(\d){10}$/;
                             if (!regNum.test(value)) {
@@ -178,6 +184,13 @@ export default {
                             let emailRule = /^[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?$/;
                             if (!emailRule.test(value)) {
                                 vm.$Message('邮箱号码填写有误');
+                                result = false;
+                            }
+                            break;
+                        case 'wechat':
+                            let wechatNum = /^[-_a-zA-Z0-9]{5,20}$/;
+                            if (!wechatNum.test(value)) {
+                                vm.$Message('微信号码填写有误');
                                 result = false;
                             }
                             break;

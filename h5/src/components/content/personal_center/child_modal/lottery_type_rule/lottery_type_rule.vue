@@ -64,7 +64,7 @@ export default {
         },
     },
     created () {
-        this.$http.post('/api/v2/lottery/queryLotteryTypeRuleList').then(response => {
+        this.$http.post('/api/v2/lottery/queryLotteryTypeRuleList', {}, { loading: true, noEncrypt: true }).then(response => {
             if (response.data.code !== 0) return;
             this.lotteryTypeRuleList = response.data.data.lotteryTypeRuleList;
             this.curLotteryTypeRuleId = this.lotteryTypeRuleList[0].lotteryTypeRuleId;

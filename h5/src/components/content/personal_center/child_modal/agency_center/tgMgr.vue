@@ -51,7 +51,7 @@
                     <span class="copy" @click="copyLink(currentItem.expandCode)">复制</span>
                 </li>
                 <li class="item">
-                    <div class="flex-w">代理</div>
+                    <div class="flex-w">类型</div>
                     <span class="flex-1">{{currentItem.typeDesc}}</span>
                 </li>
                 <li class="item">
@@ -117,7 +117,7 @@ export default {
 
         },
         getList (resolve) {
-            this.$http.post('/api/v2/user/queryUserExpandList', { current: this.current, size: 20 }, { userId: true, loading: true }).then(response => {
+            this.$http.post('/api/v2/user/queryUserExpandList', { current: this.current, size: 20 }, { userId: true, loading: true, noEncrypt: true }).then(response => {
                 if (resolve) {
                     resolve()
                 }

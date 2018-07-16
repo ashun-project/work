@@ -63,7 +63,7 @@ export default {
     created () {
         if (this.user.userType !== '09') {
             //不从缓存中取值
-            this.$http.post('/api/v2/user/getUserPayPwd', '', { userId: true }).then(response => {
+            this.$http.post('/api/v2/user/getUserPayPwd', '', { userId: true, noEncrypt: true }).then(response => {
                 if (response.data.code !== 0) return;
                 this.payPwdFlag = response.data.data.payPwdFlag;
             })

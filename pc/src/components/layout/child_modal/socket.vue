@@ -6,59 +6,64 @@
 
 <script>
 var num = 1;
+import { getConfigList } from '@/components/common/module_js/getConfig.js';
 export default {
     data () {
         return {
             token: '',
-            isOtherLogin: false
+            isOtherLogin: false,
+            configList: []
         }
     },
     computed: {
-        configList () {
-            return this.$store.state.configList;
-        },
+        // configList () {
+        //     return this.$store.state.configList;
+        // },
         user () {
             return this.$store.state.user
         }
     },
     watch: {
         user: {
-            handler (newValue, oldValue) {
-                if (newValue.userId) {
+            handler (n, o) {
+                if (n.userCode) {
+                    if (o.userCode && n.userCode === o.userCode) return;
                     this.getToken()
+                } else {
+                    if (RongIMClient && RongIMClient.disconnect) {
+                        RongIMClient.disconnect();
+                    }
                 }
             },
             deep: true
         }
     },
-    mounted () {
-        // console.log(this.configList);
-    },
     methods: {
         getToken () {
+            let vm = this;
             this.$http.post('/api/v2/rongyun/getToken', '', { userId: true }).then(response => {
                 if (response.data.code !== 0) return;
                 this.token = response.data.data.token;
-                // console.log(response.data.data);
-                this.socket();
+                getConfigList().then(res => { //获取全局配置
+                    vm.configList = res;
+                    vm.socket();
+                })
+                // this.socket();
             })
         },
         socket () {
             let vm = this;
             let callback = {
                 onSuccess: function (userId) {
-                    // console.log("Login successfully." + userId);
-                    // vm.$http.post('/api/v2/sysDict/querySystemConfig', {}).then((res) => {
                     let chatRoomId = vm.configList.filter(item => item.key === 'chatRoomId')[0].value;
                     RongIMClient.getInstance().joinChatRoom(chatRoomId, 1, {
                         onSuccess: function () {
-                            console.log("join 1");
+                            console.log("success join");
                         },
                         onError: function (error) {
-                            console.log("join 0");
+                            console.log("fail join");
                         }
                     });
-                    // })
                 },
                 onTokenIncorrect: function () {
                     if (num < 10) {
@@ -134,6 +139,7 @@ export default {
             // 接收消息
             RongIMClient.setOnReceiveMessageListener({
                 onReceived: function (message) {
+                    // console.log(message);
                     let obj = null;
                     obj = message.content;
                     if (message.content.message) {
@@ -144,7 +150,7 @@ export default {
                     // type判断消息类型  01历史开奖，02系统公告，03优惠活动，04中奖注单，06token失效
                     switch (type) {
                         case '01':
-                            if (vm.$route.name === 'notice' || vm.$route.name === 'notice_detail' || vm.$route.name === 'buyLottery') {
+                            if (vm.$route.name === 'notice' || vm.$route.name === 'notice_detail' || vm.$route.name === 'lottery' || vm.$route.name === 'buyLottery') {
                                 vm.$store.commit('getNoticeList', obj.extra);
                             }
                             break;
@@ -182,7 +188,9 @@ export default {
                             })
                             break;
                         case '04':
-                            // console.log('04====',obj);
+                            if (JSON.parse(obj.extra).userId !== vm.user.userId) {
+                                return
+                            }
                             vm.$Notice.open({
                                 title: '注单',
                                 duration: 10,
@@ -210,7 +218,9 @@ export default {
                             localStorage.setItem('user', JSON.stringify(user));
                             break;
                         case '06':
-                            // console.log('06====', cont);
+                            if (vm.$route.name === 'notice' || vm.$route.name === 'notice_detail' || vm.$route.name === 'lottery' || vm.$route.name === 'buyLottery') {
+                                vm.$store.commit('getNoticeList', obj.extra);
+                            }
                             break;
                         default:
                         // 自定义消息
